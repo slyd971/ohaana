@@ -200,47 +200,52 @@ export interface Notification {
   created_at: string
 }
 
+// ─── Supabase requires Row types to extend Record<string, unknown> ──────────
+// TypeScript interfaces lack an index signature, so we intersect here.
+// Application code uses the typed interfaces above; the DB layer uses these.
+type R<T> = T & Record<string, unknown>
+
+type TableDef<T> = {
+  Row: R<T>
+  Insert: Partial<R<T>>
+  Update: Partial<R<T>>
+  Relationships: []
+}
+
+// ─── DB Row shapes (strip runtime-only joined relations) ─────────────────────
+type UserRow = User
+type TouristProfileRow = TouristProfile
+type ProviderProfileRow = Omit<ProviderProfile, 'user'>
+type ServiceCategoryRow = ServiceCategory
+type ServiceRow = Omit<Service, 'provider' | 'category' | 'images'>
+type ServiceImageRow = ServiceImage
+type AvailabilitySlotRow = AvailabilitySlot
+type BookingRow = Omit<Booking, 'service' | 'tourist'>
+type PaymentRow = Payment
+type ReviewRow = Omit<Review, 'tourist'>
+type FavoriteRow = Omit<Favorite, 'service'>
+type NotificationRow = Notification
+
 // Supabase Database type root (used with createClient<Database>)
 export type Database = {
   public: {
     Tables: {
-      users: { Row: User; Insert: Partial<User>; Update: Partial<User> }
-      tourist_profiles: {
-        Row: TouristProfile
-        Insert: Partial<TouristProfile>
-        Update: Partial<TouristProfile>
-      }
-      provider_profiles: {
-        Row: ProviderProfile
-        Insert: Partial<ProviderProfile>
-        Update: Partial<ProviderProfile>
-      }
-      service_categories: {
-        Row: ServiceCategory
-        Insert: Partial<ServiceCategory>
-        Update: Partial<ServiceCategory>
-      }
-      services: { Row: Service; Insert: Partial<Service>; Update: Partial<Service> }
-      service_images: {
-        Row: ServiceImage
-        Insert: Partial<ServiceImage>
-        Update: Partial<ServiceImage>
-      }
-      availability_slots: {
-        Row: AvailabilitySlot
-        Insert: Partial<AvailabilitySlot>
-        Update: Partial<AvailabilitySlot>
-      }
-      bookings: { Row: Booking; Insert: Partial<Booking>; Update: Partial<Booking> }
-      payments: { Row: Payment; Insert: Partial<Payment>; Update: Partial<Payment> }
-      reviews: { Row: Review; Insert: Partial<Review>; Update: Partial<Review> }
-      favorites: { Row: Favorite; Insert: Partial<Favorite>; Update: Partial<Favorite> }
-      notifications: {
-        Row: Notification
-        Insert: Partial<Notification>
-        Update: Partial<Notification>
-      }
+      users: TableDef<UserRow>
+      tourist_profiles: TableDef<TouristProfileRow>
+      provider_profiles: TableDef<ProviderProfileRow>
+      service_categories: TableDef<ServiceCategoryRow>
+      services: TableDef<ServiceRow>
+      service_images: TableDef<ServiceImageRow>
+      availability_slots: TableDef<AvailabilitySlotRow>
+      bookings: TableDef<BookingRow>
+      payments: TableDef<PaymentRow>
+      reviews: TableDef<ReviewRow>
+      favorites: TableDef<FavoriteRow>
+      notifications: TableDef<NotificationRow>
     }
+    Views: Record<string, never>
+    Functions: Record<string, never>
+    CompositeTypes: Record<string, never>
     Enums: {
       user_role: UserRole
       booking_status: BookingStatus

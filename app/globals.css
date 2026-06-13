@@ -1,26 +1,169 @@
+/* ─── Google Fonts — must precede all other rules ───────────── */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Inter:wght@300;400;500;600;700&display=swap');
+
 @import "tailwindcss";
 
+/* ─── Design Tokens ────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Brand palette */
+  --sand: #F5EDD8;
+  --coconut: #FDFAF4;
+  --deep-green: #1A3D2B;
+  --deep-green-light: #2A5C41;
+  --coral: #E8604A;
+  --coral-light: #F07A66;
+  --turquoise: #2ABFB8;
+  --turquoise-light: #45D4CD;
+  --charcoal: #1C1C1E;
+  --charcoal-soft: #3A3A3C;
+  --stone: #8E8E93;
+  --mist: #E8E2D5;
+
+  /* Semantic */
+  --bg-primary: var(--coconut);
+  --bg-secondary: var(--sand);
+  --text-primary: var(--charcoal);
+  --text-secondary: var(--charcoal-soft);
+  --text-muted: var(--stone);
+  --border-subtle: var(--mist);
+  --surface: #FFFFFF;
+
+  /* Shadows */
+  --shadow-card: 0 2px 16px rgba(28, 28, 30, 0.06);
+  --shadow-elevated: 0 8px 32px rgba(28, 28, 30, 0.10);
+  --shadow-modal: 0 20px 60px rgba(28, 28, 30, 0.18);
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+
+  /* Typography */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
 }
 
+/* ─── Tailwind v4 Theme Extension ──────────────────────────── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Colors */
+  --color-sand: var(--sand);
+  --color-coconut: var(--coconut);
+  --color-deep-green: var(--deep-green);
+  --color-deep-green-light: var(--deep-green-light);
+  --color-coral: var(--coral);
+  --color-coral-light: var(--coral-light);
+  --color-turquoise: var(--turquoise);
+  --color-turquoise-light: var(--turquoise-light);
+  --color-charcoal: var(--charcoal);
+  --color-charcoal-soft: var(--charcoal-soft);
+  --color-stone: var(--stone);
+  --color-mist: var(--mist);
+
+  /* Fonts */
+  --font-display: var(--font-display);
+  --font-sans: var(--font-body);
+
+  /* Border radius */
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ─── Base Styles ───────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* ─── Typography ───────────────────────────────────────────── */
+.font-display {
+  font-family: var(--font-display);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+/* ─── Focus Visible (Accessibility) ───────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--deep-green);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--mist);
+  border-radius: var(--radius-full);
+}
+
+/* ─── Horizontal scroll snap (carousel rows) ──────────────── */
+.scroll-snap-x {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.scroll-snap-x > * {
+  scroll-snap-align: start;
+}
+
+/* ─── Shimmer / Skeleton ───────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--mist) 25%,
+    var(--sand) 50%,
+    var(--mist) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+/* ─── Reduced motion ───────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  html { scroll-behavior: auto; }
+}
+
+/* ─── Safe area insets (mobile notch / home bar) ─────────── */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
 }
