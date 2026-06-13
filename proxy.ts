@@ -9,6 +9,8 @@ const protectedRoutes = ['/trips', '/profile', '/bookings', '/onboarding']
 const authRoutes = ['/login', '/register']
 const providerRoutes = ['/provider']
 const adminRoutes = ['/admin']
+const conciergeRoutes = ['/concierge/dashboard']
+const hotelRoutes = ['/hotel']
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -20,10 +22,17 @@ export async function proxy(request: NextRequest) {
   const isAuthRoute = authRoutes.some((r) => pathnameWithoutLocale.startsWith(r))
   const isProvider = providerRoutes.some((r) => pathnameWithoutLocale.startsWith(r))
   const isAdmin = adminRoutes.some((r) => pathnameWithoutLocale.startsWith(r))
+  const isConcierge = conciergeRoutes.some((r) => pathnameWithoutLocale.startsWith(r))
+  const isHotel = hotelRoutes.some((r) => pathnameWithoutLocale.startsWith(r))
 
   let response = intlMiddleware(request)
 
-  if (isProtected || isProvider || isAdmin) {
+  // Demo mode: skip auth checks when Supabase is not configured
+  const supabaseConfigured = !!(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY && !process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder'))
+
+  if (!supabaseConfigured) return response
+
+  if (isProtected || isProvider || isAdmin || isConcierge || isHotel) {
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -69,6 +78,22 @@ export async function proxy(request: NextRequest) {
         .single()
 
       if (!['provider', 'admin'].includes(profile?.role ?? '')) {
+        return NextResponse.redirect(new URL('/', request.url))
+      }
+    }
+
+    if (isConcierge) {
+      const { data: profile } = await supabase
+        .from('users').select('role').eq('id', user.id).single()
+      if (!['concierge', 'admin'].includes(profile?.role ?? '')) {
+        return NextResponse.redirect(new URL('/', request.url))
+      }
+    }
+
+    if (isHotel) {
+      const { data: profile } = await supabase
+        .from('users').select('role').eq('id', user.id).single()
+      if (!['hotel', 'villa', 'admin'].includes(profile?.role ?? '')) {
         return NextResponse.redirect(new URL('/', request.url))
       }
     }

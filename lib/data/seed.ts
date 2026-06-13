@@ -1,4 +1,4 @@
-import type { Service, ProviderProfile, ServiceCategory, ServiceImage } from '@/types/database'
+import type { ServiceCategory } from '@/types/database'
 import {
   UtensilsCrossed, Sparkles, Sailboat, Camera, Waves,
   Landmark, Scissors, Wand2, Heart, Map,
@@ -41,9 +41,9 @@ const IMG = {
   // Culture créole en plein air — marché, fête
   culture:    P('photo-1516450360452-9312f5e86fc7'),
   // Dégustation rhum en extérieur, plantation ensoleillée
-  rhum:       P('photo-1527769929978-f1e79b0e40da'),
+  rhum:       P('photo-1551538827-9c037cb4f32a'),
   // Beauty en lumière naturelle
-  coiffure:   P('photo-1560066984-138daaa4e63f'),
+  coiffure:   P('photo-1562322140-8baeececf3df'),
   maquillage: P('photo-1487412912498-0447578fcca8'),
   // Villa & plage — lumineux, bleu turquoise
   villa:      P('photo-1566073771259-6a8506099945'),
@@ -132,7 +132,7 @@ export const PROVIDERS = [
     island: 'guadeloupe', phone: '+590 690 000 006', whatsapp: '+590690000006',
     stripe_account_id: null, stripe_onboarded: false, is_approved: true,
     avg_rating: 4.8, review_count: 61, created_at: '2024-01-01', updated_at: '2024-01-01',
-    user: { full_name: 'Marie-Rose Ladoucette', avatar_url: 'https://images.unsplash.com/photo-1546961342-ea5f62d5a27b?w=200&h=200&fit=crop' },
+    user: { full_name: 'Marie-Rose Ladoucette', avatar_url: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&h=200&fit=crop' },
   },
   {
     id: 'p-7', user_id: 'u-7',
