@@ -7,15 +7,16 @@ import { OhaanaLogo } from '@/components/layout/OhaanaLogo'
 import { cn } from '@/lib/utils'
 import {
   LayoutDashboard, Briefcase, CalendarDays,
-  CreditCard, Settings, LogOut, Menu,
+  CreditCard, Settings, LogOut, Menu, PlusCircle,
 } from 'lucide-react'
 
 const NAV = [
-  { href: '/provider/dashboard', label: 'Tableau de bord', Icon: LayoutDashboard },
-  { href: '/provider/services',  label: 'Mes services',    Icon: Briefcase },
-  { href: '/provider/reservations', label: 'Réservations', Icon: CalendarDays },
-  { href: '/provider/paiements', label: 'Paiements',       Icon: CreditCard },
-  { href: '/provider/settings',  label: 'Paramètres',      Icon: Settings },
+  { href: '/provider/dashboard',   label: 'Tableau de bord', Icon: LayoutDashboard },
+  { href: '/provider/services',    label: 'Mes services',    Icon: Briefcase },
+  { href: '/provider/reservations',label: 'Réservations',    Icon: CalendarDays },
+  { href: '/provider/paiements',   label: 'Paiements',       Icon: CreditCard },
+  { href: '/provider/onboarding',  label: 'Mon dossier',     Icon: PlusCircle },
+  { href: '/provider/settings',    label: 'Paramètres',      Icon: Settings },
 ]
 
 export default function ProviderLayout({ children }: { children: React.ReactNode }) {

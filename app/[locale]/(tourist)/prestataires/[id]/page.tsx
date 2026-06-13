@@ -36,8 +36,8 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
 
   return (
     <div className="bg-coconut pb-32 md:pb-8">
-      {/* Image gallery hero */}
-      <div className="relative h-72 md:h-96 bg-charcoal">
+      {/* Image gallery hero — tall, provider identity overlaid */}
+      <div className="relative h-[420px] md:h-[540px] bg-charcoal">
         {images.map((img, i) => (
           <motion.div
             key={img.id}
@@ -46,15 +46,15 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
             animate={{ opacity: i === imgIndex ? 1 : 0 }}
             transition={{ duration: 0.4 }}
           >
-            <Image src={img.url} alt={img.alt_fr ?? ''} fill className="object-cover" priority={i === 0} sizes="100vw" />
+            <Image src={img.url} alt={img.alt_fr ?? ''} fill className="object-cover object-center" priority={i === 0} sizes="100vw" />
           </motion.div>
         ))}
 
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
+        {/* Gradient: dark top bar + strong bottom for text */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/30" />
 
         {/* Back */}
-        <Link href="/search" className="absolute top-4 left-4 p-2 rounded-full bg-black/30 backdrop-blur-sm text-coconut hover:bg-black/50 transition-colors">
+        <Link href="/search" className="absolute top-4 left-4 p-2 rounded-full bg-black/35 backdrop-blur-sm text-white hover:bg-black/55 transition-colors z-10">
           <ChevronLeft size={20} />
         </Link>
 
@@ -62,57 +62,63 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
         <button
           type="button"
           onClick={() => setIsFav((v) => !v)}
-          className="absolute top-4 right-4 p-2 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-colors"
+          className="absolute top-4 right-4 p-2 rounded-full bg-black/35 backdrop-blur-sm hover:bg-black/55 transition-colors z-10"
         >
-          <Heart size={20} className={cn(isFav ? 'fill-coral text-coral' : 'text-coconut fill-transparent')} />
+          <Heart size={20} className={cn(isFav ? 'fill-coral text-coral' : 'text-white fill-transparent')} />
         </button>
 
-        {/* Gallery dots + nav */}
+        {/* Gallery side nav */}
         {images.length > 1 && (
           <>
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
-              {images.map((_, i) => (
-                <button key={i} type="button" onClick={() => setImgIndex(i)}
-                  className={cn('w-1.5 h-1.5 rounded-full transition-all', i === imgIndex ? 'bg-coconut w-4' : 'bg-coconut/50')}
-                />
-              ))}
-            </div>
             <button type="button" onClick={() => setImgIndex((i) => Math.max(0, i - 1))}
-              className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/30 text-coconut disabled:opacity-0"
+              className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/30 backdrop-blur-sm text-white disabled:opacity-0 transition-opacity"
               disabled={imgIndex === 0}>
               <ChevronLeft size={18} />
             </button>
             <button type="button" onClick={() => setImgIndex((i) => Math.min(images.length - 1, i + 1))}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/30 text-coconut disabled:opacity-0"
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/30 backdrop-blur-sm text-white disabled:opacity-0 transition-opacity"
               disabled={imgIndex === images.length - 1}>
               <ChevronRight size={18} />
             </button>
           </>
         )}
-      </div>
 
-      <div className="max-w-2xl mx-auto px-4 md:px-0">
-        {/* Provider info */}
-        <div className="flex items-center gap-3 -mt-6 relative z-10 mb-4">
-          <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-coconut shadow-md flex-none">
-            <Image src={provider.user.avatar_url} alt={provider.user.full_name} fill className="object-cover" sizes="56px" />
+        {/* Provider identity — bottom overlay */}
+        <div className="absolute bottom-0 left-0 right-0 px-4 pb-5 flex items-end gap-4">
+          <div className="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-white/80 shadow-lg flex-none">
+            <Image src={provider.user.avatar_url} alt={provider.user.full_name} fill className="object-cover" sizes="64px" />
           </div>
-          <div>
-            <h2 className="font-semibold text-charcoal">{provider.business_name}</h2>
-            <div className="flex items-center gap-2 text-xs text-stone">
-              <Star size={11} className="fill-[#F5A623] text-[#F5A623]" />
-              <span className="font-medium text-charcoal">{formatRating(provider.avg_rating)}</span>
-              <span>({provider.review_count} avis)</span>
+          <div className="flex-1 min-w-0 pb-0.5">
+            <h2 className="text-2xl font-display text-white leading-tight drop-shadow-sm">
+              {provider.business_name}
+            </h2>
+            <div className="flex items-center gap-2 mt-1">
+              <Star size={13} className="fill-[#F5A623] text-[#F5A623] flex-none" />
+              <span className="text-sm font-semibold text-white">{formatRating(provider.avg_rating)}</span>
+              <span className="text-sm text-white/70">({provider.review_count} avis)</span>
+              <span className="text-white/40">·</span>
               {provider.languages.map((l) => (
-                <span key={l} title={l}>{LANG_FLAGS[l] ?? l}</span>
+                <span key={l} className="text-sm">{LANG_FLAGS[l] ?? l}</span>
               ))}
             </div>
           </div>
+          {/* Gallery dots — top-right of provider strip */}
+          {images.length > 1 && (
+            <div className="flex gap-1.5 pb-1 shrink-0">
+              {images.map((_, i) => (
+                <button key={i} type="button" onClick={() => setImgIndex(i)}
+                  className={cn('h-1.5 rounded-full transition-all', i === imgIndex ? 'bg-white w-4' : 'bg-white/40 w-1.5')}
+                />
+              ))}
+            </div>
+          )}
         </div>
+      </div>
 
+      <div className="max-w-2xl mx-auto px-4 md:px-0">
         {/* Title + price */}
-        <div className="space-y-3 mb-5">
-          <h1 className="text-2xl font-display text-charcoal leading-tight">{service.title_fr}</h1>
+        <div className="space-y-3 mb-5 pt-5">
+          <h1 className="text-3xl font-display text-charcoal leading-tight">{service.title_fr}</h1>
 
           <div className="flex flex-wrap gap-2">
             {service.tags.slice(0, 4).map((tag) => (

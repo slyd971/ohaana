@@ -7,11 +7,12 @@ import { OhaanaLogo } from '@/components/layout/OhaanaLogo'
 import { cn } from '@/lib/utils'
 import {
   LayoutDashboard, Users2, Briefcase,
-  CreditCard, ShieldCheck, LogOut, Menu,
+  CreditCard, ShieldCheck, LogOut, Menu, BarChart3,
 } from 'lucide-react'
 
 const NAV = [
   { href: '/admin/dashboard',    label: 'Vue globale',         Icon: LayoutDashboard },
+  { href: '/admin/analytics',    label: 'Analytics',           Icon: BarChart3 },
   { href: '/admin/providers',    label: 'Prestataires',        Icon: Briefcase },
   { href: '/admin/users',        label: 'Utilisateurs',        Icon: Users2 },
   { href: '/admin/transactions', label: 'Transactions',        Icon: CreditCard },
