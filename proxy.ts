@@ -12,10 +12,20 @@ const adminRoutes = ['/admin']
 const conciergeRoutes = ['/concierge/dashboard']
 const hotelRoutes = ['/hotel']
 
+// Demo mode: all routes accessible without auth.
+// Active when NEXT_PUBLIC_DEMO_MODE=true OR Supabase not fully configured.
+function isDemoMode(): boolean {
+  if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') return true
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
+  const hasUrl = url.length > 0 && !url.includes('placeholder')
+  const hasKey = key.length > 0 && !key.includes('placeholder')
+  return !(hasUrl && hasKey)
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Strip locale prefix for route matching
   const pathnameWithoutLocale = pathname.replace(/^\/(fr|en)/, '') || '/'
 
   const isProtected = protectedRoutes.some((r) => pathnameWithoutLocale.startsWith(r))
@@ -27,98 +37,76 @@ export async function proxy(request: NextRequest) {
 
   let response = intlMiddleware(request)
 
-  // Demo mode: skip auth checks when Supabase is not configured
-  const supabaseConfigured = !!(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY && !process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder'))
-
-  if (!supabaseConfigured) return response
+  if (isDemoMode()) return response
 
   if (isProtected || isProvider || isAdmin || isConcierge || isHotel) {
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() { return request.cookies.getAll() },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-            response = NextResponse.next({ request })
-            cookiesToSet.forEach(({ name, value, options }) =>
-              response.cookies.set(name, value, options)
-            )
+    try {
+      const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          cookies: {
+            getAll() { return request.cookies.getAll() },
+            setAll(cookiesToSet) {
+              cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+              response = NextResponse.next({ request })
+              cookiesToSet.forEach(({ name, value, options }) =>
+                response.cookies.set(name, value, options)
+              )
+            },
           },
-        },
+        }
+      )
+
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (!user) {
+        const loginUrl = new URL('/login', request.url)
+        loginUrl.searchParams.set('redirectTo', pathname)
+        return NextResponse.redirect(loginUrl)
       }
-    )
 
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      const loginUrl = new URL('/login', request.url)
-      loginUrl.searchParams.set('redirectTo', pathname)
-      return NextResponse.redirect(loginUrl)
-    }
-
-    if (isAdmin) {
-      const { data: profile } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .single()
-
-      if (profile?.role !== 'admin') {
-        return NextResponse.redirect(new URL('/', request.url))
-      }
-    }
-
-    if (isProvider) {
-      const { data: profile } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .single()
-
-      if (!['provider', 'admin'].includes(profile?.role ?? '')) {
-        return NextResponse.redirect(new URL('/', request.url))
-      }
-    }
-
-    if (isConcierge) {
       const { data: profile } = await supabase
         .from('users').select('role').eq('id', user.id).single()
-      if (!['concierge', 'admin'].includes(profile?.role ?? '')) {
-        return NextResponse.redirect(new URL('/', request.url))
-      }
-    }
+      const role = profile?.role ?? ''
 
-    if (isHotel) {
-      const { data: profile } = await supabase
-        .from('users').select('role').eq('id', user.id).single()
-      if (!['hotel', 'villa', 'admin'].includes(profile?.role ?? '')) {
+      if (isAdmin && role !== 'admin')
         return NextResponse.redirect(new URL('/', request.url))
-      }
+      if (isProvider && !['provider', 'admin'].includes(role))
+        return NextResponse.redirect(new URL('/', request.url))
+      if (isConcierge && !['concierge', 'admin'].includes(role))
+        return NextResponse.redirect(new URL('/', request.url))
+      if (isHotel && !['hotel', 'villa', 'admin'].includes(role))
+        return NextResponse.redirect(new URL('/', request.url))
+
+    } catch {
+      // Supabase unreachable → fail open for demo resilience
+      return response
     }
   }
 
   if (isAuthRoute) {
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() { return request.cookies.getAll() },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-            response = NextResponse.next({ request })
-            cookiesToSet.forEach(({ name, value, options }) =>
-              response.cookies.set(name, value, options)
-            )
+    try {
+      const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          cookies: {
+            getAll() { return request.cookies.getAll() },
+            setAll(cookiesToSet) {
+              cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+              response = NextResponse.next({ request })
+              cookiesToSet.forEach(({ name, value, options }) =>
+                response.cookies.set(name, value, options)
+              )
+            },
           },
-        },
-      }
-    )
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      return NextResponse.redirect(new URL('/', request.url))
+        }
+      )
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) return NextResponse.redirect(new URL('/', request.url))
+    } catch {
+      // ignore — show the auth page anyway
     }
   }
 
