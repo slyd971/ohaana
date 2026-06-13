@@ -19,7 +19,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  async function handleEmailLogin(e: React.FormEvent) {
+  async function handleEmailLogin(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
     setLoading(true)
     setError(null)
@@ -70,7 +70,7 @@ export default function LoginPage() {
 
       <div className="flex items-center gap-3 text-stone text-sm">
         <div className="flex-1 h-px bg-mist" />
-        {t('or' in t ? 'or' : 'ou')}
+        ou
         <div className="flex-1 h-px bg-mist" />
       </div>
 

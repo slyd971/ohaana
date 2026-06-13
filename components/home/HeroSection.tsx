@@ -7,8 +7,8 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/lib/i18n/navigation'
 import { Search, MessageCircle, Star } from 'lucide-react'
 
-// Dîner en plein air, convivial, lumière chaude — on voit de l'humain
-const HERO_IMG = 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=1600&h=900&fit=crop&q=90&bri=5&sat=10'
+// Villa caribéenne avec piscine à débordement, eaux turquoise
+const HERO_IMG = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1600&h=900&fit=crop&q=90'
 
 export function HeroSection() {
   const t = useTranslations('home')

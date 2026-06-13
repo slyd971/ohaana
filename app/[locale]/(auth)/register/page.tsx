@@ -38,7 +38,7 @@ export default function RegisterPage() {
     })
   }
 
-  async function handleRegister(e: React.FormEvent) {
+  async function handleRegister(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
     setLoading(true)
     setError(null)

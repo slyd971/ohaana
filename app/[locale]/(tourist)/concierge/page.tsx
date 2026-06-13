@@ -24,7 +24,7 @@ export default function ConciergePage() {
   const [message, setMessage] = useState('')
   const [sent, setSent] = useState(false)
 
-  function handleSend(e: React.FormEvent) {
+  function handleSend(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
     if (!message.trim()) return
     // In production: send to backend / notify concierge team
