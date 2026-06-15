@@ -13,14 +13,17 @@ const conciergeRoutes = ['/concierge/dashboard']
 const hotelRoutes = ['/hotel']
 
 // Demo mode: all routes accessible without auth.
-// Active when NEXT_PUBLIC_DEMO_MODE=true OR Supabase not fully configured.
+// Active by default for investor/demo deployments. Set NEXT_PUBLIC_DEMO_MODE=false
+// to enforce Supabase auth when production credentials are ready.
 function isDemoMode(): boolean {
+  if (process.env.NEXT_PUBLIC_DEMO_MODE === 'false') return false
   if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') return true
+
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
   const hasUrl = url.length > 0 && !url.includes('placeholder')
   const hasKey = key.length > 0 && !key.includes('placeholder')
-  return !(hasUrl && hasKey)
+  return process.env.NODE_ENV === 'production' || !(hasUrl && hasKey)
 }
 
 export async function proxy(request: NextRequest) {

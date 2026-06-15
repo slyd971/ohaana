@@ -12,12 +12,26 @@ import { Mail, Lock } from 'lucide-react'
 export default function LoginPage() {
   const t = useTranslations('auth')
   const router = useRouter()
-  const supabase = createClient()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  function canUseSupabase() {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
+
+    return Boolean(url && key && !url.includes('placeholder') && !key.includes('placeholder'))
+  }
+
+  function createAuthClient() {
+    if (!canUseSupabase()) {
+      throw new Error('Mode démo actif : authentification désactivée.')
+    }
+
+    return createClient()
+  }
 
   function getRedirectTo() {
     if (typeof window === 'undefined') return '/'
@@ -33,10 +47,18 @@ export default function LoginPage() {
     setLoading(true)
     setError(null)
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    let authError: Error | null = null
 
-    if (error) {
-      setError(error.message)
+    try {
+      const supabase = createAuthClient()
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      authError = error
+    } catch (error) {
+      authError = error instanceof Error ? error : new Error('Connexion indisponible.')
+    }
+
+    if (authError) {
+      setError(authError.message)
       setLoading(false)
       return
     }
@@ -47,14 +69,24 @@ export default function LoginPage() {
 
   async function handleGoogleLogin() {
     setLoading(true)
+    setError(null)
+
     const next = getRedirectTo()
     const callbackUrl = new URL('/api/auth/callback', location.origin)
     callbackUrl.searchParams.set('next', next)
 
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: callbackUrl.toString() },
-    })
+    try {
+      const supabase = createAuthClient()
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: callbackUrl.toString() },
+      })
+
+      if (error) throw error
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Connexion Google indisponible.')
+      setLoading(false)
+    }
   }
 
   return (
