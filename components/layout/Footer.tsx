@@ -1,31 +1,38 @@
-import { useTranslations } from 'next-intl'
 import { Link } from '@/lib/i18n/navigation'
 
 export function Footer() {
-  const t = useTranslations('common')
-
   return (
-    <footer className="hidden md:block bg-deep-green text-coconut/80 mt-auto">
-      <div className="max-w-7xl mx-auto px-6 py-12">
+    <footer className="bg-deep-green text-coconut/80">
+      <div className="max-w-7xl mx-auto px-6 py-10 md:py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <p className="text-2xl font-display text-coconut mb-3">Ohaana</p>
-            <p className="text-sm leading-relaxed">
-              Expériences caribéennes uniques, curatées avec soin.
+            <p className="text-2xl font-display text-coconut mb-2">Ohaana</p>
+            <p className="text-xs leading-relaxed mb-4">
+              Expériences caribéennes authentiques,<br />
+              curatées avec soin par des locaux.
             </p>
+            <span className="inline-flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded-full border border-coconut/20 text-coconut/40">
+              <span className="w-1.5 h-1.5 rounded-full bg-coral/60" />
+              Prototype · données de démonstration
+            </span>
           </div>
 
           {/* Explorer */}
           <div>
-            <h3 className="text-coconut text-sm font-semibold mb-4 uppercase tracking-widest">
+            <h3 className="text-coconut text-xs font-semibold mb-4 uppercase tracking-widest">
               Explorer
             </h3>
             <ul className="space-y-2 text-sm">
-              {['Chefs privés', 'Bien-être', 'Aventures', 'Culture'].map((item) => (
-                <li key={item}>
-                  <Link href="/search" className="hover:text-coconut transition-colors">
-                    {item}
+              {[
+                { label: 'Chefs privés',    href: '/search?cat=chef_prive' },
+                { label: 'Bien-être',       href: '/search?cat=massage' },
+                { label: 'DJ & soirées',    href: '/search?cat=musique' },
+                { label: 'Culture créole',  href: '/search?mood=culture' },
+              ].map(({ label, href }) => (
+                <li key={label}>
+                  <Link href={href} className="hover:text-coconut transition-colors text-xs">
+                    {label}
                   </Link>
                 </li>
               ))}
@@ -34,13 +41,19 @@ export function Footer() {
 
           {/* Îles */}
           <div>
-            <h3 className="text-coconut text-sm font-semibold mb-4 uppercase tracking-widest">
+            <h3 className="text-coconut text-xs font-semibold mb-4 uppercase tracking-widest">
               Îles
             </h3>
-            <ul className="space-y-2 text-sm">
-              {['Guadeloupe', 'Martinique', 'Saint-Martin', 'Saint-Barth'].map((island) => (
-                <li key={island}>
-                  <span className="cursor-default">{island}</span>
+            <ul className="space-y-2 text-xs">
+              {[
+                { label: 'Guadeloupe',  active: true },
+                { label: 'Martinique',  active: false },
+                { label: 'Saint-Martin',active: false },
+                { label: 'Saint-Barth', active: false },
+              ].map(({ label, active }) => (
+                <li key={label} className="flex items-center gap-1.5">
+                  <span className={active ? 'text-coconut/80' : 'text-coconut/40'}>{label}</span>
+                  {!active && <span className="text-[9px] text-coconut/30">bientôt</span>}
                 </li>
               ))}
             </ul>
@@ -48,15 +61,15 @@ export function Footer() {
 
           {/* Ohaana */}
           <div>
-            <h3 className="text-coconut text-sm font-semibold mb-4 uppercase tracking-widest">
+            <h3 className="text-coconut text-xs font-semibold mb-4 uppercase tracking-widest">
               Ohaana
             </h3>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-2 text-xs">
               {[
                 { label: 'Devenir prestataire', href: '/register?role=provider' },
-                { label: 'Partenaires hôtels', href: '/register?role=hotel' },
-                { label: 'Concierge', href: '/concierge' },
-                { label: 'À propos', href: '/about' },
+                { label: 'Partenaires hôtels',  href: '/register?role=hotel' },
+                { label: 'Concierge',           href: '/concierge' },
+                { label: 'À propos',            href: '/about' },
               ].map(({ label, href }) => (
                 <li key={label}>
                   <Link href={href} className="hover:text-coconut transition-colors">
@@ -68,8 +81,8 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-coconut/10 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-coconut/50">
-          <p>© {new Date().getFullYear()} Ohaana. Tous droits réservés.</p>
+        <div className="mt-8 pt-6 border-t border-coconut/10 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-coconut/40">
+          <p>© {new Date().getFullYear()} Ohaana. Prototype — expériences de démonstration.</p>
           <div className="flex gap-4">
             <Link href="/privacy" className="hover:text-coconut transition-colors">Confidentialité</Link>
             <Link href="/terms" className="hover:text-coconut transition-colors">CGU</Link>

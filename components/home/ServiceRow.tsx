@@ -59,13 +59,13 @@ export function ServiceRow({
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.07, duration: 0.4 }}
-            className="min-w-0"
+            className="flex-none md:min-w-0"
           >
             <ServiceCard
               service={service}
               isFavorite={favorites.has(service.id)}
               onToggleFavorite={onToggleFavorite}
-              className="w-full"
+              className="md:w-full"
             />
           </motion.div>
         ))}

@@ -11,10 +11,10 @@ const MONTHLY = [
 
 const BY_CAT = [
   { label: 'Chef privé',      pct: 34, color: '#E8604A', amount: '29 716 €' },
-  { label: 'Bateau & mer',    pct: 24, color: '#2ABFB8', amount: '20 976 €' },
+  { label: 'DJ & soirées',    pct: 24, color: '#2ABFB8', amount: '20 976 €' },
   { label: 'Massage & spa',   pct: 18, color: '#1A3D2B', amount: '15 732 €' },
   { label: 'Photographie',    pct: 11, color: '#F5A623', amount: '9 614 €'  },
-  { label: 'Guide & rando',   pct:  8, color: '#8B5CF6', amount: '6 992 €'  },
+  { label: 'Beauté & soins',  pct:  8, color: '#8B5CF6', amount: '6 992 €'  },
   { label: 'Autres',          pct:  5, color: '#94A3B8', amount: '4 370 €'  },
 ]
 
@@ -25,11 +25,11 @@ const BY_ISLAND = [
 ]
 
 const TOP_SERVICES = [
-  { rank: 1, title: 'Catamaran privé — Coucher de soleil', provider: 'Capitaine Joël',    bookings: 32, gmv: '8 000 €',  growth: '+41%' },
-  { rank: 2, title: 'Dîner de chef en villa',              provider: 'Chef Marcus',        bookings: 28, gmv: '5 040 €',  growth: '+28%' },
-  { rank: 3, title: 'Randonnée Soufrière',                 provider: 'Guide Rando Antilles', bookings: 24, gmv: '1 800 €', growth: '+65%' },
-  { rank: 4, title: 'Massage balinais sur la plage',       provider: 'Massage Madeleine',  bookings: 22, gmv: '2 640 €',  growth: '+19%' },
-  { rank: 5, title: 'Shooting photo couple',               provider: 'Studio Camille',     bookings: 18, gmv: '3 960 €',  growth: '+33%' },
+  { rank: 1, title: 'Dîner de chef en villa — Créole Prestige', provider: 'Chef Marcus',        bookings: 32, gmv: '5 760 €',  growth: '+41%' },
+  { rank: 2, title: 'DJ & ambiance live en villa',              provider: 'DJ Kenzo Caraïbes',  bookings: 28, gmv: '7 000 €',  growth: '+55%' },
+  { rank: 3, title: 'Décoration romantique de villa',           provider: 'Tiphanie Événements', bookings: 24, gmv: '3 600 €', growth: '+65%' },
+  { rank: 4, title: 'Massage balinais en villa',                provider: 'Massage Madeleine',   bookings: 22, gmv: '2 640 €',  growth: '+19%' },
+  { rank: 5, title: 'Shooting photo couple — Lever de soleil',  provider: 'Studio Camille',      bookings: 18, gmv: '3 960 €',  growth: '+33%' },
 ]
 
 const maxGmv = Math.max(...MONTHLY.map((m) => m.gmv))

@@ -8,7 +8,7 @@ const KPI = [
 ]
 
 const ACTIVE_REQUESTS = [
-  { id: 1, client: 'Famille Bertrand', need: 'Chef privé + excursion catamaran — 6 pers.', deadline: 'Pour demain', priority: 'high' },
+  { id: 1, client: 'Famille Bertrand', need: 'Chef privé + DJ soirée villa — 6 pers.', deadline: 'Pour demain', priority: 'high' },
   { id: 2, client: 'Thomas Renaud', need: 'Transfert aéroport + villa 4 nuits', deadline: 'Dans 2 jours', priority: 'medium' },
   { id: 3, client: 'Amina Diallo', need: 'Soins spa en chambre — couple', deadline: 'Dans 3 jours', priority: 'low' },
   { id: 4, client: 'Marco & Julia', need: 'Dîner romantique sur la plage', deadline: 'Sam 15 juin', priority: 'medium' },

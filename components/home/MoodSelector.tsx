@@ -22,7 +22,7 @@ interface MoodSelectorProps {
 export function MoodSelector({ value, onChange }: MoodSelectorProps) {
   return (
     <div
-      className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide md:flex-wrap md:justify-end md:overflow-visible md:pb-0"
+      className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide px-5 md:px-0"
       style={{ scrollbarWidth: 'none' }}
     >
       {MOODS.map(({ key, label, Icon }) => {

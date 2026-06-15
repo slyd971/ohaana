@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     template: '%s | Ohaana',
   },
   description:
-    'Réservez des expériences authentiques en Guadeloupe : chef privé, massage en villa, catamaran au coucher du soleil, et bien plus.',
+    'Réservez des services à domicile en Guadeloupe et Martinique : chef privé, massage en villa, DJ, décoration, soins beauté — livrés chez vous.',
   keywords: ['guadeloupe', 'caribéen', 'expériences', 'luxe', 'chef privé', 'spa'],
   openGraph: {
     siteName: 'Ohaana',

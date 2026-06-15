@@ -98,19 +98,17 @@ export default function HomePage() {
   }
 
   return (
-    <div className="bg-coconut">
+    <div className="bg-coconut pb-20 md:pb-0">
 
       {/* ── 1. Hero ──────────────────────────────────────────────────────────── */}
       <HeroSection />
 
       {/* ── 2. Controls (sticky) ─────────────────────────────────────────────── */}
-      <div className="sticky top-16 z-20 bg-coconut/96 backdrop-blur-md border-b border-mist">
-        <div className="max-w-7xl mx-auto px-5 md:px-8 py-3 space-y-2.5 md:flex md:items-center md:justify-between md:gap-5 md:space-y-0">
-          <div className="flex items-center justify-between md:flex-none">
+      <div className="sticky top-16 z-20 bg-coconut/96 backdrop-blur-md border-b border-mist pt-3 pb-2 space-y-2.5">
+        <div className="flex items-center justify-between px-5 md:px-8">
             <IslandSelector value={island} onChange={setIsland} />
-          </div>
-          <MoodSelector value={mood} onChange={setMood} />
         </div>
+        <MoodSelector value={mood} onChange={setMood} />
       </div>
 
       {/* ── 3. Service rows ──────────────────────────────────────────────────── */}

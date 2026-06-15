@@ -11,10 +11,10 @@ const PARTNER_LINK = 'https://ohaana.com/partner/la-toubana-resort'
 
 const BOOKINGS = [
   { id: 1, guest: 'Philippe Moreau', service: 'Chef privé — 6 pers.', date: '12 juin 2026', commission: '120 €', status: 'paid' },
-  { id: 2, guest: 'Anna Schmidt',    service: 'Excursion voilier', date: '10 juin 2026', commission: '95 €', status: 'paid' },
-  { id: 3, guest: 'Luc Fontaine',    service: 'Massage duo · spa', date: '9 juin 2026', commission: '65 €', status: 'paid' },
-  { id: 4, guest: 'Camille Roy',     service: 'Cours de surf', date: '8 juin 2026', commission: '40 €', status: 'pending' },
-  { id: 5, guest: 'David Kim',       service: 'Plongée exploration', date: '7 juin 2026', commission: '55 €', status: 'pending' },
+  { id: 2, guest: 'Anna Schmidt',    service: 'DJ soirée villa · 4h', date: '10 juin 2026', commission: '95 €', status: 'paid' },
+  { id: 3, guest: 'Luc Fontaine',    service: 'Massage duo en chambre', date: '9 juin 2026', commission: '65 €', status: 'paid' },
+  { id: 4, guest: 'Camille Roy',     service: 'Soins beauté · mani/pédi', date: '8 juin 2026', commission: '40 €', status: 'pending' },
+  { id: 5, guest: 'David Kim',       service: 'Personal training · plage', date: '7 juin 2026', commission: '55 €', status: 'pending' },
 ]
 
 export default function HotelDashboard() {

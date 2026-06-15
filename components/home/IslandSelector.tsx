@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { MapPin } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import type { Island } from '@/types/database'
 
 export type IslandFilter = Island | 'all'
@@ -27,49 +26,23 @@ export function IslandSelector({ value, onChange }: IslandSelectorProps) {
   const currentLabel = ISLAND_OPTIONS.find((o) => o.value === value)?.label ?? 'Toutes les îles'
 
   return (
-    <div className="relative w-full md:w-auto">
+    <div className="relative">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 px-3.5 py-2 bg-coconut rounded-full border border-mist shadow-sm text-sm font-medium text-charcoal hover:border-deep-green transition-colors md:hidden"
+        className="flex items-center gap-2 px-3.5 py-2 bg-coconut rounded-full border border-mist shadow-sm text-sm font-medium text-charcoal hover:border-deep-green transition-colors"
       >
         <MapPin size={14} className="text-deep-green" />
         {currentLabel}
         <span className="text-stone text-xs">▾</span>
       </button>
 
-      <div className="hidden md:flex items-center gap-1.5 rounded-full border border-mist bg-surface p-1 shadow-sm">
-        <div className="flex items-center gap-1.5 pl-2 pr-1 text-xs font-medium text-stone">
-          <MapPin size={13} className="text-deep-green" />
-          Île
-        </div>
-        {ISLAND_OPTIONS.map(({ value: v, label, soon }) => {
-          const active = v === value
-          return (
-            <button
-              key={v}
-              type="button"
-              onClick={() => onChange(v)}
-              className={cn(
-                'h-8 rounded-full px-3 text-xs font-medium transition-colors',
-                active
-                  ? 'bg-deep-green text-coconut shadow-sm'
-                  : 'text-charcoal-soft hover:bg-sand hover:text-deep-green'
-              )}
-            >
-              <span>{label}</span>
-              {soon && <span className="ml-1 text-[10px] opacity-70">bientôt</span>}
-            </button>
-          )
-        })}
-      </div>
-
       {open && (
         <motion.div
           initial={{ opacity: 0, y: 6, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0 }}
-          className="absolute top-full mt-2 left-0 bg-coconut rounded-2xl border border-mist shadow-elevated overflow-hidden z-30 min-w-[180px] md:hidden"
+          className="absolute top-full mt-2 left-0 bg-coconut rounded-2xl border border-mist shadow-elevated overflow-hidden z-30 min-w-[180px]"
         >
           {ISLAND_OPTIONS.map(({ value: v, label, soon }) => (
             <button

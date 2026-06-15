@@ -65,7 +65,7 @@ export default function SearchPage() {
   }, [query, categoryId, sortKey, min, max])
 
   return (
-    <div className="min-h-screen bg-coconut pt-16">
+    <div className="min-h-screen bg-coconut pt-16 pb-20 md:pb-0">
       {/* Search bar */}
       <div className="sticky top-16 z-20 bg-coconut/95 backdrop-blur-md border-b border-mist px-4 md:px-8 py-3">
         <div className="flex gap-2 max-w-7xl mx-auto">
@@ -97,7 +97,7 @@ export default function SearchPage() {
         </div>
 
         {/* Category chips */}
-        <div className="flex gap-2 mt-2.5 overflow-x-auto md:flex-wrap md:overflow-visible pb-0.5 max-w-7xl mx-auto" style={{ scrollbarWidth: 'none' }}>
+        <div className="flex gap-2 mt-2.5 overflow-x-auto pb-0.5 max-w-7xl mx-auto" style={{ scrollbarWidth: 'none' }}>
           <button
             type="button"
             onClick={() => setCategoryId(null)}
@@ -184,9 +184,9 @@ export default function SearchPage() {
           <p className="text-sm text-stone">
             <span className="font-semibold text-charcoal">{results.length}</span> expérience{results.length !== 1 ? 's' : ''} trouvée{results.length !== 1 ? 's' : ''}
           </p>
-          <button type="button" className="flex items-center gap-1.5 text-xs text-deep-green font-medium">
+          <button type="button" className="flex items-center gap-1.5 text-xs text-deep-green font-medium flex-none">
             <MapPin size={13} />
-            Voir sur carte
+            <span className="hidden sm:inline">Voir sur carte</span>
           </button>
         </div>
 
