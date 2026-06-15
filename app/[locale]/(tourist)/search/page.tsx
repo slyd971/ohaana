@@ -28,7 +28,11 @@ export default function SearchPage() {
   function toggleFavorite(id: string) {
     setFavorites((prev) => {
       const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
       return next
     })
   }
@@ -58,20 +62,20 @@ export default function SearchPage() {
     else                               list.sort((a, b) => b.booking_count - a.booking_count)
 
     return list
-  }, [query, categoryId, priceRange, sortKey, min, max])
+  }, [query, categoryId, sortKey, min, max])
 
   return (
     <div className="min-h-screen bg-coconut pt-16">
       {/* Search bar */}
-      <div className="sticky top-16 z-20 bg-coconut/95 backdrop-blur-md border-b border-mist px-4 py-3">
-        <div className="flex gap-2 max-w-2xl mx-auto">
+      <div className="sticky top-16 z-20 bg-coconut/95 backdrop-blur-md border-b border-mist px-4 md:px-8 py-3">
+        <div className="flex gap-2 max-w-7xl mx-auto">
           <div className="relative flex-1">
             <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone" />
             <input
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Chef, massage, catamaran…"
+              placeholder="Chef, massage, DJ, décoration villa…"
               className="w-full h-11 pl-9 pr-4 bg-surface border border-mist rounded-xl text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green focus:ring-2 focus:ring-deep-green/15"
             />
             {query && (
@@ -93,7 +97,7 @@ export default function SearchPage() {
         </div>
 
         {/* Category chips */}
-        <div className="flex gap-2 mt-2.5 overflow-x-auto pb-0.5 max-w-2xl mx-auto" style={{ scrollbarWidth: 'none' }}>
+        <div className="flex gap-2 mt-2.5 overflow-x-auto md:flex-wrap md:overflow-visible pb-0.5 max-w-7xl mx-auto" style={{ scrollbarWidth: 'none' }}>
           <button
             type="button"
             onClick={() => setCategoryId(null)}
@@ -127,7 +131,7 @@ export default function SearchPage() {
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
-          className="bg-sand border-b border-mist px-4 py-4 space-y-4 max-w-2xl mx-auto"
+          className="bg-sand border-b border-mist px-4 md:px-8 py-4 space-y-4 max-w-7xl mx-auto"
         >
           <div>
             <p className="text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">Budget</p>
@@ -175,7 +179,7 @@ export default function SearchPage() {
       )}
 
       {/* Results */}
-      <div className="px-4 py-5 max-w-2xl mx-auto">
+      <div className="px-4 md:px-8 py-6 max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-4">
           <p className="text-sm text-stone">
             <span className="font-semibold text-charcoal">{results.length}</span> expérience{results.length !== 1 ? 's' : ''} trouvée{results.length !== 1 ? 's' : ''}
@@ -190,10 +194,10 @@ export default function SearchPage() {
           <div className="text-center py-16 space-y-3">
             <p className="text-4xl">🌴</p>
             <p className="text-charcoal font-medium">Aucune expérience trouvée</p>
-            <p className="text-sm text-stone">Essayez d'autres filtres ou mots-clés</p>
+            <p className="text-sm text-stone">Essayez d&apos;autres filtres ou mots-clés</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 xl:gap-5">
             {results.map((service, i) => (
               <motion.div
                 key={service.id}

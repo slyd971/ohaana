@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { Star, Heart, Clock } from 'lucide-react'
+import { Star, Heart, Clock, MapPin } from 'lucide-react'
 import { cn, formatPrice, formatDuration, formatRating } from '@/lib/utils'
 import { Link } from '@/lib/i18n/navigation'
 import type { SERVICES } from '@/lib/data/seed'
@@ -17,6 +17,31 @@ interface ServiceCardProps {
   className?: string
 }
 
+const ISLAND_LABELS: Record<string, string> = {
+  guadeloupe:   'Guadeloupe',
+  martinique:   'Martinique',
+  saint_martin: 'Saint-Martin',
+  saint_barth:  'Saint-Barth',
+}
+
+const TAG_BADGES: Record<string, string> = {
+  'couple':            '💑 Couple',
+  'famille':           '👨‍👩‍👧 Famille',
+  'aventure':          '🏄 Aventure',
+  'luxe':              '✨ Exclusif',
+  'bien-être':         '🧘 Bien-être',
+  'coucher de soleil': '🌅 Sunset',
+  'gastronomie':       '🍽️ Gastro',
+  'culture':           '🎭 Culture',
+  'nature':            '🌿 Nature',
+  'beauté':            '💅 Beauté',
+}
+
+const TAG_PRIORITY = [
+  'luxe', 'couple', 'famille', 'coucher de soleil',
+  'bien-être', 'culture', 'aventure', 'gastronomie', 'nature', 'beauté',
+]
+
 export function ServiceCard({
   service,
   isFavorite = false,
@@ -26,9 +51,15 @@ export function ServiceCard({
 }: ServiceCardProps) {
   const cover = service.images.find((img) => img.is_cover) ?? service.images[0]
   const price = formatPrice(service.price_cents)
+  const providerName = service.provider?.business_name ?? 'Ohaana'
+  const providerUserName = service.provider?.user?.full_name ?? providerName
+  const providerAvatar = service.provider?.user?.avatar_url
 
   const widths  = { sm: 'w-52', md: 'w-64', lg: 'w-72' }
   const heights = { sm: 'h-36', md: 'h-44', lg: 'h-52' }
+
+  const primaryTag = TAG_PRIORITY.find((t) => service.tags.includes(t))
+  const islandLabel = ISLAND_LABELS[service.island] ?? service.island
 
   return (
     <motion.div
@@ -50,7 +81,6 @@ export function ServiceCard({
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 768px) 256px, 288px"
           />
-          {/* Vignette bas — ton chaud deep-green plutôt que noir froid */}
           <div className="absolute inset-0 bg-gradient-to-t from-deep-green/50 via-transparent to-transparent" />
 
           {/* Favorite */}
@@ -68,37 +98,47 @@ export function ServiceCard({
             </button>
           )}
 
-          {/* Badge populaire */}
+          {/* Badge top-left */}
           {service.is_featured && (
             <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-coral text-coconut text-[10px] font-semibold tracking-wide">
               Populaire
             </span>
           )}
 
-          {/* Prix en overlay sur l'image */}
-          <div className="absolute bottom-2.5 left-3">
-            <span className="text-coconut text-sm font-semibold drop-shadow-md">
-              {price}
+          {/* Prix + île en bas */}
+          <div className="absolute bottom-2.5 left-3 right-3 flex items-end justify-between">
+            <div>
+              <span className="text-coconut text-sm font-semibold drop-shadow-md">{price}</span>
+              <span className="text-coconut/70 text-xs"> / pers.</span>
+            </div>
+            <span className="flex items-center gap-0.5 text-coconut/80 text-[10px] drop-shadow-md">
+              <MapPin size={9} />
+              {islandLabel}
             </span>
-            <span className="text-coconut/70 text-xs"> / pers.</span>
           </div>
         </div>
 
         {/* Info */}
-        <div className="p-3.5 space-y-2">
-          {/* Provider + rating inline */}
+        <div className="p-3.5 space-y-1.5">
+          {/* Provider + rating */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
               <div className="relative w-5 h-5 rounded-full overflow-hidden flex-none ring-1 ring-mist">
-                <Image
-                  src={service.provider.user.avatar_url}
-                  alt={service.provider.user.full_name}
-                  fill
-                  className="object-cover"
-                  sizes="20px"
-                />
+                {providerAvatar ? (
+                  <Image
+                    src={providerAvatar}
+                    alt={providerUserName}
+                    fill
+                    className="object-cover"
+                    sizes="20px"
+                  />
+                ) : (
+                  <div className="h-full w-full bg-deep-green text-[9px] font-semibold text-coconut flex items-center justify-center">
+                    {providerName.slice(0, 1)}
+                  </div>
+                )}
               </div>
-              <span className="text-xs text-stone truncate">{service.provider.business_name}</span>
+              <span className="text-xs text-stone truncate">{providerName}</span>
             </div>
             <div className="flex items-center gap-1 flex-none">
               <Star size={11} className="fill-[#F5A623] text-[#F5A623]" />
@@ -112,13 +152,20 @@ export function ServiceCard({
             {service.title_fr}
           </h3>
 
-          {/* Duration */}
-          {service.duration_min && (
-            <div className="flex items-center gap-1 text-xs text-stone">
-              <Clock size={11} />
-              <span>{formatDuration(service.duration_min)}</span>
-            </div>
-          )}
+          {/* Duration + tag badge */}
+          <div className="flex items-center justify-between gap-2">
+            {service.duration_min ? (
+              <div className="flex items-center gap-1 text-xs text-stone">
+                <Clock size={11} />
+                <span>{formatDuration(service.duration_min)}</span>
+              </div>
+            ) : <div />}
+            {primaryTag && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-sand text-charcoal-soft font-medium flex-none">
+                {TAG_BADGES[primaryTag]}
+              </span>
+            )}
+          </div>
         </div>
       </Link>
     </motion.div>

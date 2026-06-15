@@ -10,14 +10,16 @@ const WHATSAPP_NUMBER = '590690000000'
 const WHATSAPP_DEFAULT_MSG = encodeURIComponent(
   "Bonjour, je souhaite réserver une expérience sur Ohaana. Pouvez-vous m'aider ?"
 )
+const CONCIERGE_PHOTO =
+  'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=240&h=240&fit=crop&q=85'
 
 const SUGGESTIONS = [
   'Un dîner romantique dans une villa avec vue sur mer',
-  'Une sortie en catamaran pour toute la famille',
-  'Un shooting photo au lever du soleil',
-  'Un massage pour deux sur la plage',
-  'Une dégustation de rhum chez un producteur local',
-  'Un cours de cuisine créole avec marché',
+  'Un shooting photo au lever du soleil en villa',
+  'Un massage duo dans notre villa ce soir',
+  'Un DJ pour notre soirée d\'anniversaire en terrasse',
+  'Une décoration romantique de villa pour une demande en mariage',
+  'Un cours de cuisine créole avec marché le matin',
 ]
 
 export default function ConciergePage() {
@@ -31,7 +33,7 @@ export default function ConciergePage() {
     setSent(true)
   }
 
-  function useSuggestion(s: string) {
+  function applySuggestion(s: string) {
     setMessage(s)
   }
 
@@ -52,8 +54,8 @@ export default function ConciergePage() {
         >
           <div className="relative w-24 h-24 rounded-full overflow-hidden mx-auto border-4 border-coconut shadow-elevated">
             <Image
-              src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=200&h=200&fit=crop"
-              alt="Votre concierge"
+              src={CONCIERGE_PHOTO}
+              alt="Concierge antillaise Ohaana"
               fill
               className="object-cover"
               sizes="96px"
@@ -117,7 +119,7 @@ export default function ConciergePage() {
                   <button
                     key={s}
                     type="button"
-                    onClick={() => useSuggestion(s)}
+                    onClick={() => applySuggestion(s)}
                     className="text-xs px-3 py-1.5 rounded-full bg-sand border border-mist text-charcoal-soft hover:border-deep-green hover:text-deep-green transition-colors"
                   >
                     {s}

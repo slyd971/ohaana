@@ -49,7 +49,7 @@ export function ServiceRow({
       {/* Horizontal scroll */}
       <div
         ref={rowRef}
-        className="flex gap-4 overflow-x-auto pb-2 scroll-snap-x px-5 md:px-0 scrollbar-hide"
+        className="flex gap-4 overflow-x-auto pb-2 scroll-snap-x px-5 md:grid md:grid-cols-3 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-4 scrollbar-hide"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {services.map((service, i) => (
@@ -59,16 +59,18 @@ export function ServiceRow({
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.07, duration: 0.4 }}
+            className="min-w-0"
           >
             <ServiceCard
               service={service}
               isFavorite={favorites.has(service.id)}
               onToggleFavorite={onToggleFavorite}
+              className="w-full"
             />
           </motion.div>
         ))}
         {/* Trailing spacer */}
-        <div className="w-1 flex-none" />
+        <div className="w-1 flex-none md:hidden" />
       </div>
     </motion.section>
   )
