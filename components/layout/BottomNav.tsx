@@ -10,7 +10,7 @@ import { Home, Search, CalendarDays, User, MessageCircle } from 'lucide-react'
 const navItems = [
   { key: 'home',     href: '/',          Icon: Home },
   { key: 'search',   href: '/search',    Icon: Search },
-  { key: 'bookings', href: '/trips',     Icon: CalendarDays },
+  { key: 'bookings', href: '/voyages',   Icon: CalendarDays },
   { key: 'concierge',href: '/concierge', Icon: MessageCircle },
   { key: 'profile',  href: '/profile',   Icon: User },
 ] as const

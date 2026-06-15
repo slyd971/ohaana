@@ -1,6 +1,8 @@
+import { Link } from '@/lib/i18n/navigation'
+
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-dvh bg-coconut flex flex-col">
+    <div className="min-h-dvh bg-coconut flex flex-col overflow-x-hidden">
       {/* Decorative background */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div
@@ -15,16 +17,16 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
       {/* Back to home */}
       <div className="relative px-4 pt-6">
-        <a href="/" className="inline-flex items-center gap-1.5 text-sm text-stone hover:text-charcoal transition-colors">
+        <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-stone hover:text-charcoal transition-colors">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
             <path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           <span className="font-display italic text-deep-green text-lg">Ohaana</span>
-        </a>
+        </Link>
       </div>
 
-      <main className="relative flex-1 flex items-center justify-center px-4 py-8">
-        <div className="w-full max-w-md">
+      <main className="relative flex-1 flex w-full items-center justify-start px-4 py-8 sm:justify-center">
+        <div className="w-full max-w-[20rem] min-w-0 sm:max-w-md">
           {children}
         </div>
       </main>

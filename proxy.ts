@@ -5,7 +5,7 @@ import { routing } from '@/lib/i18n/routing'
 
 const intlMiddleware = createMiddleware(routing)
 
-const protectedRoutes = ['/trips', '/profile', '/bookings', '/onboarding']
+const protectedRoutes = ['/voyages', '/trips', '/profile', '/bookings', '/onboarding']
 const authRoutes = ['/login', '/register']
 const providerRoutes = ['/provider']
 const adminRoutes = ['/admin']
@@ -61,8 +61,10 @@ export async function proxy(request: NextRequest) {
       const { data: { user } } = await supabase.auth.getUser()
 
       if (!user) {
-        const loginUrl = new URL('/login', request.url)
-        loginUrl.searchParams.set('redirectTo', pathname)
+        const localeMatch = pathname.match(/^\/(fr|en)(?=\/|$)/)
+        const localePrefix = localeMatch?.[0] ?? ''
+        const loginUrl = new URL(`${localePrefix}/login`, request.url)
+        loginUrl.searchParams.set('redirectTo', `${pathname}${request.nextUrl.search}`)
         return NextResponse.redirect(loginUrl)
       }
 

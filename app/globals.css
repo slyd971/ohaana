@@ -60,6 +60,12 @@
   --color-charcoal-soft: var(--charcoal-soft);
   --color-stone: var(--stone);
   --color-mist: var(--mist);
+  --color-surface: var(--surface);
+
+  /* Shadows */
+  --shadow-card: 0 2px 16px rgba(28, 28, 30, 0.06);
+  --shadow-elevated: 0 8px 32px rgba(28, 28, 30, 0.10);
+  --shadow-modal: 0 20px 60px rgba(28, 28, 30, 0.18);
 
   /* Fonts */
   --font-display: var(--font-display);

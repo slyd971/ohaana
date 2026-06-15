@@ -19,7 +19,16 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  async function handleEmailLogin(e: React.SubmitEvent<HTMLFormElement>) {
+  function getRedirectTo() {
+    if (typeof window === 'undefined') return '/'
+
+    const redirectTo = new URLSearchParams(window.location.search).get('redirectTo')
+    if (!redirectTo?.startsWith('/') || redirectTo.startsWith('//')) return '/'
+
+    return redirectTo
+  }
+
+  async function handleEmailLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setLoading(true)
     setError(null)
@@ -32,24 +41,28 @@ export default function LoginPage() {
       return
     }
 
-    router.push('/')
+    router.push(getRedirectTo())
     router.refresh()
   }
 
   async function handleGoogleLogin() {
     setLoading(true)
+    const next = getRedirectTo()
+    const callbackUrl = new URL('/api/auth/callback', location.origin)
+    callbackUrl.searchParams.set('next', next)
+
     await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${location.origin}/api/auth/callback` },
+      options: { redirectTo: callbackUrl.toString() },
     })
   }
 
   return (
-    <div className="space-y-8">
+    <div className="w-full min-w-0 space-y-8">
       {/* Heading */}
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-display text-charcoal">{t('loginTitle')}</h1>
-        <p className="text-stone text-sm">{t('loginSubtitle')}</p>
+        <p className="text-stone text-sm text-balance">{t('loginSubtitle')}</p>
       </div>
 
       {/* Google */}
@@ -57,7 +70,7 @@ export default function LoginPage() {
         type="button"
         onClick={handleGoogleLogin}
         disabled={loading}
-        className="w-full h-12 flex items-center justify-center gap-3 rounded-xl border border-mist bg-surface text-charcoal text-sm font-medium hover:bg-sand transition-colors disabled:opacity-50"
+        className="flex h-12 w-full min-w-0 items-center justify-center gap-3 rounded-xl border border-mist bg-surface px-3 text-sm font-medium text-charcoal transition-colors hover:bg-sand disabled:opacity-50"
       >
         <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden>
           <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z" fill="#4285F4"/>
@@ -75,7 +88,7 @@ export default function LoginPage() {
       </div>
 
       {/* Email form */}
-      <form onSubmit={handleEmailLogin} className="space-y-4" noValidate>
+      <form onSubmit={handleEmailLogin} className="w-full min-w-0 space-y-4" noValidate>
         <Input
           label={t('email')}
           type="email"
@@ -107,7 +120,7 @@ export default function LoginPage() {
         </Button>
       </form>
 
-      <p className="text-center text-sm text-stone">
+      <p className="text-center text-sm text-stone text-balance">
         {t('noAccount')}{' '}
         <Link href="/register" className="text-deep-green font-medium hover:underline">
           {t('register')}
