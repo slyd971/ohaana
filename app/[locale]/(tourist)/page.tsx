@@ -138,7 +138,7 @@ export default function HomePage() {
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23FDFAF4' fill-opacity='0.4' fill-rule='evenodd'%3E%3Ccircle cx='7' cy='7' r='1'/%3E%3Ccircle cx='37' cy='37' r='1'/%3E%3C/g%3E%3C/svg%3E")`
         }} />
         <div className="relative px-6 py-10 md:py-14 max-w-2xl mx-auto text-center space-y-5">
-          <p className="text-coconut/60 text-xs uppercase tracking-widest font-medium">Prototype concierge</p>
+          <p className="text-coconut/60 text-xs uppercase tracking-widest font-medium">Concierge Ohaana</p>
           <h2 className="text-2xl md:text-3xl font-display text-coconut leading-snug">
             Vous ne trouvez pas<br />l&apos;expérience parfaite&nbsp;?
           </h2>
@@ -153,7 +153,7 @@ export default function HomePage() {
               className="inline-flex items-center gap-2 bg-coral text-coconut px-6 py-3 rounded-full font-medium text-sm hover:bg-coral-light transition-colors shadow-sm"
             >
               <MessageCircle size={16} />
-              Parler au concierge
+              Organiser mon séjour
             </a>
             <Link
               href="/concierge"
@@ -201,17 +201,17 @@ export default function HomePage() {
           </div>
           <div className="flex-1 text-center md:text-left space-y-3">
             <h2 className="text-xl md:text-2xl font-display text-charcoal">
-              Vous êtes hôtel, villa, concierge ou prestataire local&nbsp;?
+              Vous êtes chef, masseuse, DJ, photographe ou coach sportif&nbsp;?
             </h2>
             <p className="text-sm text-stone leading-relaxed">
-              Ohaana vous aide à proposer des expériences premium à vos voyageurs et à générer des revenus additionnels — sans infrastructure à gérer.
+              Recevez des demandes de voyageurs en séjour dans les Caraïbes et proposez vos prestations à domicile, sans infrastructure à gérer.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start pt-1">
               <Link
                 href="/register?role=provider"
                 className="inline-flex items-center gap-2 bg-deep-green text-coconut px-5 py-2.5 rounded-full text-sm font-medium hover:bg-deep-green-light transition-colors"
               >
-                Devenir partenaire
+                Rejoindre Ohaana
                 <ChevronRight size={14} />
               </Link>
               <a

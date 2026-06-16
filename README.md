@@ -109,7 +109,7 @@ types/
 
 - [x] **Phase 1** — Fondations : Next.js, Supabase schema+RLS, Auth, Design tokens, Layout
 - [ ] **Phase 2** — Expérience touriste : Onboarding, Homepage Netflix, Recherche, Fiches prestataires, Tunnel réservation, Paiement Stripe, Mes voyages, Favoris, Recommandations, Mode Concierge
-- [ ] **Phase 3** — Dashboards : Prestataire, Concierge, Hôtel/Villa, Admin
+- [ ] **Phase 3** — Dashboards : Prestataire, Concierge, Admin
 - [ ] **Phase 4** — Finitions : Seed data Guadeloupe, Analytics, README production
 
 ## Variables d'environnement requises

@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { Search, SlidersHorizontal, X, MapPin } from 'lucide-react'
 import { ServiceCard } from '@/components/service/ServiceCard'
 import { SERVICES, CATEGORIES, CATEGORY_ICONS } from '@/lib/data/seed'
 import { cn } from '@/lib/utils'
 
-type SortKey = 'popular' | 'rating' | 'price_asc' | 'price_desc'
+type SortKey = 'popular' | 'price_asc' | 'price_desc'
 
 const PRICE_RANGES = [
   { label: 'Tous', min: 0, max: Infinity },
@@ -37,6 +37,13 @@ export default function SearchPage() {
     })
   }
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const categoryParam = params.get('cat')
+    const initialCategory = CATEGORIES.find((category) => category.slug === categoryParam)?.id ?? null
+    if (initialCategory) setCategoryId(initialCategory)
+  }, [])
+
   const { min, max } = PRICE_RANGES[priceRange]
 
   const results = useMemo(() => {
@@ -56,8 +63,7 @@ export default function SearchPage() {
 
     list = list.filter((s) => s.price_cents >= min && s.price_cents <= max)
 
-    if (sortKey === 'rating')      list.sort((a, b) => b.avg_rating - a.avg_rating)
-    else if (sortKey === 'price_asc')  list.sort((a, b) => a.price_cents - b.price_cents)
+    if (sortKey === 'price_asc')  list.sort((a, b) => a.price_cents - b.price_cents)
     else if (sortKey === 'price_desc') list.sort((a, b) => b.price_cents - a.price_cents)
     else                               list.sort((a, b) => b.booking_count - a.booking_count)
 
@@ -75,7 +81,7 @@ export default function SearchPage() {
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Chef, massage, DJ, décoration villa…"
+              placeholder="Trouver un chef, un massage ou une expérience"
               className="w-full h-11 pl-9 pr-4 bg-surface border border-mist rounded-xl text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green focus:ring-2 focus:ring-deep-green/15"
             />
             {query && (
@@ -157,7 +163,6 @@ export default function SearchPage() {
             <div className="flex flex-wrap gap-2">
               {([
                 { key: 'popular', label: 'Popularité' },
-                { key: 'rating', label: 'Note' },
                 { key: 'price_asc', label: 'Prix ↑' },
                 { key: 'price_desc', label: 'Prix ↓' },
               ] as { key: SortKey; label: string }[]).map(({ key, label }) => (

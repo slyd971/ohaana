@@ -1,4 +1,4 @@
-export type UserRole = 'tourist' | 'provider' | 'concierge' | 'hotel' | 'villa' | 'admin'
+export type UserRole = 'tourist' | 'provider' | 'concierge' | 'admin'
 export type BookingStatus =
   | 'pending'
   | 'confirmed'
@@ -160,7 +160,6 @@ export interface Payment {
   platform_fee_cents: number
   provider_amount_cents: number
   concierge_fee_cents: number
-  hotel_fee_cents: number
   currency: string
   created_at: string
   updated_at: string

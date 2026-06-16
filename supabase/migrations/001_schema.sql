@@ -7,7 +7,7 @@ create extension if not exists "pg_trgm";
 
 -- Enum types
 create type public.user_role as enum (
-  'tourist', 'provider', 'concierge', 'hotel', 'villa', 'admin'
+  'tourist', 'provider', 'concierge', 'admin'
 );
 
 create type public.booking_status as enum (
@@ -91,35 +91,8 @@ create table public.provider_profiles (
 create table public.concierge_profiles (
   id              uuid primary key default uuid_generate_v4(),
   user_id         uuid not null unique references public.users(id) on delete cascade,
-  affiliated_to   text,   -- nom hôtel/villa
   commission_pct  numeric(5,2) not null default 5.00,
   island          public.island not null default 'guadeloupe',
-  created_at      timestamptz not null default now()
-);
-
--- ─────────────────────────────────────────────────────────────
--- TABLE: hotel_profiles
--- ─────────────────────────────────────────────────────────────
-create table public.hotel_profiles (
-  id              uuid primary key default uuid_generate_v4(),
-  user_id         uuid not null unique references public.users(id) on delete cascade,
-  hotel_name      text not null,
-  address         text,
-  island          public.island not null default 'guadeloupe',
-  commission_pct  numeric(5,2) not null default 5.00,
-  created_at      timestamptz not null default now()
-);
-
--- ─────────────────────────────────────────────────────────────
--- TABLE: villa_profiles
--- ─────────────────────────────────────────────────────────────
-create table public.villa_profiles (
-  id              uuid primary key default uuid_generate_v4(),
-  user_id         uuid not null unique references public.users(id) on delete cascade,
-  villa_name      text not null,
-  address         text,
-  island          public.island not null default 'guadeloupe',
-  commission_pct  numeric(5,2) not null default 5.00,
   created_at      timestamptz not null default now()
 );
 
@@ -236,7 +209,6 @@ create table public.payments (
   platform_fee_cents        integer not null,   -- 20 %
   provider_amount_cents     integer not null,   -- 80 %
   concierge_fee_cents       integer default 0,
-  hotel_fee_cents           integer default 0,
   currency                  text not null default 'eur',
   created_at                timestamptz not null default now(),
   updated_at                timestamptz not null default now()

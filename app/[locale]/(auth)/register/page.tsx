@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/lib/i18n/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -12,30 +12,85 @@ import type { UserRole } from '@/types/database'
 const roles: { value: UserRole; label: string; desc: string }[] = [
   { value: 'tourist',  label: 'Voyageur',    desc: 'Réservez des expériences' },
   { value: 'provider', label: 'Prestataire', desc: 'Proposez vos services' },
-  { value: 'hotel',    label: 'Hôtel/Villa', desc: 'Référez vos clients' },
 ]
 
-export default function RegisterPage() {
-  const t = useTranslations('auth')
-  const supabase = createClient()
+const publicRoles = new Set<UserRole>(['tourist', 'provider'])
 
-  const [step, setStep] = useState<'role' | 'form' | 'done'>('role')
-  const [role, setRole] = useState<UserRole>('tourist')
+interface RegisterPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export default function RegisterPage({ searchParams }: RegisterPageProps) {
+  const t = useTranslations('auth')
+  const params = use(searchParams)
+  const roleParam = Array.isArray(params.role) ? params.role[0] : params.role
+  const requestedRole = publicRoles.has(roleParam as UserRole)
+    ? roleParam as UserRole
+    : undefined
+
+  const [step, setStep] = useState<'role' | 'form' | 'done'>(requestedRole ? 'form' : 'role')
+  const [role, setRole] = useState<UserRole>(requestedRole ?? 'tourist')
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  useEffect(() => {
+    if (roleParam && !requestedRole) {
+      const url = new URL(window.location.href)
+      url.searchParams.delete('role')
+      window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`)
+    }
+  }, [requestedRole, roleParam])
+
+  function canUseSupabase() {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
+
+    return Boolean(url && key && !url.includes('placeholder') && !key.includes('placeholder'))
+  }
+
+  function createAuthClient() {
+    if (!canUseSupabase()) {
+      throw new Error('Mode démo actif : inscription simulée.')
+    }
+
+    return createClient()
+  }
+
+  function getPostSignupPath() {
+    if (role === 'provider') return '/provider/onboarding'
+    return '/'
+  }
+
   async function handleGoogleSignup() {
     setLoading(true)
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${location.origin}/api/auth/callback`,
-        queryParams: { role },
-      },
-    })
+    setError(null)
+
+    try {
+      const auth = createAuthClient()
+      const callbackUrl = new URL('/api/auth/callback', location.origin)
+      callbackUrl.searchParams.set('next', getPostSignupPath())
+
+      const { error } = await auth.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: callbackUrl.toString(),
+          queryParams: { role },
+        },
+      })
+
+      if (error) throw error
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('Mode démo')) {
+        setStep('done')
+        return
+      }
+
+      setError(error instanceof Error ? error.message : 'Inscription Google indisponible.')
+      setLoading(false)
+    }
   }
 
   async function handleRegister(e: React.SubmitEvent<HTMLFormElement>) {
@@ -43,17 +98,29 @@ export default function RegisterPage() {
     setLoading(true)
     setError(null)
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: fullName, role },
-        emailRedirectTo: `${location.origin}/api/auth/callback`,
-      },
-    })
+    let authError: Error | null = null
 
-    if (error) {
-      setError(error.message)
+    try {
+      const auth = createAuthClient()
+      const callbackUrl = new URL('/api/auth/callback', location.origin)
+      callbackUrl.searchParams.set('next', getPostSignupPath())
+
+      const { error } = await auth.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: fullName, role },
+          emailRedirectTo: callbackUrl.toString(),
+        },
+      })
+
+      authError = error
+    } catch (error) {
+      authError = error instanceof Error ? error : new Error('Inscription indisponible.')
+    }
+
+    if (authError && !authError.message.includes('Mode démo')) {
+      setError(authError.message)
       setLoading(false)
       return
     }

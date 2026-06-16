@@ -4,27 +4,35 @@ import { useRef } from 'react'
 import Image from 'next/image'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { Link } from '@/lib/i18n/navigation'
-import { Search, MessageCircle, ChefHat, Sparkles, Phone } from 'lucide-react'
+import {
+  Search,
+  MessageCircle,
+  ShieldCheck,
+  CreditCard,
+  Headphones,
+  MapPin,
+} from 'lucide-react'
 
 const HERO_IMG = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1600&h=900&fit=crop&q=90'
 
 const VALUE_PROOFS = [
   {
-    icon: ChefHat,
-    title: 'Prestataires locaux',
-    sub: 'Sélectionnés sur le terrain',
+    icon: ShieldCheck,
+    title: 'Prestataires vérifiés',
+    sub: 'Sélection locale',
   },
   {
-    icon: Sparkles,
-    title: 'Sur mesure',
-    sub: 'Chaque expérience est unique',
+    icon: CreditCard,
+    title: 'Paiement sécurisé',
+    sub: 'Confirmation protégée',
   },
   {
-    icon: Phone,
-    title: 'Concierge en option',
-    sub: 'Pour les demandes sur mesure',
+    icon: Headphones,
+    title: 'Support 7j/7',
+    sub: 'Avant et pendant le séjour',
   },
 ]
+
 
 export function HeroSection() {
   const ref = useRef<HTMLDivElement>(null)
@@ -61,10 +69,9 @@ export function HeroSection() {
           >
             {/* Frosted glass card */}
             <div className="bg-coconut/88 backdrop-blur-lg rounded-3xl p-6 space-y-4 shadow-elevated border border-white/60">
-              {/* Prototype chip */}
               <div className="inline-flex items-center gap-1.5 bg-sand rounded-full px-3 py-1 border border-mist">
-                <span className="w-1.5 h-1.5 rounded-full bg-coral animate-pulse" />
-                <span className="text-xs font-medium text-charcoal">Prototype · données de démo</span>
+                <MapPin size={12} className="text-deep-green" />
+                <span className="text-xs font-medium text-charcoal">Guadeloupe • 120 expériences disponibles</span>
               </div>
 
               <h1 className="text-3xl md:text-5xl font-display text-deep-green leading-tight">
@@ -72,7 +79,7 @@ export function HeroSection() {
                 <em>chez vous.</em>
               </h1>
               <p className="text-charcoal/75 text-sm md:text-base leading-relaxed">
-                Réservez des expériences à domicile — chefs créoles, DJ, massages en villa, décorations sur mesure. Et si vous le souhaitez, un concierge peut vous aider à tout coordonner.
+                Chef à domicile, massages, DJ, shootings photo et expériences exclusives sélectionnés par des locaux.
               </p>
 
               {/* Search bar */}
@@ -81,7 +88,7 @@ export function HeroSection() {
                 className="flex items-center gap-3 bg-white rounded-2xl px-4 py-3 border border-mist hover:border-deep-green/40 hover:shadow-sm transition-all group"
               >
                 <Search size={16} className="text-deep-green flex-none" />
-                <span className="text-stone text-sm flex-1">Chef, DJ, massage, décoration villa…</span>
+                <span className="text-stone text-sm flex-1">Que souhaitez-vous vivre pendant votre séjour ?</span>
                 <span className="text-xs bg-deep-green text-coconut px-2.5 py-1 rounded-full font-medium group-hover:bg-coral transition-colors">
                   Explorer
                 </span>
@@ -93,7 +100,7 @@ export function HeroSection() {
                 className="inline-flex items-center gap-2 text-deep-green text-sm font-medium hover:text-coral transition-colors"
               >
                 <MessageCircle size={14} />
-                Ajouter l&apos;option concierge
+                Demander conseil à notre concierge
               </Link>
             </div>
           </motion.div>
@@ -114,6 +121,7 @@ export function HeroSection() {
           ))}
         </div>
       </div>
+
     </>
   )
 }

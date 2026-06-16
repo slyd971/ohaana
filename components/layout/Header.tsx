@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/lib/i18n/navigation'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
-import { Globe, User } from 'lucide-react'
+import { Globe, Handshake, User } from 'lucide-react'
 import { OhaanaLogo } from './OhaanaLogo'
 
 interface HeaderProps {
@@ -54,6 +54,16 @@ export function Header({ transparent = false }: HeaderProps) {
               {t(key as 'home' | 'search')}
             </Link>
           ))}
+          <Link
+            href="/register?role=provider"
+            className={cn(
+              'inline-flex items-center gap-1.5 transition-colors hover:text-deep-green',
+              isOpaque ? 'text-charcoal-soft' : 'text-coconut/80 hover:text-coconut'
+            )}
+          >
+            <Handshake size={15} />
+            Devenir partenaire
+          </Link>
         </nav>
 
         {/* Right actions */}

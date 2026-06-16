@@ -1,24 +1,100 @@
 'use client'
 
-import { use, useState } from 'react'
+import { use, useState, useEffect } from 'react'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Link } from '@/lib/i18n/navigation'
-import { Star, Clock, Users, MapPin, Heart, Globe, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react'
+import {
+  Clock,
+  Users,
+  MapPin,
+  Heart,
+  Globe,
+  MessageCircle,
+  ChevronLeft,
+  ChevronRight,
+  ShieldCheck,
+  CheckCircle2,
+  CalendarDays,
+  Circle,
+  CircleDashed,
+  Phone,
+} from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { ServiceCard } from '@/components/service/ServiceCard'
 import { getServiceById, SERVICES } from '@/lib/data/seed'
-import { formatPrice, formatDuration, formatRating, cn } from '@/lib/utils'
+import { formatPrice, formatDuration, cn } from '@/lib/utils'
 
 const LANG_FLAGS: Record<string, string> = { fr: '🇫🇷', en: '🇬🇧', es: '🇪🇸', de: '🇩🇪', kr: '🏝️' }
 
-const MOCK_REVIEWS = [
-  { id: '1', tourist: 'Sophie M.', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop', rating: 5, content: 'Une expérience absolument magique. Chef Marcus a transformé notre soirée en quelque chose d\'inoubliable. Chaque plat était un voyage dans la cuisine créole.', date: 'Mars 2025' },
-  { id: '2', tourist: 'James K.', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop', rating: 5, content: 'Incredible evening! The chef was professional, creative and so passionate. The rum pairing was a revelation. Already booked again for next week.', date: 'Février 2025' },
-  { id: '3', tourist: 'Amélie D.', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop', rating: 5, content: 'Un dîner de rêve dans notre villa de Deshaies. Les produits du marché, les saveurs intenses, la présentation soignée... vraiment 5 étoiles.', date: 'Janvier 2025' },
+const INCLUDED_ITEMS = [
+  'Déplacement à domicile',
+  'Matériel fourni',
+  'Produits locaux selon la prestation',
+  'Support Ohaana',
+  'Paiement sécurisé',
+  'Annulation flexible',
 ]
+
+const AVAILABILITY = [
+  { day: 'Lun', date: '15', slots: [{ time: '15h', status: 'available' }, { time: '18h', status: 'request' }] },
+  { day: 'Mar', date: '16', slots: [{ time: '10h', status: 'available' }, { time: '16h', status: 'full' }] },
+  { day: 'Mer', date: '17', slots: [{ time: '14h', status: 'request' }, { time: '19h', status: 'available' }] },
+  { day: 'Jeu', date: '18', slots: [{ time: '18h', status: 'available' }, { time: '20h', status: 'request' }] },
+]
+
+const STATUS_STYLES = {
+  available: 'border-turquoise bg-turquoise/10 text-deep-green',
+  request: 'border-[#F5A623]/40 bg-[#F5A623]/10 text-charcoal',
+  full: 'border-mist bg-mist/50 text-stone line-through',
+}
+
+const STATUS_ICON = {
+  available: CheckCircle2,
+  request: CircleDashed,
+  full: Circle,
+}
+
+function getOfferings(service: ReturnType<typeof getServiceById>) {
+  if (!service) return []
+
+  const basePrice = service.price_cents
+
+  if (service.category_id === 'cat-2') {
+    return [
+      { id: 'relax', title: 'Massage Relaxation Caraïbe', duration: '60 min', price: basePrice, description: 'Rituel détente en villa avec huiles locales.', includes: ['Table professionnelle', 'Huiles essentielles', 'Ambiance spa'] },
+      { id: 'signature', title: 'Massage Signature', duration: '90 min', price: basePrice + 4000, description: 'Massage plus profond et personnalisé selon vos tensions.', includes: ['Diagnostic rapide', 'Table professionnelle', 'Huiles premium'] },
+      { id: 'duo', title: 'Massage Duo Sunset', duration: '90 min', price: basePrice * 2 + 2000, description: 'Deux praticiens pour un moment à deux, idéal en fin de journée.', includes: ['Deux tables', 'Deux praticiens', 'Mise en ambiance'] },
+      { id: 'pack', title: 'Pack Bien-être Villa', duration: '2h', price: basePrice * 2 + 8000, description: 'Massage, respiration guidée et rituel détente complet.', includes: ['Rituel complet', 'Produits locaux', 'Support Ohaana'] },
+    ]
+  }
+
+  if (service.category_id === 'cat-1') {
+    return [
+      { id: 'essential', title: service.title_fr, duration: service.duration_min ? formatDuration(service.duration_min) : 'Sur mesure', price: basePrice, description: 'Prestation complète à domicile, pensée pour votre villa.', includes: ['Préparation sur place', 'Service inclus', 'Produits locaux'] },
+      { id: 'signature', title: 'Menu Signature Caraïbe', duration: '3h30', price: basePrice + 4500, description: 'Une version plus gastronomique avec accords et dressage premium.', includes: ['Menu enrichi', 'Accords rhum', 'Service à table'] },
+      { id: 'family', title: 'Table famille & enfants', duration: '2h30', price: Math.max(9000, basePrice - 3000), description: 'Une expérience plus souple pour les familles en séjour.', includes: ['Menu adapté', 'Option enfants', 'Rangement inclus'] },
+    ]
+  }
+
+  return [
+    { id: 'classic', title: service.title_fr, duration: service.duration_min ? formatDuration(service.duration_min) : 'Sur mesure', price: basePrice, description: service.description_fr, includes: ['Déplacement inclus', 'Matériel fourni', 'Coordination Ohaana'] },
+    { id: 'signature', title: 'Version Signature', duration: service.duration_min ? formatDuration(service.duration_min + 30) : 'Sur mesure', price: basePrice + 3500, description: 'Une prestation renforcée avec préparation et finitions premium.', includes: ['Préparation étendue', 'Matériel fourni', 'Finitions premium'] },
+    { id: 'groupe', title: 'Format groupe privé', duration: service.duration_min ? formatDuration(service.duration_min + 60) : 'Sur mesure', price: basePrice + 7000, description: 'Pensé pour les familles, amis ou petites célébrations en villa.', includes: ['Format groupe', 'Coordination horaire', 'Support Ohaana'] },
+  ]
+}
+
+function islandLabel(island: string) {
+  const labels: Record<string, string> = {
+    guadeloupe: 'Guadeloupe',
+    martinique: 'Martinique',
+    saint_martin: 'Saint-Martin',
+    saint_barth: 'Saint-Barth',
+  }
+  return labels[island] ?? island
+}
 
 export default function ProviderPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -27,6 +103,16 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
 
   const [imgIndex, setImgIndex] = useState(0)
   const [isFav, setIsFav] = useState(false)
+  const [stickyVisible, setStickyVisible] = useState(false)
+  const offerings = getOfferings(service)
+  const [selectedOffering, setSelectedOffering] = useState(offerings[0]?.id)
+  const selected = offerings.find((offering) => offering.id === selectedOffering) ?? offerings[0]
+
+  useEffect(() => {
+    const onScroll = () => setStickyVisible(window.scrollY > 380)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   const relatedServices = SERVICES
     .filter((s) => s.provider_id === service.provider_id && s.id !== service.id)
@@ -35,7 +121,28 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
   const { provider, images } = service
 
   return (
-    <div className="bg-coconut pb-32 md:pb-8">
+    <div className="bg-coconut pb-52 md:pb-8">
+
+      {/* Sticky header — apparaît après le hero */}
+      <motion.div
+        initial={false}
+        animate={{ y: stickyVisible ? 0 : -72, opacity: stickyVisible ? 1 : 0 }}
+        transition={{ duration: 0.2, ease: 'easeOut' }}
+        className="fixed top-0 inset-x-0 z-50 bg-coconut/95 backdrop-blur-md border-b border-mist md:hidden"
+      >
+        <div className="max-w-2xl mx-auto px-4 h-16 flex items-center gap-3">
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-charcoal truncate">{service.title_fr}</p>
+            <p className="text-xs text-stone">{formatPrice(selected?.price ?? service.price_cents)} · pers.</p>
+          </div>
+          <Link href={`/reserver/${service.id}?offer=${selected?.id ?? 'classic'}`}>
+            <Button variant="primary" size="sm">
+              Réserver maintenant
+            </Button>
+          </Link>
+        </div>
+      </motion.div>
+
       {/* Image gallery hero — tall, provider identity overlaid */}
       <div className="relative h-[420px] md:h-[540px] bg-charcoal">
         {images.map((img, i) => (
@@ -83,19 +190,17 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
           </>
         )}
 
-        {/* Provider identity — bottom overlay */}
+        {/* Experience identity — bottom overlay */}
         <div className="absolute bottom-0 left-0 right-0 px-4 pb-5 flex items-end gap-4">
           <div className="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-white/80 shadow-lg flex-none">
             <Image src={provider.user.avatar_url} alt={provider.user.full_name} fill className="object-cover" sizes="64px" />
           </div>
           <div className="flex-1 min-w-0 pb-0.5">
-            <h2 className="text-2xl font-display text-white leading-tight drop-shadow-sm">
-              {provider.business_name}
-            </h2>
+            <h1 className="text-2xl md:text-3xl font-display text-white leading-tight drop-shadow-sm line-clamp-2">
+              {service.title_fr}
+            </h1>
             <div className="flex items-center gap-2 mt-1">
-              <Star size={13} className="fill-[#F5A623] text-[#F5A623] flex-none" />
-              <span className="text-sm font-semibold text-white">{formatRating(provider.avg_rating)}</span>
-              <span className="text-sm text-white/70">({provider.review_count} avis)</span>
+              <span className="text-sm font-medium text-white/90 truncate">{provider.business_name}</span>
               <span className="text-white/40">·</span>
               {provider.languages.map((l) => (
                 <span key={l} className="text-sm">{LANG_FLAGS[l] ?? l}</span>
@@ -115,12 +220,18 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 md:px-0">
-        {/* Title + price */}
+      <div className="max-w-5xl mx-auto px-4 md:px-8 md:flex md:gap-10">
+        {/* ── Colonne gauche ─────────────────────────────── */}
+        <div className="md:flex-1 md:min-w-0">
+        {/* Title + proof points */}
         <div className="space-y-3 mb-5 pt-5">
-          <h1 className="text-3xl font-display text-charcoal leading-tight">{service.title_fr}</h1>
-
           <div className="flex flex-wrap gap-2">
+            {provider.is_approved && (
+              <Badge variant="green" className="gap-1">
+                <ShieldCheck size={12} />
+                Prestataire vérifié
+              </Badge>
+            )}
             {service.tags.slice(0, 4).map((tag) => (
               <Badge key={tag} variant="green">{tag}</Badge>
             ))}
@@ -142,11 +253,124 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
             {service.address && (
               <span className="flex items-center gap-1.5">
                 <MapPin size={14} className="text-deep-green" />
-                {service.address.split(',')[0]}
+                {islandLabel(service.island)}
               </span>
             )}
           </div>
         </div>
+
+        {/* Service menu */}
+        <section className="mb-6">
+          <div className="flex items-end justify-between gap-4 mb-3">
+            <h2 className="text-sm font-semibold text-charcoal uppercase tracking-wider">Prestations disponibles</h2>
+            <span className="text-xs text-stone">Sélection directe</span>
+          </div>
+          <div className="space-y-3">
+            {offerings.map((offering) => (
+              <button
+                key={offering.id}
+                type="button"
+                onClick={() => setSelectedOffering(offering.id)}
+                className={cn(
+                  'w-full text-left rounded-2xl border bg-surface p-4 transition-all',
+                  selectedOffering === offering.id
+                    ? 'border-deep-green ring-2 ring-deep-green/10'
+                    : 'border-mist hover:border-deep-green/40'
+                )}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-semibold text-charcoal">{offering.title}</h3>
+                    <p className="mt-1 text-xs text-stone">{offering.duration}</p>
+                  </div>
+                  <p className="text-sm font-semibold text-deep-green flex-none">{formatPrice(offering.price)}</p>
+                </div>
+                <p className="mt-2 text-sm text-charcoal-soft leading-relaxed">{offering.description}</p>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {offering.includes.map((item) => (
+                    <Badge key={item} variant="stone" className="gap-1">
+                      <CheckCircle2 size={11} />
+                      {item}
+                    </Badge>
+                  ))}
+                </div>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* Smart availability */}
+        <section className="mb-6 bg-surface rounded-2xl border border-mist p-4 space-y-4">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-sm font-semibold text-charcoal uppercase tracking-wider">Disponibilités</h2>
+              <p className="mt-1 text-sm text-stone">Renseignez vos dates et votre lieu de séjour pour filtrer les créneaux compatibles.</p>
+            </div>
+            <CalendarDays size={18} className="text-deep-green flex-none" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <input
+              type="text"
+              placeholder="Dates de séjour"
+              className="h-11 rounded-xl border border-mist bg-coconut px-3 text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green"
+            />
+            <input
+              type="text"
+              placeholder="Lieu de séjour"
+              className="h-11 rounded-xl border border-mist bg-coconut px-3 text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green"
+            />
+          </div>
+
+          <div className="grid grid-cols-4 gap-2">
+            {AVAILABILITY.map((day) => (
+              <div key={day.day} className="rounded-xl border border-mist bg-coconut p-2">
+                <div className="text-center mb-2">
+                  <p className="text-[10px] uppercase text-stone">{day.day}</p>
+                  <p className="text-lg font-display text-charcoal">{day.date}</p>
+                </div>
+                <div className="space-y-1.5">
+                  {day.slots.map((slot) => {
+                    const Icon = STATUS_ICON[slot.status as keyof typeof STATUS_ICON]
+                    return (
+                      <button
+                        key={slot.time}
+                        type="button"
+                        disabled={slot.status === 'full'}
+                        className={cn(
+                          'w-full inline-flex items-center justify-center gap-1 rounded-lg border px-1.5 py-1.5 text-[11px] font-medium',
+                          STATUS_STYLES[slot.status as keyof typeof STATUS_STYLES]
+                        )}
+                      >
+                        <Icon size={10} />
+                        {slot.time}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap gap-3 text-[11px] text-stone">
+            <span className="inline-flex items-center gap-1"><CheckCircle2 size={11} className="text-turquoise" /> Disponible</span>
+            <span className="inline-flex items-center gap-1"><CircleDashed size={11} className="text-[#F5A623]" /> Sur demande</span>
+            <span className="inline-flex items-center gap-1"><Circle size={11} /> Complet</span>
+          </div>
+        </section>
+
+        {/* Included */}
+        <section className="mb-6">
+          <h2 className="text-sm font-semibold text-charcoal uppercase tracking-wider mb-3">Ce qui est inclus</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {INCLUDED_ITEMS.map((item) => (
+              <div key={item} className="flex items-center gap-2 text-sm text-charcoal-soft">
+                <CheckCircle2 size={15} className="text-turquoise flex-none" />
+                {item}
+              </div>
+            ))}
+          </div>
+        </section>
 
         {/* Description */}
         <section className="mb-6">
@@ -180,6 +404,10 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
               <Globe size={12} />
               {provider.languages.map((l) => LANG_FLAGS[l] ?? l).join(' ')}
             </span>
+            <span className="flex items-center gap-1 text-xs text-stone">
+              <Clock size={12} />
+              Répond en moins de 30 min
+            </span>
             {provider.whatsapp && (
               <a
                 href={`https://wa.me/${provider.whatsapp.replace(/\D/g, '')}`}
@@ -191,41 +419,30 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
                 WhatsApp
               </a>
             )}
+            {provider.phone && (
+              <a
+                href={`tel:${provider.phone.replace(/\s/g, '')}`}
+                className="flex items-center gap-1 text-xs text-deep-green font-medium"
+              >
+                <Phone size={12} />
+                Contacter
+              </a>
+            )}
           </div>
         </section>
 
-        {/* Reviews */}
+        {/* Often booked with */}
         <section className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-charcoal uppercase tracking-wider">
-              Avis ({service.review_count})
-            </h3>
-            <div className="flex items-center gap-1">
-              <Star size={13} className="fill-[#F5A623] text-[#F5A623]" />
-              <span className="text-sm font-semibold text-charcoal">{formatRating(service.avg_rating)}</span>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            {MOCK_REVIEWS.map((review) => (
-              <div key={review.id} className="bg-surface rounded-2xl p-4 space-y-2 shadow-card">
-                <div className="flex items-center gap-2.5">
-                  <div className="relative w-8 h-8 rounded-full overflow-hidden flex-none">
-                    <Image src={review.avatar} alt={review.tourist} fill className="object-cover" sizes="32px" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-charcoal">{review.tourist}</p>
-                    <p className="text-xs text-stone">{review.date}</p>
-                  </div>
-                  <div className="flex">
-                    {Array.from({ length: review.rating }).map((_, i) => (
-                      <Star key={i} size={11} className="fill-[#F5A623] text-[#F5A623]" />
-                    ))}
-                  </div>
-                </div>
-                <p className="text-sm text-charcoal-soft leading-relaxed">{review.content}</p>
-              </div>
-            ))}
+          <h3 className="text-sm font-semibold text-charcoal uppercase tracking-wider mb-3">
+            Souvent réservé avec
+          </h3>
+          <div className="flex gap-4 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
+            {SERVICES
+              .filter((s) => s.id !== service.id && ['cat-1', 'cat-3', 'cat-8', 'cat-9', 'cat-11'].includes(s.category_id))
+              .slice(0, 5)
+              .map((s) => (
+                <ServiceCard key={s.id} service={s} size="sm" />
+              ))}
           </div>
         </section>
 
@@ -242,18 +459,64 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
             </div>
           </section>
         )}
-      </div>
+        </div>{/* fin colonne gauche */}
 
-      {/* Fixed CTA */}
-      <div className="fixed bottom-0 inset-x-0 md:relative md:bottom-auto md:mt-4 bg-coconut/95 backdrop-blur-md border-t border-mist p-4 pb-safe z-40">
+        {/* ── Colonne droite sticky (desktop uniquement) ── */}
+        <div className="hidden md:block md:w-72 md:flex-none md:self-start md:sticky md:top-24">
+          <div className="rounded-3xl border border-mist bg-surface shadow-elevated p-6 space-y-5">
+            {/* Prix */}
+            <div>
+              <p className="text-xs text-stone mb-1">À partir de</p>
+              <p className="text-3xl font-semibold text-charcoal">{formatPrice(selected?.price ?? service.price_cents)}</p>
+              <p className="text-xs text-stone">par personne · déplacement inclus</p>
+            </div>
+
+            {/* Prestation sélectionnée */}
+            {selected && (
+              <div className="rounded-xl border border-deep-green/20 bg-deep-green/5 px-4 py-3">
+                <p className="text-xs text-stone mb-0.5">Prestation sélectionnée</p>
+                <p className="text-sm font-semibold text-charcoal">{selected.title}</p>
+                <p className="text-xs text-stone mt-0.5">{selected.duration}</p>
+              </div>
+            )}
+
+            {/* CTA */}
+            <Link href={`/reserver/${service.id}?offer=${selected?.id ?? 'classic'}`} className="block">
+              <Button variant="primary" fullWidth size="lg">
+                Réserver maintenant
+              </Button>
+            </Link>
+
+            {/* Trust signals */}
+            <div className="space-y-2 pt-1 border-t border-mist">
+              {[
+                { icon: ShieldCheck, text: 'Prestataire vérifié Ohaana' },
+                { icon: CheckCircle2, text: 'Annulation flexible' },
+                { icon: MessageCircle, text: 'Réponse en moins de 30 min' },
+              ].map(({ icon: Icon, text }) => (
+                <div key={text} className="flex items-center gap-2 text-xs text-stone">
+                  <Icon size={13} className="text-deep-green flex-none" />
+                  {text}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>{/* fin grid */}
+
+      {/* Fixed CTA — mobile uniquement, positionné au-dessus du BottomNav (h-16 + safe-area) */}
+      <div
+        className="fixed inset-x-0 md:hidden bg-coconut/95 backdrop-blur-md border-t border-mist p-4 z-40"
+        style={{ bottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }}
+      >
         <div className="max-w-2xl mx-auto flex items-center gap-3">
           <div>
-            <p className="text-xs text-stone">À partir de</p>
-            <p className="text-xl font-semibold text-charcoal">{formatPrice(service.price_cents)}</p>
+            <p className="text-xs text-stone">À partir de · disponible dès lundi 15h</p>
+            <p className="text-xl font-semibold text-charcoal">{formatPrice(selected?.price ?? service.price_cents)}</p>
           </div>
-          <Link href={`/reserver/${service.id}`} className="flex-1">
-            <Button variant="coral" fullWidth size="lg">
-              Réserver
+          <Link href={`/reserver/${service.id}?offer=${selected?.id ?? 'classic'}`} className="flex-1">
+            <Button variant="primary" fullWidth size="lg">
+              Réserver maintenant
             </Button>
           </Link>
         </div>

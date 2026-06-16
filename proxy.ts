@@ -10,7 +10,6 @@ const authRoutes = ['/login', '/register']
 const providerRoutes = ['/provider']
 const adminRoutes = ['/admin']
 const conciergeRoutes = ['/concierge/dashboard']
-const hotelRoutes = ['/hotel']
 
 // Demo mode: all routes accessible without auth.
 // Active by default for investor/demo deployments. Set NEXT_PUBLIC_DEMO_MODE=false
@@ -31,18 +30,26 @@ export async function proxy(request: NextRequest) {
 
   const pathnameWithoutLocale = pathname.replace(/^\/(fr|en)/, '') || '/'
 
+  if (pathnameWithoutLocale === '/register') {
+    const role = request.nextUrl.searchParams.get('role')
+    if (role && !['tourist', 'provider'].includes(role)) {
+      const url = request.nextUrl.clone()
+      url.searchParams.delete('role')
+      return NextResponse.redirect(url)
+    }
+  }
+
   const isProtected = protectedRoutes.some((r) => pathnameWithoutLocale.startsWith(r))
   const isAuthRoute = authRoutes.some((r) => pathnameWithoutLocale.startsWith(r))
   const isProvider = providerRoutes.some((r) => pathnameWithoutLocale.startsWith(r))
   const isAdmin = adminRoutes.some((r) => pathnameWithoutLocale.startsWith(r))
   const isConcierge = conciergeRoutes.some((r) => pathnameWithoutLocale.startsWith(r))
-  const isHotel = hotelRoutes.some((r) => pathnameWithoutLocale.startsWith(r))
 
   let response = intlMiddleware(request)
 
   if (isDemoMode()) return response
 
-  if (isProtected || isProvider || isAdmin || isConcierge || isHotel) {
+  if (isProtected || isProvider || isAdmin || isConcierge) {
     try {
       const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -81,9 +88,6 @@ export async function proxy(request: NextRequest) {
         return NextResponse.redirect(new URL('/', request.url))
       if (isConcierge && !['concierge', 'admin'].includes(role))
         return NextResponse.redirect(new URL('/', request.url))
-      if (isHotel && !['hotel', 'villa', 'admin'].includes(role))
-        return NextResponse.redirect(new URL('/', request.url))
-
     } catch {
       // Supabase unreachable → fail open for demo resilience
       return response

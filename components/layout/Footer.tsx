@@ -12,10 +12,6 @@ export function Footer() {
               Expériences caribéennes authentiques,<br />
               curatées avec soin par des locaux.
             </p>
-            <span className="inline-flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded-full border border-coconut/20 text-coconut/40">
-              <span className="w-1.5 h-1.5 rounded-full bg-coral/60" />
-              Prototype · données de démonstration
-            </span>
           </div>
 
           {/* Explorer */}
@@ -67,7 +63,6 @@ export function Footer() {
             <ul className="space-y-2 text-xs">
               {[
                 { label: 'Devenir prestataire', href: '/register?role=provider' },
-                { label: 'Partenaires hôtels',  href: '/register?role=hotel' },
                 { label: 'Concierge',           href: '/concierge' },
                 { label: 'À propos',            href: '/about' },
               ].map(({ label, href }) => (
@@ -82,7 +77,7 @@ export function Footer() {
         </div>
 
         <div className="mt-8 pt-6 border-t border-coconut/10 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-coconut/40">
-          <p>© {new Date().getFullYear()} Ohaana. Prototype — expériences de démonstration.</p>
+          <p>© {new Date().getFullYear()} Ohaana. Expériences privées dans les Caraïbes.</p>
           <div className="flex gap-4">
             <Link href="/privacy" className="hover:text-coconut transition-colors">Confidentialité</Link>
             <Link href="/terms" className="hover:text-coconut transition-colors">CGU</Link>

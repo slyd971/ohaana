@@ -1,9 +1,9 @@
-import { CalendarDays, TrendingUp, Star, Briefcase, Clock, CheckCircle, AlertCircle } from 'lucide-react'
+import { CalendarDays, TrendingUp, Wallet, Briefcase, Clock, CheckCircle, AlertCircle } from 'lucide-react'
 
 const KPI = [
   { label: 'Réservations ce mois', value: '12', delta: '+3 vs mois dernier', Icon: CalendarDays, color: 'bg-turquoise/10 text-turquoise' },
   { label: 'Revenus nets', value: '4 320 €', delta: '+18%', Icon: TrendingUp, color: 'bg-coral/10 text-coral' },
-  { label: 'Note moyenne', value: '4.9 / 5', delta: '42 avis', Icon: Star, color: 'bg-[#F5A623]/10 text-[#F5A623]' },
+  { label: 'Panier moyen', value: '360 €', delta: '+12%', Icon: Wallet, color: 'bg-sand text-deep-green' },
   { label: 'Services actifs', value: '3', delta: '', Icon: Briefcase, color: 'bg-deep-green/10 text-deep-green' },
 ]
 

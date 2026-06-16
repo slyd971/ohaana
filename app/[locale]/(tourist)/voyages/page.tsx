@@ -4,18 +4,18 @@ import { useState } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Link } from '@/lib/i18n/navigation'
-import { Calendar, Star, Clock, Heart } from 'lucide-react'
+import { Calendar, Clock, Heart } from 'lucide-react'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { ServiceCard } from '@/components/service/ServiceCard'
 import { SERVICES } from '@/lib/data/seed'
-import { formatPrice, formatRating, cn } from '@/lib/utils'
+import { formatPrice, cn } from '@/lib/utils'
 
 type Tab = 'upcoming' | 'past' | 'favorites'
 
 type BookingBase = { id: string; serviceId: string; date: string; time: string; guests: number; total: number }
-type ActiveBooking = BookingBase & { status: 'confirmed' | 'pending'; rating?: never }
-type PastBooking   = BookingBase & { status: 'completed'; rating?: number }
+type ActiveBooking = BookingBase & { status: 'confirmed' | 'pending' }
+type PastBooking   = BookingBase & { status: 'completed' }
 type AnyBooking    = ActiveBooking | PastBooking
 
 // Mock bookings data
@@ -25,8 +25,8 @@ const UPCOMING_BOOKINGS: ActiveBooking[] = [
 ]
 
 const PAST_BOOKINGS: PastBooking[] = [
-  { id: 'b-3', serviceId: 's-2', date: '2025-06-20', time: '10:00', guests: 1, total: 12000, status: 'completed', rating: 5 },
-  { id: 'b-4', serviceId: 's-7', date: '2025-06-10', time: '15:00', guests: 2, total: 19000, status: 'completed', rating: 5 },
+  { id: 'b-3', serviceId: 's-2', date: '2025-06-20', time: '10:00', guests: 1, total: 12000, status: 'completed' },
+  { id: 'b-4', serviceId: 's-7', date: '2025-06-10', time: '15:00', guests: 2, total: 19000, status: 'completed' },
 ]
 
 const STATUS_LABELS = {
@@ -69,17 +69,7 @@ function BookingCard({ booking }: { booking: AnyBooking }) {
       </div>
 
       {booking.status === 'completed' && (
-        <div className="px-3 pb-3 flex items-center justify-between">
-          {booking.rating ? (
-            <div className="flex items-center gap-1">
-              {Array.from({ length: booking.rating }).map((_, i) => (
-                <Star key={i} size={12} className="fill-[#F5A623] text-[#F5A623]" />
-              ))}
-              <span className="text-xs text-stone ml-1">Votre avis</span>
-            </div>
-          ) : (
-            <Button size="sm" variant="outline">Laisser un avis</Button>
-          )}
+        <div className="px-3 pb-3 flex justify-end">
           <Link href={`/prestataires/${service.id}`}>
             <Button size="sm" variant="ghost">Réserver à nouveau</Button>
           </Link>

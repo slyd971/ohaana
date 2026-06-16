@@ -3,8 +3,10 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { MessageCircle, Send, ExternalLink } from 'lucide-react'
+import { MessageCircle, Send, ExternalLink, CalendarDays, MapPin, Sparkles, Clock } from 'lucide-react'
+import { Link } from '@/lib/i18n/navigation'
 import { Button } from '@/components/ui/Button'
+import { SERVICES } from '@/lib/data/seed'
 
 const WHATSAPP_NUMBER = '590690000000'
 const WHATSAPP_DEFAULT_MSG = encodeURIComponent(
@@ -14,16 +16,23 @@ const CONCIERGE_PHOTO =
   'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=240&h=240&fit=crop&q=85'
 
 const SUGGESTIONS = [
-  'Un dîner romantique dans une villa avec vue sur mer',
-  'Un shooting photo au lever du soleil en villa',
+  'Je fête notre anniversaire',
+  'Je cherche une soirée romantique',
+  'Je voyage avec deux enfants',
   'Un massage duo dans notre villa ce soir',
   'Un DJ pour notre soirée d\'anniversaire en terrasse',
   'Une décoration romantique de villa pour une demande en mariage',
-  'Un cours de cuisine créole avec marché le matin',
 ]
+
+const RECOMMENDED_IDS = ['s-1', 's-8', 's-18', 's-19', 's-17', 's-13']
+const RECOMMENDATIONS = RECOMMENDED_IDS
+  .map((id) => SERVICES.find((service) => service.id === id))
+  .filter(Boolean) as typeof SERVICES
 
 export default function ConciergePage() {
   const [message, setMessage] = useState('')
+  const [stayDates, setStayDates] = useState('')
+  const [location, setLocation] = useState('')
   const [sent, setSent] = useState(false)
 
   function handleSend(e: React.SubmitEvent<HTMLFormElement>) {
@@ -64,8 +73,8 @@ export default function ConciergePage() {
           </div>
 
           <div>
-            <h1 className="text-2xl font-display text-charcoal">Votre concierge personnel</h1>
-            <p className="text-stone text-sm mt-1">Disponible 7j/7 · Réponse en moins de 30 min</p>
+            <h1 className="text-2xl font-display text-charcoal">Assistant séjour Ohaana</h1>
+            <p className="text-stone text-sm mt-1">Recommandations, prestataires et créneaux adaptés à votre villa.</p>
           </div>
         </motion.div>
 
@@ -83,8 +92,8 @@ export default function ConciergePage() {
             <MessageCircle size={24} />
           </div>
           <div className="flex-1">
-            <p className="font-semibold">Contacter via WhatsApp</p>
-            <p className="text-sm text-white/80">Réponse instantanée · En français ou anglais</p>
+            <p className="font-semibold">Demander conseil à notre concierge</p>
+            <p className="text-sm text-white/80">Réponse rapide · En français ou anglais</p>
           </div>
           <ExternalLink size={18} className="flex-none opacity-70" />
         </motion.a>
@@ -100,15 +109,42 @@ export default function ConciergePage() {
           >
             <div>
               <label className="block text-sm font-medium text-charcoal mb-2">
-                Décrivez votre expérience idéale
+                Quelle ambiance souhaitez-vous créer ?
               </label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="Ex: Je cherche quelque chose de romantique pour notre anniversaire ce soir..."
+                placeholder="Ex: je fête notre anniversaire, je cherche une soirée romantique, je voyage avec deux enfants..."
                 rows={4}
                 className="w-full rounded-2xl border border-mist bg-surface px-4 py-3 text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green focus:ring-2 focus:ring-deep-green/15 resize-none"
               />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <label className="block">
+                <span className="flex items-center gap-1.5 text-sm font-medium text-charcoal mb-2">
+                  <CalendarDays size={14} />
+                  Dates du séjour
+                </span>
+                <input
+                  value={stayDates}
+                  onChange={(e) => setStayDates(e.target.value)}
+                  placeholder="Ex: 12–18 août"
+                  className="w-full h-12 rounded-2xl border border-mist bg-surface px-4 text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green focus:ring-2 focus:ring-deep-green/15"
+                />
+              </label>
+              <label className="block">
+                <span className="flex items-center gap-1.5 text-sm font-medium text-charcoal mb-2">
+                  <MapPin size={14} />
+                  Lieu de séjour
+                </span>
+                <input
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="Ex: villa à Deshaies"
+                  className="w-full h-12 rounded-2xl border border-mist bg-surface px-4 text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green focus:ring-2 focus:ring-deep-green/15"
+                />
+              </label>
             </div>
 
             {/* Suggestions */}
@@ -130,7 +166,7 @@ export default function ConciergePage() {
 
             <Button type="submit" fullWidth size="lg" disabled={!message.trim()}>
               <Send size={16} />
-              Envoyer la demande
+              Recevoir mes recommandations
             </Button>
           </motion.form>
         ) : (
@@ -142,7 +178,7 @@ export default function ConciergePage() {
             <div className="text-4xl">✅</div>
             <h2 className="text-xl font-display text-charcoal">Demande envoyée !</h2>
             <p className="text-sm text-stone max-w-xs mx-auto">
-              Votre concierge vous répond sous 30 minutes avec une proposition sur mesure.
+              Votre concierge prépare une proposition avec les prestataires et créneaux compatibles.
             </p>
             <Button
               variant="outline"
@@ -152,6 +188,49 @@ export default function ConciergePage() {
             </Button>
           </motion.div>
         )}
+
+        {/* Recommendations */}
+        <motion.section
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.24 }}
+          className="mt-8 space-y-3"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-sm font-semibold text-charcoal">Recommandations pour votre séjour</h2>
+            <span className="inline-flex items-center gap-1 text-[11px] text-stone">
+              <Clock size={11} />
+              Créneaux filtrés
+            </span>
+          </div>
+          <div className="space-y-2">
+            {RECOMMENDATIONS.slice(0, 4).map((service) => (
+              <Link
+                key={service.id}
+                href={`/prestataires/${service.id}`}
+                className="flex items-center gap-3 rounded-2xl border border-mist bg-surface p-3 hover:border-deep-green/40 transition-colors"
+              >
+                <div className="relative h-14 w-14 rounded-xl overflow-hidden flex-none">
+                  <Image
+                    src={(service.images.find((image) => image.is_cover) ?? service.images[0])?.url ?? ''}
+                    alt={service.title_fr}
+                    fill
+                    className="object-cover"
+                    sizes="56px"
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-charcoal truncate">{service.title_fr}</p>
+                  <p className="text-xs text-stone truncate">{service.provider.business_name}</p>
+                </div>
+                <span className="inline-flex items-center gap-1 rounded-full bg-turquoise/10 px-2 py-1 text-[11px] font-medium text-deep-green">
+                  <Sparkles size={11} />
+                  Compatible
+                </span>
+              </Link>
+            ))}
+          </div>
+        </motion.section>
 
         {/* How it works */}
         <motion.div

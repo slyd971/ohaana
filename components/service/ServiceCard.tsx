@@ -2,8 +2,8 @@
 
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { Star, Heart, Clock, MapPin } from 'lucide-react'
-import { cn, formatPrice, formatDuration, formatRating } from '@/lib/utils'
+import { Heart, Clock, MapPin } from 'lucide-react'
+import { cn, formatPrice, formatDuration } from '@/lib/utils'
 import { Link } from '@/lib/i18n/navigation'
 import type { SERVICES } from '@/lib/data/seed'
 
@@ -120,7 +120,7 @@ export function ServiceCard({
 
         {/* Info */}
         <div className="p-3.5 space-y-1.5">
-          {/* Provider + rating */}
+          {/* Provider */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
               <div className="relative w-5 h-5 rounded-full overflow-hidden flex-none ring-1 ring-mist">
@@ -139,11 +139,6 @@ export function ServiceCard({
                 )}
               </div>
               <span className="text-xs text-stone truncate">{providerName}</span>
-            </div>
-            <div className="flex items-center gap-1 flex-none">
-              <Star size={11} className="fill-[#F5A623] text-[#F5A623]" />
-              <span className="text-xs font-medium text-charcoal">{formatRating(service.avg_rating)}</span>
-              <span className="text-xs text-stone">({service.review_count})</span>
             </div>
           </div>
 

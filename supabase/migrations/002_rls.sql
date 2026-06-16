@@ -80,37 +80,6 @@ create policy "concierge_profiles: admin"
   using (public.is_admin());
 
 -- ─────────────────────────────────────────────────────────────
--- hotel_profiles / villa_profiles
--- ─────────────────────────────────────────────────────────────
-alter table public.hotel_profiles enable row level security;
-
-create policy "hotel_profiles: read authenticated"
-  on public.hotel_profiles for select
-  using (auth.role() = 'authenticated');
-
-create policy "hotel_profiles: own write"
-  on public.hotel_profiles for insert update delete
-  using (user_id = auth.uid());
-
-create policy "hotel_profiles: admin"
-  on public.hotel_profiles for all
-  using (public.is_admin());
-
-alter table public.villa_profiles enable row level security;
-
-create policy "villa_profiles: read authenticated"
-  on public.villa_profiles for select
-  using (auth.role() = 'authenticated');
-
-create policy "villa_profiles: own write"
-  on public.villa_profiles for insert update delete
-  using (user_id = auth.uid());
-
-create policy "villa_profiles: admin"
-  on public.villa_profiles for all
-  using (public.is_admin());
-
--- ─────────────────────────────────────────────────────────────
 -- service_categories — publiques en lecture
 -- ─────────────────────────────────────────────────────────────
 alter table public.service_categories enable row level security;
