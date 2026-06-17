@@ -256,7 +256,7 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
   const { provider, images } = service
 
   return (
-    <div className="bg-coconut pb-36 md:pb-8">
+    <div className="bg-coconut pb-36 md:pb-8 md:pt-16">
 
       {/* Sticky header — apparaît après le hero */}
       <motion.div
