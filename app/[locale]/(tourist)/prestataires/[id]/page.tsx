@@ -278,88 +278,140 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
         </div>
       </motion.div>
 
-      {/* Image gallery hero */}
-      <div className="relative h-[300px] md:h-[390px] bg-charcoal">
+      {/* ── Mobile hero ─────────────────────────────────────────────────────── */}
+      <div className="relative h-[300px] md:hidden bg-charcoal">
         {images.map((img, i) => (
-          <motion.div
-            key={img.id}
-            className="absolute inset-0"
-            initial={false}
-            animate={{ opacity: i === imgIndex ? 1 : 0 }}
-            transition={{ duration: 0.4 }}
-          >
+          <motion.div key={img.id} className="absolute inset-0" initial={false}
+            animate={{ opacity: i === imgIndex ? 1 : 0 }} transition={{ duration: 0.4 }}>
             <Image src={img.url} alt={img.alt_fr ?? ''} fill className="object-cover object-center" priority={i === 0} sizes="100vw" />
           </motion.div>
         ))}
-
-        {/* Gradient: dark top bar + strong bottom for text */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/30" />
-
-        {/* Back */}
         <Link href="/search" className="absolute top-4 left-4 p-2 rounded-full bg-black/35 backdrop-blur-sm text-white hover:bg-black/55 transition-colors z-10">
           <ChevronLeft size={20} />
         </Link>
-
-        {/* Favorite */}
-        <button
-          type="button"
-          onClick={() => setIsFav((v) => !v)}
-          className="absolute top-4 right-4 p-2 rounded-full bg-black/35 backdrop-blur-sm hover:bg-black/55 transition-colors z-10"
-        >
+        <button type="button" onClick={() => setIsFav((v) => !v)}
+          className="absolute top-4 right-4 p-2 rounded-full bg-black/35 backdrop-blur-sm hover:bg-black/55 transition-colors z-10">
           <Heart size={20} className={cn(isFav ? 'fill-coral text-coral' : 'text-white fill-transparent')} />
         </button>
-
-        {/* Gallery side nav */}
         {images.length > 1 && (
           <>
             <button type="button" onClick={() => setImgIndex((i) => Math.max(0, i - 1))}
               className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/30 backdrop-blur-sm text-white disabled:opacity-0 transition-opacity"
-              disabled={imgIndex === 0}>
-              <ChevronLeft size={18} />
-            </button>
+              disabled={imgIndex === 0}><ChevronLeft size={18} /></button>
             <button type="button" onClick={() => setImgIndex((i) => Math.min(images.length - 1, i + 1))}
               className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/30 backdrop-blur-sm text-white disabled:opacity-0 transition-opacity"
-              disabled={imgIndex === images.length - 1}>
-              <ChevronRight size={18} />
-            </button>
+              disabled={imgIndex === images.length - 1}><ChevronRight size={18} /></button>
           </>
         )}
-
-        {/* Experience identity — bottom overlay */}
         <div className="absolute bottom-0 left-0 right-0 px-4 pb-5 flex items-end gap-4">
           <div className="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-white/80 shadow-lg flex-none">
             <Image src={provider.user.avatar_url} alt={provider.user.full_name} fill className="object-cover" sizes="64px" />
           </div>
           <div className="flex-1 min-w-0 pb-0.5">
-            <h1 className="text-2xl md:text-3xl font-display text-white leading-tight drop-shadow-sm line-clamp-3">
-              {service.title_fr}
-            </h1>
+            <h1 className="text-2xl font-display text-white leading-tight drop-shadow-sm line-clamp-3">{service.title_fr}</h1>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-sm font-medium text-white/90 truncate">{provider.business_name}</span>
               <span className="text-white/40">·</span>
-              {provider.languages.map((l) => (
-                <span key={l} className="text-sm">{LANG_FLAGS[l] ?? l}</span>
-              ))}
+              {provider.languages.map((l) => <span key={l} className="text-sm">{LANG_FLAGS[l] ?? l}</span>)}
             </div>
           </div>
-          {/* Gallery dots — top-right of provider strip */}
           {images.length > 1 && (
             <div className="flex gap-1.5 pb-1 shrink-0">
               {images.map((_, i) => (
                 <button key={i} type="button" onClick={() => setImgIndex(i)}
-                  className={cn('h-1.5 rounded-full transition-all', i === imgIndex ? 'bg-white w-4' : 'bg-white/40 w-1.5')}
-                />
+                  className={cn('h-1.5 rounded-full transition-all', i === imgIndex ? 'bg-white w-4' : 'bg-white/40 w-1.5')} />
               ))}
             </div>
           )}
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 md:px-8 md:flex md:gap-10">
+      <div className="max-w-5xl mx-auto px-4 md:px-8">
+
+        {/* ── Desktop title row — au-dessus des photos ──────── */}
+        <div className="hidden md:block pt-7 pb-5">
+          <div className="flex items-center gap-3 mb-3 flex-wrap">
+            {provider.is_approved && (
+              <Badge variant="green" className="gap-1">
+                <ShieldCheck size={12} />
+                Prestataire vérifié
+              </Badge>
+            )}
+            <span className="text-sm text-stone">
+              Organisé par{' '}
+              <span className="font-medium text-charcoal">{provider.business_name}</span>
+              {' · '}
+              {provider.languages.map((l) => LANG_FLAGS[l] ?? l).join(' ')}
+            </span>
+            <button
+              type="button"
+              onClick={() => setIsFav((v) => !v)}
+              className="ml-auto flex items-center gap-1.5 text-sm text-stone hover:text-charcoal transition-colors"
+            >
+              <Heart size={15} className={cn(isFav ? 'fill-coral text-coral' : '')} />
+              {isFav ? 'Retiré des favoris' : 'Ajouter aux favoris'}
+            </button>
+          </div>
+          <h1 className="text-3xl font-display text-charcoal leading-tight mb-3">{service.title_fr}</h1>
+          <div className="flex items-center gap-5 text-sm text-stone">
+            {service.duration_min && (
+              <span className="flex items-center gap-1.5">
+                <Clock size={13} className="text-deep-green" />
+                {formatDuration(service.duration_min)}
+              </span>
+            )}
+            <span className="flex items-center gap-1.5">
+              <Users size={13} className="text-deep-green" />
+              {service.capacity_min === service.capacity_max
+                ? `${service.capacity_max} pers.`
+                : `${service.capacity_min}–${service.capacity_max} pers.`}
+            </span>
+            {service.address && (
+              <span className="flex items-center gap-1.5">
+                <MapPin size={13} className="text-deep-green" />
+                {islandLabel(service.island)}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="md:flex md:gap-10 md:items-start">
         {/* ── Colonne gauche ─────────────────────────────── */}
         <div className="md:flex-1 md:min-w-0">
-        {/* Title + proof points */}
-        <div className="space-y-3 mb-5 pt-5">
+
+        {/* Desktop photo grid — style GYG (1 grande + 2×2) */}
+        <div
+          className="hidden md:grid grid-rows-2 grid-flow-col gap-1.5 h-[400px] rounded-2xl overflow-hidden mb-8"
+          style={{ gridTemplateColumns: '1.8fr 1fr 1fr' }}
+        >
+          <div className="row-span-2 relative overflow-hidden">
+            <Image src={images[0].url} alt={images[0].alt_fr ?? ''} fill className="object-cover" sizes="55vw" priority />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
+            <Link href="/search" className="absolute top-4 left-4 p-2 rounded-full bg-black/35 backdrop-blur-sm text-white hover:bg-black/55 transition-colors z-10">
+              <ChevronLeft size={20} />
+            </Link>
+          </div>
+          {([1, 2, 3, 4] as const).map((idx) => {
+            const img = images[idx] ?? images[idx % images.length]
+            const isLast = idx === 4
+            return (
+              <div key={idx} className="relative overflow-hidden">
+                {img && <Image src={img.url} alt={img.alt_fr ?? ''} fill className="object-cover hover:scale-105 transition-transform duration-500" sizes="20vw" />}
+                {!img && <div className="absolute inset-0 bg-stone/20" />}
+                {isLast && <div className="absolute inset-0 bg-black/25" />}
+                {isLast && (
+                  <button type="button" className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm text-charcoal text-xs font-medium px-3 py-1.5 rounded-full shadow-sm hover:bg-coconut transition-colors">
+                    Voir tout
+                  </button>
+                )}
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Badges/stats — mobile uniquement (desktop : voir titre au-dessus) */}
+        <div className="space-y-3 mb-5 pt-5 md:hidden">
           <div className="flex flex-wrap gap-2">
             {provider.is_approved && (
               <Badge variant="green" className="gap-1">
@@ -581,9 +633,9 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
           <p className="text-sm text-charcoal-soft leading-relaxed">{service.description_fr}</p>
         </section>
 
-        {/* Galerie */}
+        {/* Galerie — mobile uniquement (desktop : grille au-dessus) */}
         {images.length > 1 && (
-          <section className="mb-6">
+          <section className="mb-6 md:hidden">
             <h3 className="text-sm font-semibold text-charcoal uppercase tracking-wider mb-3">Galerie</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               {images.slice(0, 6).map((img, i) => (
@@ -688,6 +740,23 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
             </div>
           </section>
         )}
+        {/* Bloc concierge */}
+        <section className="mb-6 rounded-2xl bg-deep-green text-coconut p-5 flex gap-4 items-start">
+          <div className="flex-none w-10 h-10 rounded-full bg-coconut/15 flex items-center justify-center">
+            <MessageCircle size={18} className="text-coconut" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold mb-0.5">Besoin d'aide pour composer votre séjour ?</p>
+            <p className="text-xs text-coconut/70 leading-relaxed">Notre concierge peut créer un programme sur-mesure pour vous en moins de 2h — chefs, massages, sorties, transferts.</p>
+          </div>
+          <Link
+            href="/concierge"
+            className="flex-none self-center text-xs font-semibold bg-coconut text-deep-green px-4 py-2 rounded-full hover:bg-sand transition-colors whitespace-nowrap"
+          >
+            Demander conseil
+          </Link>
+        </section>
+
         </div>{/* fin colonne gauche */}
 
         {/* ── Colonne droite sticky (desktop uniquement) ── */}
@@ -741,7 +810,8 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
             </div>
           </div>
         </div>
-      </div>{/* fin grid */}
+        </div>{/* fin md:flex */}
+      </div>{/* fin container */}
 
       {/* Fixed CTA — mobile uniquement, positionné au-dessus du BottomNav (h-16 + safe-area) */}
       <div
