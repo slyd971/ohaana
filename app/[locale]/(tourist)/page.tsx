@@ -5,7 +5,6 @@ import { motion } from 'framer-motion'
 import { Link } from '@/lib/i18n/navigation'
 import { HeroSection } from '@/components/home/HeroSection'
 import { ServiceRow } from '@/components/home/ServiceRow'
-import { HowItWorks } from '@/components/home/HowItWorks'
 import { Testimonials } from '@/components/home/Testimonials'
 import { type IslandFilter } from '@/components/home/IslandSelector'
 import { MoodSelector } from '@/components/home/MoodSelector'
@@ -136,10 +135,7 @@ export default function HomePage() {
         }}
       />
 
-      {/* ── 2. Comment ça marche ─────────────────────────────────────────────── */}
-      <HowItWorks />
-
-      {/* ── 3. Pourquoi Ohaana ───────────────────────────────────────────────── */}
+      {/* ── 2. Pourquoi Ohaana ───────────────────────────────────────────────── */}
       <section className="px-5 md:px-8 pb-14 max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

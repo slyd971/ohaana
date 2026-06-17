@@ -7,9 +7,6 @@ import { Link } from '@/lib/i18n/navigation'
 import {
   Search,
   MessageCircle,
-  ShieldCheck,
-  CreditCard,
-  Headphones,
   ChevronRight,
 } from 'lucide-react'
 import { IslandSelector, type IslandFilter } from '@/components/home/IslandSelector'
@@ -22,24 +19,6 @@ const ROTATING_PHRASES = [
   'ce soir.',
   'sur mesure.',
   'en toute sérénité.',
-]
-
-const VALUE_PROOFS = [
-  {
-    icon: ShieldCheck,
-    title: 'Prestataires vérifiés',
-    sub: 'Sélection locale',
-  },
-  {
-    icon: CreditCard,
-    title: 'Paiement sécurisé',
-    sub: 'Confirmation protégée',
-  },
-  {
-    icon: Headphones,
-    title: 'Support 7j/7',
-    sub: 'Avant et pendant le séjour',
-  },
 ]
 
 interface HeroSectionProps {
@@ -167,21 +146,6 @@ export function HeroSection({
             </div>
           </motion.div>
         </motion.div>
-      </div>
-
-      {/* Value proofs strip */}
-      <div className="bg-sand border-b border-mist">
-        <div className="max-w-3xl mx-auto px-5 py-5 grid grid-cols-3 gap-4">
-          {VALUE_PROOFS.map(({ icon: Icon, title, sub }) => (
-            <div key={title} className="flex flex-col items-center text-center gap-1.5">
-              <div className="w-9 h-9 rounded-full bg-deep-green/8 flex items-center justify-center">
-                <Icon size={16} className="text-deep-green" />
-              </div>
-              <p className="text-xs font-semibold text-charcoal leading-tight">{title}</p>
-              <p className="text-[10px] text-stone leading-tight hidden sm:block">{sub}</p>
-            </div>
-          ))}
-        </div>
       </div>
 
     </>
