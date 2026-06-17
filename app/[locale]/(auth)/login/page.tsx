@@ -7,7 +7,8 @@ import { Link } from '@/lib/i18n/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { Mail, Lock } from 'lucide-react'
+import { Mail, Lock, User, Briefcase } from 'lucide-react'
+import { setDemoRole } from '@/lib/demo-auth'
 
 export default function LoginPage() {
   const t = useTranslations('auth')
@@ -158,6 +159,39 @@ export default function LoginPage() {
           {t('register')}
         </Link>
       </p>
+
+      {/* ── Mode démo ── */}
+      <div className="border-t border-mist pt-6 space-y-3">
+        <p className="text-center text-[11px] text-stone uppercase tracking-widest">Accès démo</p>
+
+        <button
+          type="button"
+          onClick={() => { setDemoRole('client'); router.push('/voyages') }}
+          className="w-full flex items-center gap-3 h-12 rounded-xl border border-mist bg-sand hover:bg-mist px-4 text-sm font-medium text-charcoal transition-colors"
+        >
+          <span className="w-8 h-8 rounded-full bg-deep-green/10 flex items-center justify-center flex-none">
+            <User size={15} className="text-deep-green" />
+          </span>
+          <span className="flex-1 text-left">
+            Parcours Client
+            <span className="block text-[11px] text-stone font-normal">Réservations · Carnet · Favoris</span>
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => { setDemoRole('provider'); router.push('/provider/dashboard') }}
+          className="w-full flex items-center gap-3 h-12 rounded-xl border border-mist bg-sand hover:bg-mist px-4 text-sm font-medium text-charcoal transition-colors"
+        >
+          <span className="w-8 h-8 rounded-full bg-coral/10 flex items-center justify-center flex-none">
+            <Briefcase size={15} className="text-coral" />
+          </span>
+          <span className="flex-1 text-left">
+            Parcours Prestataire
+            <span className="block text-[11px] text-stone font-normal">Dashboard · Services · Paiements</span>
+          </span>
+        </button>
+      </div>
     </div>
   )
 }

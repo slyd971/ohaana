@@ -1,18 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Link } from '@/lib/i18n/navigation'
 import { CalendarDays, Clock, Heart, Plus, Users } from 'lucide-react'
+import { useDemoAuth } from '@/hooks/useDemoAuth'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { ServiceCard } from '@/components/service/ServiceCard'
 import { SERVICES } from '@/lib/data/seed'
 import { formatPrice, cn } from '@/lib/utils'
 
-// Replace with real auth check when Supabase is wired
-const isGuest = false
 
 type Tab = 'programme' | 'past' | 'favorites'
 
@@ -217,6 +216,7 @@ function PastCard({ booking }: { booking: PastBooking }) {
 export default function VoyagesPage() {
   const [tab, setTab] = useState<Tab>('programme')
   const [favorites, setFavorites] = useState<Set<string>>(new Set(['s-3', 's-2']))
+  const { isGuest } = useDemoAuth()
 
   if (isGuest) {
     return (

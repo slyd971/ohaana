@@ -1,6 +1,7 @@
 import { Header } from '@/components/layout/Header'
 import { BottomNav } from '@/components/layout/BottomNav'
 import { Footer } from '@/components/layout/Footer'
+import { DemoBadge } from '@/components/layout/DemoBadge'
 
 export default function TouristLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -11,6 +12,7 @@ export default function TouristLayout({ children }: { children: React.ReactNode 
       </main>
       <Footer />
       <BottomNav />
+      <DemoBadge />
     </div>
   )
 }
