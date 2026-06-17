@@ -139,7 +139,41 @@ export default function HomePage() {
       {/* ── 2. Comment ça marche ─────────────────────────────────────────────── */}
       <HowItWorks />
 
-      {/* ── 3. Controls (sticky) ─────────────────────────────────────────────── */}
+      {/* ── 3. Pourquoi Ohaana ───────────────────────────────────────────────── */}
+      <section className="px-5 md:px-8 pb-14 max-w-7xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-10"
+        >
+          <p className="text-xs text-stone uppercase tracking-widest mb-2">Pourquoi nous choisir</p>
+          <h2 className="text-2xl md:text-3xl font-display text-charcoal">
+            Pourquoi passer par Ohaana&nbsp;?
+          </h2>
+        </motion.div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+          {WHY_ITEMS.map(({ icon: Icon, title, text }, i) => (
+            <motion.div
+              key={title}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className="bg-surface rounded-2xl p-6 border border-mist shadow-card space-y-3"
+            >
+              <div className="w-10 h-10 rounded-xl bg-sand flex items-center justify-center">
+                <Icon size={18} className="text-deep-green" />
+              </div>
+              <h3 className="font-semibold text-charcoal text-sm">{title}</h3>
+              <p className="text-xs text-stone leading-relaxed">{text}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── 4. Controls (sticky) ─────────────────────────────────────────────── */}
       <div className="sticky top-16 z-20 bg-coconut/96 backdrop-blur-md border-b border-mist pt-2 pb-2">
         <MoodSelector value={mood} onChange={setMood} />
       </div>
@@ -165,21 +199,23 @@ export default function HomePage() {
       {/* ── 5. Témoignages ───────────────────────────────────────────────────── */}
       <Testimonials />
 
-      {/* ── 6. Concierge section ─────────────────────────────────────────────── */}
+      {/* ── 7. Concierge — filet de sécurité ────────────────────────────────── */}
       <section className="mx-5 md:mx-8 mb-10 rounded-3xl overflow-hidden relative"
         style={{ background: 'linear-gradient(135deg, var(--deep-green) 0%, #0F2B1D 100%)' }}
       >
-        {/* Texture dots */}
         <div className="absolute inset-0 opacity-10" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23FDFAF4' fill-opacity='0.4' fill-rule='evenodd'%3E%3Ccircle cx='7' cy='7' r='1'/%3E%3Ccircle cx='37' cy='37' r='1'/%3E%3C/g%3E%3C/svg%3E")`
         }} />
         <div className="relative px-6 py-10 md:py-14 max-w-2xl mx-auto text-center space-y-5">
-          <p className="text-coconut/60 text-xs uppercase tracking-widest font-medium">Concierge Ohaana</p>
+          <span className="inline-flex items-center gap-2 bg-coconut/10 border border-coconut/15 text-coconut/80 text-xs px-3 py-1 rounded-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-turquoise animate-pulse" />
+            Réponse en moins de 2h · 7j/7
+          </span>
           <h2 className="text-2xl md:text-3xl font-display text-coconut leading-snug">
-            Vous ne trouvez pas<br />l&apos;expérience parfaite&nbsp;?
+            Vous hésitez ou vous n&apos;avez<br />pas trouvé ce que vous cherchez&nbsp;?
           </h2>
           <p className="text-coconut/70 text-sm md:text-base leading-relaxed max-w-sm mx-auto">
-            Notre concierge vous aide à composer un dîner privé à domicile, organiser une soirée sur mesure, créer une demande en mariage, un anniversaire ou un programme complet à domicile — dans toutes les Caraïbes.
+            Décrivez ce que vous souhaitez vivre — dîner privé, soirée sur mesure, demande en mariage, programme complet. Camille, notre concierge locale, s&apos;occupe de tout.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <a
@@ -189,7 +225,7 @@ export default function HomePage() {
               className="inline-flex items-center gap-2 bg-coral text-coconut px-6 py-3 rounded-full font-medium text-sm hover:bg-coral-light transition-colors shadow-sm"
             >
               <MessageCircle size={16} />
-              Organiser mon séjour
+              Parler à Camille
             </a>
             <Link
               href="/concierge"
@@ -199,33 +235,6 @@ export default function HomePage() {
               <ChevronRight size={14} />
             </Link>
           </div>
-        </div>
-      </section>
-
-      {/* ── 5. Pourquoi Ohaana ? ─────────────────────────────────────────────── */}
-      <section className="px-5 md:px-8 py-14 max-w-7xl mx-auto">
-        <div className="text-center mb-10">
-          <p className="text-xs text-stone uppercase tracking-widest mb-2">Pourquoi nous choisir</p>
-          <h2 className="text-2xl md:text-3xl font-display text-charcoal">
-            Pourquoi passer par Ohaana&nbsp;?
-          </h2>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {WHY_ITEMS.map(({ icon: Icon, title, text }) => (
-            <motion.div
-              key={title}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              className="bg-surface rounded-2xl p-6 border border-mist shadow-card space-y-3"
-            >
-              <div className="w-10 h-10 rounded-xl bg-sand flex items-center justify-center">
-                <Icon size={18} className="text-deep-green" />
-              </div>
-              <h3 className="font-semibold text-charcoal text-sm">{title}</h3>
-              <p className="text-xs text-stone leading-relaxed">{text}</p>
-            </motion.div>
-          ))}
         </div>
       </section>
 
