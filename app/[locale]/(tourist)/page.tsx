@@ -136,7 +136,7 @@ export default function HomePage() {
       />
 
       {/* ── 2. Pourquoi Ohaana ───────────────────────────────────────────────── */}
-      <section className="px-5 md:px-8 pb-14 max-w-7xl mx-auto">
+      <section className="px-5 md:px-8 py-14 max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -144,7 +144,7 @@ export default function HomePage() {
           transition={{ duration: 0.6 }}
           className="text-center mb-10"
         >
-          <h2 className="text-2xl md:text-3xl font-display text-charcoal">
+          <h2 className="text-2xl md:text-3xl font-display text-deep-green">
             Pourquoi passer par Ohaana&nbsp;?
           </h2>
         </motion.div>
