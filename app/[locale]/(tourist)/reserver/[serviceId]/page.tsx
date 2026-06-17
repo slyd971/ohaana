@@ -1,7 +1,8 @@
 'use client'
 
-import { use, useState } from 'react'
+import { use, useState, useEffect } from 'react'
 import { notFound } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from '@/lib/i18n/navigation'
@@ -118,8 +119,19 @@ export default function ReservationPage({ params }: { params: Promise<{ serviceI
   const service = getServiceById(serviceId)
   if (!service) notFound()
 
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-  const [selectedTime, setSelectedTime] = useState<string | null>(null)
+  const searchParams = useSearchParams()
+
+  // Pre-fill from URL params passed by prestataires page
+  const initDate = (() => {
+    const d = searchParams.get('date')
+    if (!d) return null
+    const parsed = new Date(d)
+    return isNaN(parsed.getTime()) ? null : parsed
+  })()
+  const initTime = searchParams.get('time')
+
+  const [selectedDate, setSelectedDate] = useState<Date | null>(initDate)
+  const [selectedTime, setSelectedTime] = useState<string | null>(initTime)
   const [guests, setGuests] = useState(service.capacity_min)
   const [notes, setNotes] = useState('')
   const [notesOpen, setNotesOpen] = useState(false)

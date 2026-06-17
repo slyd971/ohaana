@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useState, useEffect, useRef } from 'react'
+import { use, useState, useEffect, useRef, useMemo } from 'react'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
@@ -39,12 +39,39 @@ const INCLUDED_ITEMS = [
   'Annulation flexible',
 ]
 
-const AVAILABILITY = [
-  { day: 'Lun', date: '15', slots: [{ time: '15h', status: 'available' }, { time: '18h', status: 'request' }] },
-  { day: 'Mar', date: '16', slots: [{ time: '10h', status: 'available' }, { time: '16h', status: 'full' }] },
-  { day: 'Mer', date: '17', slots: [{ time: '14h', status: 'request' }, { time: '19h', status: 'available' }] },
-  { day: 'Jeu', date: '18', slots: [{ time: '18h', status: 'available' }, { time: '20h', status: 'request' }] },
+const DAY_NAMES_SHORT = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']
+
+// Deterministic slot patterns based on day-of-month — simulates real availability
+const SLOT_PATTERNS = [
+  [{ time: '09:00', status: 'available' }, { time: '14:00', status: 'request' }],
+  [{ time: '10:00', status: 'available' }, { time: '16:00', status: 'full' }],
+  [{ time: '11:00', status: 'request' },   { time: '18:00', status: 'available' }],
+  [{ time: '09:00', status: 'full' },      { time: '15:00', status: 'available' }],
+  [{ time: '10:00', status: 'available' }, { time: '19:00', status: 'available' }],
+  [{ time: '14:00', status: 'request' },   { time: '20:00', status: 'available' }],
+  [{ time: '09:00', status: 'available' }, { time: '11:00', status: 'request' }],
 ]
+
+function buildAvailability(start: Date | null, end: Date | null) {
+  const today = new Date()
+  const from = start ?? new Date(today.getTime() + 86400000)
+  const to   = end   ?? new Date(today.getTime() + 4 * 86400000)
+  const days: { isoDate: string; day: string; date: string; slots: { time: string; status: string }[] }[] = []
+  const cursor = new Date(from)
+  while (cursor <= to && days.length < 7) {
+    const d = new Date(cursor)
+    days.push({
+      isoDate: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
+      day:  DAY_NAMES_SHORT[d.getDay()],
+      date: String(d.getDate()),
+      slots: SLOT_PATTERNS[d.getDate() % SLOT_PATTERNS.length],
+    })
+    cursor.setDate(cursor.getDate() + 1)
+  }
+  return days
+}
+
+const fmtSlot = (t: string) => t.slice(0, 2).replace(/^0/, '') + 'h' + (t.slice(3) !== '00' ? t.slice(3) : '')
 
 const STATUS_STYLES = {
   available: 'border-turquoise bg-turquoise/10 text-deep-green',
@@ -178,6 +205,7 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
   const [stayStart, setStayStart] = useState<Date | null>(null)
   const [stayEnd, setStayEnd] = useState<Date | null>(null)
   const [location, setLocation] = useState('')
+  const [selectedSlot, setSelectedSlot] = useState<{ isoDate: string; day: string; date: string; time: string } | null>(null)
 
   // Pre-fill location from island selected on home page
   useEffect(() => {
@@ -194,6 +222,11 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
       }
     } catch {}
   }, [])
+
+  // Reset slot when dates change
+  useEffect(() => { setSelectedSlot(null) }, [stayStart, stayEnd])
+
+  const availability = useMemo(() => buildAvailability(stayStart, stayEnd), [stayStart, stayEnd])
 
   const offerings = getOfferings(service)
   const [selectedOffering, setSelectedOffering] = useState(offerings[0]?.id)
@@ -409,9 +442,9 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
             <LocationAutocomplete value={location} onChange={setLocation} />
           </div>
 
-          <div className="grid grid-cols-4 gap-2">
-            {AVAILABILITY.map((day) => (
-              <div key={day.day} className="rounded-xl border border-mist bg-coconut p-2">
+          <div className={cn('grid gap-2', availability.length <= 4 ? 'grid-cols-4' : 'grid-cols-4 overflow-x-auto')}>
+            {availability.map((day) => (
+              <div key={day.isoDate} className="rounded-xl border border-mist bg-coconut p-2 flex-none">
                 <div className="text-center mb-2">
                   <p className="text-[10px] uppercase text-stone">{day.day}</p>
                   <p className="text-lg font-display text-charcoal">{day.date}</p>
@@ -419,18 +452,24 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
                 <div className="space-y-1.5">
                   {day.slots.map((slot) => {
                     const Icon = STATUS_ICON[slot.status as keyof typeof STATUS_ICON]
+                    const isSelected = selectedSlot?.isoDate === day.isoDate && selectedSlot?.time === slot.time
                     return (
                       <button
                         key={slot.time}
                         type="button"
                         disabled={slot.status === 'full'}
+                        onClick={() => slot.status !== 'full' && setSelectedSlot(
+                          isSelected ? null : { isoDate: day.isoDate, day: day.day, date: day.date, time: slot.time }
+                        )}
                         className={cn(
-                          'w-full inline-flex items-center justify-center gap-1 rounded-lg border px-1.5 py-1.5 text-[11px] font-medium',
-                          STATUS_STYLES[slot.status as keyof typeof STATUS_STYLES]
+                          'w-full inline-flex items-center justify-center gap-1 rounded-lg border px-1.5 py-1.5 text-[11px] font-medium transition-all',
+                          isSelected
+                            ? 'border-deep-green bg-deep-green text-white'
+                            : STATUS_STYLES[slot.status as keyof typeof STATUS_STYLES]
                         )}
                       >
                         <Icon size={10} />
-                        {slot.time}
+                        {fmtSlot(slot.time)}
                       </button>
                     )
                   })}
@@ -567,10 +606,20 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
               </div>
             )}
 
+            {/* Créneau sélectionné */}
+            {selectedSlot && (
+              <div className="rounded-xl border border-deep-green/20 bg-deep-green/5 px-4 py-2.5 text-xs text-deep-green font-medium">
+                {selectedSlot.day} {selectedSlot.date} · {fmtSlot(selectedSlot.time)}
+              </div>
+            )}
+
             {/* CTA */}
-            <Link href={`/reserver/${service.id}?offer=${selected?.id ?? 'classic'}`} className="block">
+            <Link
+              href={`/reserver/${service.id}?offer=${selected?.id ?? 'classic'}${selectedSlot ? `&date=${selectedSlot.isoDate}&time=${selectedSlot.time}` : ''}`}
+              className="block"
+            >
               <Button variant="primary" fullWidth size="lg">
-                Réserver maintenant
+                {selectedSlot ? `Réserver ce créneau` : 'Réserver maintenant'}
               </Button>
             </Link>
 
@@ -597,13 +646,19 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
         style={{ bottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }}
       >
         <div className="max-w-2xl mx-auto flex items-center gap-3">
-          <div>
-            <p className="text-xs text-stone">À partir de · disponible dès lundi 15h</p>
+          <div className="min-w-0">
+            {selectedSlot
+              ? <p className="text-xs text-deep-green font-medium">{selectedSlot.day} {selectedSlot.date} · {fmtSlot(selectedSlot.time)}</p>
+              : <p className="text-xs text-stone">À partir de</p>
+            }
             <p className="text-xl font-semibold text-charcoal">{formatPrice(selected?.price ?? service.price_cents)}</p>
           </div>
-          <Link href={`/reserver/${service.id}?offer=${selected?.id ?? 'classic'}`} className="flex-1">
+          <Link
+            href={`/reserver/${service.id}?offer=${selected?.id ?? 'classic'}${selectedSlot ? `&date=${selectedSlot.isoDate}&time=${selectedSlot.time}` : ''}`}
+            className="flex-1"
+          >
             <Button variant="primary" fullWidth size="lg">
-              Réserver maintenant
+              {selectedSlot ? 'Réserver ce créneau' : 'Réserver maintenant'}
             </Button>
           </Link>
         </div>
