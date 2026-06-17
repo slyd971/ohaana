@@ -1,22 +1,13 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import {
-  LayoutGrid, Leaf, Music2, ChefHat, Heart,
-  Sparkles, Users, Landmark, Moon, type LucideIcon,
-} from 'lucide-react'
+import { LayoutGrid, Leaf, Moon, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export const CATEGORIES: { key: string; label: string; Icon: LucideIcon }[] = [
-  { key: 'popular',      label: 'Tout',         Icon: LayoutGrid },
-  { key: 'tonight',      label: 'Ce soir',      Icon: Moon       },
-  { key: 'wellness',     label: 'Bien-être',    Icon: Leaf       },
-  { key: 'soiree',       label: 'Soirée',       Icon: Music2     },
-  { key: 'privateChefs', label: 'Chef privé',   Icon: ChefHat    },
-  { key: 'couplesFav',   label: 'Couples',      Icon: Heart      },
-  { key: 'beaute',       label: 'Beauté',       Icon: Sparkles   },
-  { key: 'family',       label: 'Famille',      Icon: Users      },
-  { key: 'culture',      label: 'Culture',      Icon: Landmark   },
+  { key: 'popular',  label: 'Incontournables',    Icon: LayoutGrid },
+  { key: 'tonight',  label: 'Disponible ce soir', Icon: Moon       },
+  { key: 'wellness', label: 'Bien-être',           Icon: Leaf       },
 ]
 
 interface MoodSelectorProps {
