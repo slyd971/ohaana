@@ -113,7 +113,7 @@ export function HeroSection({
                 </span>
               </h1>
               <p className="text-charcoal/75 text-sm md:text-base leading-relaxed md:max-w-lg">
-                Chef(fe) à domicile, massages, DJ, shootings photo — réservez les meilleures expériences des Caraïbes, sélectionnées par des locaux.
+                Chef.fe à domicile, massages, DJ, shootings photo — réservez les meilleures expériences des Caraïbes, sélectionnées par des locaux.
               </p>
 
               {/* Search bar */}

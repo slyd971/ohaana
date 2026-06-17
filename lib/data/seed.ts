@@ -63,7 +63,7 @@ const IMG = {
 }
 
 export const CATEGORIES: ServiceCategory[] = [
-  { id: 'cat-1',  slug: 'chef_prive',  name_fr: 'Chef(fe) privé(e)',          name_en: 'Private Chef',      icon: '🍽️', color: '#E8604A', sort_order: 1,  is_active: true },
+  { id: 'cat-1',  slug: 'chef_prive',  name_fr: 'Chef.fe privé.e',          name_en: 'Private Chef',      icon: '🍽️', color: '#E8604A', sort_order: 1,  is_active: true },
   { id: 'cat-2',  slug: 'massage',     name_fr: 'Massage & spa',        name_en: 'Massage & Spa',     icon: '💆', color: '#2ABFB8', sort_order: 2,  is_active: true },
   { id: 'cat-3',  slug: 'photographe', name_fr: 'Photographe',          name_en: 'Photographer',      icon: '📸', color: '#F5EDD8', sort_order: 3,  is_active: true },
   { id: 'cat-4',  slug: 'fitness',     name_fr: 'Coach fitness',        name_en: 'Fitness Coach',     icon: '🏋️', color: '#1C1C1E', sort_order: 4,  is_active: true },

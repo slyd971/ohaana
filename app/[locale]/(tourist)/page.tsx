@@ -293,7 +293,7 @@ export default function HomePage() {
           </div>
           <div className="flex-1 text-center md:text-left space-y-3">
             <h2 className="text-xl md:text-2xl font-display text-charcoal">
-              Vous êtes chef(fe), masseur(se), DJ, photographe ou coach sportif&nbsp;?
+              Vous êtes chef.fe, masseur.se, DJ, photographe ou coach sportif&nbsp;?
             </h2>
             <p className="text-sm text-stone leading-relaxed">
               Recevez des demandes de voyageurs en séjour dans les Caraïbes et proposez vos prestations à domicile, sans infrastructure à gérer.
