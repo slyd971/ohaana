@@ -5,10 +5,11 @@ import { motion } from 'framer-motion'
 import { Link } from '@/lib/i18n/navigation'
 import { HeroSection } from '@/components/home/HeroSection'
 import { ServiceRow } from '@/components/home/ServiceRow'
+import { ServiceCard } from '@/components/service/ServiceCard'
 import { Testimonials } from '@/components/home/Testimonials'
 import { type IslandFilter } from '@/components/home/IslandSelector'
 import { MoodSelector } from '@/components/home/MoodSelector'
-import { HOME_ROWS, getServicesByIds } from '@/lib/data/seed'
+import { SERVICES, HOME_ROWS, getServicesByIds } from '@/lib/data/seed'
 import {
   Clock, Sparkles, Leaf, MessageCircle,
   Building2, ChevronRight, Mail, CheckCircle,
@@ -42,7 +43,10 @@ const MOOD_FILTER: Record<string, string[]> = {
   soiree:   ['soirée', 'villa', 'coucher de soleil'],
   food:     ['gastronomie', 'cuisine'],
   culture:  ['culture', 'créole'],
+  couples:  ['couple', 'romantique'],
 }
+
+const EDITORIAL_ROWS = ['popular', 'tonight']
 
 export default function HomePage() {
   const [island, setIsland]       = useState<IslandFilter>('all')
@@ -81,16 +85,22 @@ export default function HomePage() {
     })
   }
 
-  const DISPLAY_ROWS = ['popular', 'tonight', 'wellness']
-
-  function filterServices(ids: string[]) {
-    let services = getServicesByIds(ids)
-    if (island !== 'all') services = services.filter(s => s.island === island)
+  // Zone 1 — Explorer : tous les services filtrés par île + humeur
+  const explorerServices = (() => {
+    let svcs = [...SERVICES]
+    if (island !== 'all') svcs = svcs.filter(s => s.island === island)
     if (mood !== 'all') {
       const kw = MOOD_FILTER[mood] ?? []
-      services = services.filter(s => kw.some(k => s.tags.some(t => t.includes(k))))
+      svcs = svcs.filter(s => kw.some(k => s.tags.some(t => t.includes(k))))
     }
-    return services
+    return svcs
+  })()
+
+  // Zone 2 — Éditorial : ids curatés, filtrés par île uniquement
+  function editorialServices(ids: string[]) {
+    let svcs = getServicesByIds(ids)
+    if (island !== 'all') svcs = svcs.filter(s => s.island === island)
+    return svcs
   }
 
   function handleLeadSubmit(e: React.FormEvent) {
@@ -158,23 +168,82 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── 4. Filtre humeur ─────────────────────────────────────────────────── */}
+      {/* ── Zone 1 : Explorer ────────────────────────────────────────────────── */}
       <div className="sticky top-16 z-20 bg-coconut/96 backdrop-blur-md border-b border-mist pt-2 pb-2">
         <MoodSelector value={mood} onChange={setMood} />
       </div>
+      <div className="py-8 px-5 md:px-8 max-w-7xl mx-auto">
+        <motion.div
+          key={mood + island}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25 }}
+        >
+          {explorerServices.length === 0 ? (
+            <p className="text-center text-stone py-16 text-sm">
+              Aucun service disponible pour cette sélection.
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {explorerServices.map(s => (
+                <ServiceCard
+                  key={s.id}
+                  service={s}
+                  isFavorite={favorites.has(s.id)}
+                  onToggleFavorite={toggleFavorite}
+                  className="w-full"
+                />
+              ))}
+            </div>
+          )}
+        </motion.div>
+      </div>
 
-      {/* ── 5. Service rows ──────────────────────────────────────────────────── */}
-      <div className="py-8 space-y-10 max-w-7xl mx-auto md:px-8">
-        {HOME_ROWS.filter(r => DISPLAY_ROWS.includes(r.key)).map(({ key, label_fr, ids }) => (
+      {/* ── Zone 2 : Sélections éditoriales ──────────────────────────────────── */}
+      <div className="py-4 pb-10 space-y-10 max-w-7xl mx-auto md:px-8">
+
+        {/* Row 1 — Incontournables */}
+        {(() => { const r = HOME_ROWS.find(r => r.key === 'popular')!; return (
           <ServiceRow
-            key={key}
-            title={label_fr}
-            services={filterServices(ids)}
+            key={r.key}
+            title={r.label_fr}
+            services={editorialServices(r.ids)}
             favorites={favorites}
             onToggleFavorite={toggleFavorite}
-            seeAllHref={`/search?category=${key}`}
+            seeAllHref="/search?category=popular"
           />
-        ))}
+        )})()}
+
+        {/* Rappel concierge */}
+        <div className="mx-5 md:mx-0 rounded-2xl border border-deep-green/15 bg-deep-green/5 px-5 py-4 flex items-center gap-4">
+          <span className="relative flex h-2.5 w-2.5 flex-none">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-turquoise opacity-75" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-turquoise" />
+          </span>
+          <p className="text-sm text-deep-green flex-1 leading-snug">
+            <span className="font-semibold">Vous ne savez pas quoi choisir ?</span>{' '}
+            Notre concierge compose votre programme en moins de 2h.
+          </p>
+          <Link
+            href="/concierge"
+            className="flex-none text-xs font-medium bg-deep-green text-coconut px-3.5 py-2 rounded-full hover:bg-coral transition-colors whitespace-nowrap"
+          >
+            Demander conseil
+          </Link>
+        </div>
+
+        {/* Row 2 — Disponible ce soir */}
+        {(() => { const r = HOME_ROWS.find(r => r.key === 'tonight')!; return (
+          <ServiceRow
+            key={r.key}
+            title={r.label_fr}
+            services={editorialServices(r.ids)}
+            favorites={favorites}
+            onToggleFavorite={toggleFavorite}
+            seeAllHref="/search?category=tonight"
+          />
+        )})()}
+
       </div>
 
       {/* ── 5. Témoignages ───────────────────────────────────────────────────── */}
