@@ -121,17 +121,21 @@ export default function ReservationPage({ params }: { params: Promise<{ serviceI
 
   const searchParams = useSearchParams()
 
-  // Pre-fill from URL params passed by prestataires page
   const initDate = (() => {
     const d = searchParams.get('date')
     if (!d) return null
     const parsed = new Date(d)
     return isNaN(parsed.getTime()) ? null : parsed
   })()
-  const initTime = searchParams.get('time')
+  const initTime = searchParams.get('time') ?? null
+
+  // Si date+heure pré-sélectionnées depuis la fiche prestataire,
+  // on skip les sélecteurs et on affiche un récap compact
+  const preselected = !!(initDate && initTime)
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(initDate)
   const [selectedTime, setSelectedTime] = useState<string | null>(initTime)
+  const [editingSlot, setEditingSlot] = useState(!preselected)
   const [guests, setGuests] = useState(service.capacity_min)
   const [notes, setNotes] = useState('')
   const [notesOpen, setNotesOpen] = useState(false)
@@ -226,76 +230,101 @@ export default function ReservationPage({ params }: { params: Promise<{ serviceI
           </div>
         </div>
 
-        {/* ── Date picker ───────────────────────────────────── */}
-        <div className="px-4 py-5 border-b border-mist">
-          <h2 className="text-base font-semibold text-charcoal mb-3">Sélectionnez une date</h2>
-          <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
-            {dates.map((d) => {
-              const isSelected = selectedDate?.toDateString() === d.toDateString()
-              return (
-                <button
-                  key={d.toISOString()}
-                  type="button"
-                  onClick={() => {
-                    setSelectedDate(d)
-                    setSelectedTime(null)
-                    setShowPayment(false)
-                  }}
-                  className={cn(
-                    'flex-none flex flex-col items-center px-3.5 py-2.5 rounded-2xl border-2 transition-all min-w-[60px]',
-                    isSelected
-                      ? 'border-deep-green bg-deep-green text-white'
-                      : 'border-mist bg-surface text-charcoal hover:border-deep-green/40',
-                  )}
-                >
-                  <span className="text-[10px] font-medium capitalize opacity-80">
-                    {DAY_NAMES[d.getDay()]}
-                  </span>
-                  <span className="text-xl font-semibold leading-snug">{d.getDate()}</span>
-                  <span className="text-[10px] capitalize opacity-80">
-                    {MONTH_NAMES[d.getMonth()]}
-                  </span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* ── Time slots (revealed after date) ─────────────── */}
-        <AnimatePresence initial={false}>
-          {selectedDate && (
-            <motion.div
-              key="times"
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2 }}
-              className="border-b border-mist px-4 py-5"
-            >
-              <h2 className="text-base font-semibold text-charcoal mb-3">Choisissez un créneau</h2>
-              <div className="grid grid-cols-3 gap-2">
-                {TIMES.map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => {
-                      setSelectedTime(t)
-                      setShowPayment(false)
-                    }}
-                    className={cn(
-                      'py-3 rounded-xl border-2 text-sm font-medium transition-all',
-                      selectedTime === t
-                        ? 'border-deep-green bg-deep-green text-white'
-                        : 'border-mist bg-surface text-charcoal hover:border-deep-green/40',
-                    )}
-                  >
-                    {t}
-                  </button>
-                ))}
+        {/* ── Créneau : récap compact OU sélecteurs ────────── */}
+        {!editingSlot && canBook ? (
+          /* Récap compact quand date+heure déjà choisies */
+          <div className="px-4 py-4 border-b border-mist flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-deep-green/10 flex items-center justify-center flex-none">
+                <CheckCircle2 size={18} className="text-deep-green" />
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <div>
+                <p className="text-xs text-stone">Créneau sélectionné</p>
+                <p className="text-sm font-semibold text-charcoal">
+                  {selectedDate
+                    ? selectedDate.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })
+                    : ''} · {selectedTime}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => { setEditingSlot(true); setShowPayment(false) }}
+              className="text-xs text-deep-green font-medium underline underline-offset-2 flex-none"
+            >
+              Modifier
+            </button>
+          </div>
+        ) : (
+          /* Sélecteurs complets */
+          <>
+            <div className="px-4 py-5 border-b border-mist">
+              <h2 className="text-base font-semibold text-charcoal mb-3">Sélectionnez une date</h2>
+              <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+                {dates.map((d) => {
+                  const isSelected = selectedDate?.toDateString() === d.toDateString()
+                  return (
+                    <button
+                      key={d.toISOString()}
+                      type="button"
+                      onClick={() => {
+                        setSelectedDate(d)
+                        setSelectedTime(null)
+                        setShowPayment(false)
+                      }}
+                      className={cn(
+                        'flex-none flex flex-col items-center px-3.5 py-2.5 rounded-2xl border-2 transition-all min-w-[60px]',
+                        isSelected
+                          ? 'border-deep-green bg-deep-green text-white'
+                          : 'border-mist bg-surface text-charcoal hover:border-deep-green/40',
+                      )}
+                    >
+                      <span className="text-[10px] font-medium capitalize opacity-80">{DAY_NAMES[d.getDay()]}</span>
+                      <span className="text-xl font-semibold leading-snug">{d.getDate()}</span>
+                      <span className="text-[10px] capitalize opacity-80">{MONTH_NAMES[d.getMonth()]}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            <AnimatePresence initial={false}>
+              {selectedDate && (
+                <motion.div
+                  key="times"
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                  className="border-b border-mist px-4 py-5"
+                >
+                  <h2 className="text-base font-semibold text-charcoal mb-3">Choisissez un créneau</h2>
+                  <div className="grid grid-cols-3 gap-2">
+                    {TIMES.map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => {
+                          setSelectedTime(t)
+                          setEditingSlot(false)
+                          setShowPayment(false)
+                        }}
+                        className={cn(
+                          'py-3 rounded-xl border-2 text-sm font-medium transition-all',
+                          selectedTime === t
+                            ? 'border-deep-green bg-deep-green text-white'
+                            : 'border-mist bg-surface text-charcoal hover:border-deep-green/40',
+                        )}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </>
+        )}
 
         {/* ── Participants ──────────────────────────────────── */}
         <div className="px-4 py-5 border-b border-mist">
