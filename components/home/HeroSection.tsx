@@ -51,8 +51,7 @@ export function HeroSection({
 
   return (
     <>
-      {/* overflow-visible so the calendar dropdown can escape the hero boundary */}
-      <div ref={ref} className="relative h-[70dvh] min-h-[520px] md:h-[82dvh] md:min-h-[620px]">
+      <div ref={ref} className="relative h-[70dvh] min-h-[520px] md:h-[82dvh] md:min-h-[620px] overflow-hidden">
         {/* Parallax background — clipped separately */}
         <div className="absolute inset-0 overflow-hidden">
           <motion.div className="absolute inset-0 scale-110" style={{ y }}>
@@ -91,7 +90,6 @@ export function HeroSection({
                     endDate={stayEnd}
                     onChange={onDatesChange}
                     placeholder="Quand ?"
-                    upward
                   />
                 </div>
               </div>
