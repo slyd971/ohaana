@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useState, useEffect } from 'react'
+import { use, useState, useEffect, useRef } from 'react'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
@@ -97,6 +97,76 @@ function islandLabel(island: string) {
   return labels[island] ?? island
 }
 
+// ── Location autocomplete ─────────────────────────────────────────────────────
+
+const LOCATION_OPTIONS = [
+  { value: 'guadeloupe',   label: 'Guadeloupe' },
+  { value: 'martinique',   label: 'Martinique' },
+  { value: 'saint_martin', label: 'Saint-Martin' },
+  { value: 'saint_barth',  label: 'Saint-Barth' },
+]
+
+function LocationAutocomplete({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  const filtered = value.trim()
+    ? LOCATION_OPTIONS.filter((o) => o.label.toLowerCase().startsWith(value.toLowerCase()))
+    : LOCATION_OPTIONS
+
+  useEffect(() => {
+    if (!open) return
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [open])
+
+  return (
+    <div ref={ref} className="relative">
+      <div className="relative">
+        <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-deep-green pointer-events-none" />
+        <input
+          type="text"
+          value={value}
+          placeholder="Lieu de séjour"
+          onChange={(e) => { onChange(e.target.value); setOpen(true) }}
+          onFocus={() => setOpen(true)}
+          className={cn(
+            'w-full h-11 rounded-xl border bg-coconut pl-8 pr-3 text-sm text-charcoal placeholder:text-stone focus:outline-none transition-colors',
+            open ? 'border-deep-green ring-2 ring-deep-green/15' : 'border-mist',
+          )}
+        />
+      </div>
+
+      {open && filtered.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="absolute top-full left-0 right-0 mt-1.5 bg-surface rounded-xl border border-mist shadow-elevated overflow-hidden z-50"
+        >
+          {filtered.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => { onChange(opt.label); setOpen(false) }}
+              className={cn(
+                'w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-left transition-colors hover:bg-sand',
+                value === opt.label ? 'text-deep-green font-medium bg-sand' : 'text-charcoal',
+              )}
+            >
+              <MapPin size={12} className="text-stone flex-none" />
+              {opt.label}
+            </button>
+          ))}
+        </motion.div>
+      )}
+    </div>
+  )
+}
+
 export default function ProviderPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const service = getServiceById(id)
@@ -107,6 +177,24 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
   const [stickyVisible, setStickyVisible] = useState(false)
   const [stayStart, setStayStart] = useState<Date | null>(null)
   const [stayEnd, setStayEnd] = useState<Date | null>(null)
+  const [location, setLocation] = useState('')
+
+  // Pre-fill location from island selected on home page
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem('ohaana_island')
+      if (saved && saved !== 'all') {
+        const labels: Record<string, string> = {
+          guadeloupe: 'Guadeloupe',
+          martinique: 'Martinique',
+          saint_martin: 'Saint-Martin',
+          saint_barth: 'Saint-Barth',
+        }
+        setLocation(labels[saved] ?? '')
+      }
+    } catch {}
+  }, [])
+
   const offerings = getOfferings(service)
   const [selectedOffering, setSelectedOffering] = useState(offerings[0]?.id)
   const selected = offerings.find((offering) => offering.id === selectedOffering) ?? offerings[0]
@@ -318,11 +406,7 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
               endDate={stayEnd}
               onChange={(s, e) => { setStayStart(s); setStayEnd(e) }}
             />
-            <input
-              type="text"
-              placeholder="Lieu de séjour"
-              className="h-11 rounded-xl border border-mist bg-coconut px-3 text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green"
-            />
+            <LocationAutocomplete value={location} onChange={setLocation} />
           </div>
 
           <div className="grid grid-cols-4 gap-2">

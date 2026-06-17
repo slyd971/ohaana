@@ -106,7 +106,13 @@ export default function HomePage() {
       {/* ── 2. Controls (sticky) ─────────────────────────────────────────────── */}
       <div className="sticky top-16 z-20 bg-coconut/96 backdrop-blur-md border-b border-mist pt-3 pb-2 space-y-2.5">
         <div className="flex items-center justify-between px-5 md:px-8">
-            <IslandSelector value={island} onChange={setIsland} />
+            <IslandSelector
+              value={island}
+              onChange={(v) => {
+                setIsland(v)
+                try { sessionStorage.setItem('ohaana_island', v) } catch {}
+              }}
+            />
         </div>
         <MoodSelector value={mood} onChange={setMood} />
       </div>
