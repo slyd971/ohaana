@@ -10,7 +10,7 @@ import { type IslandFilter } from '@/components/home/IslandSelector'
 import { MoodSelector } from '@/components/home/MoodSelector'
 import { SERVICES, HOME_ROWS, getServicesByIds } from '@/lib/data/seed'
 import {
-  MapPin, Clock, Sparkles, Leaf, MessageCircle,
+  Clock, Sparkles, Leaf, MessageCircle,
   Building2, ChevronRight, Mail, CheckCircle,
 } from 'lucide-react'
 
@@ -37,11 +37,6 @@ const WHY_ITEMS = [
     icon: Sparkles,
     title: 'Expériences premium',
     text: 'Chefs créoles, DJ, massages à domicile, décorations romantiques — chez vous, au niveau.',
-  },
-  {
-    icon: MapPin,
-    title: 'Connaissance terrain',
-    text: 'Îles, bonnes adresses, artisans locaux, marchés secrets — on connaît les Caraïbes de l\'intérieur.',
   },
 ]
 
@@ -148,7 +143,7 @@ export default function HomePage() {
             Pourquoi passer par Ohaana&nbsp;?
           </h2>
         </motion.div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
           {WHY_ITEMS.map(({ icon: Icon, title, text }, i) => (
             <motion.div
               key={title}
