@@ -92,7 +92,7 @@ export function HeroSection({
         {/* Content */}
         <motion.div
           style={{ opacity }}
-          className="relative h-full flex flex-col justify-end pb-5 md:justify-center md:py-16 md:items-center px-5 md:px-12"
+          className="relative h-full flex flex-col justify-end pb-5 md:pb-16 md:items-center px-5 md:px-12"
         >
           <motion.div
             initial={{ opacity: 0, y: 32 }}
