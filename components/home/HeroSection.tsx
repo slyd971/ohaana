@@ -39,7 +39,8 @@ export function HeroSection({
   const ref = useRef<HTMLDivElement>(null)
   const { scrollY } = useScroll()
   const y = useTransform(scrollY, [0, 500], [0, 140])
-  const opacity = useTransform(scrollY, [0, 300], [1, 0])
+  const opacity = useTransform(scrollY, [0, 140], [1, 0])
+  const cardY = useTransform(scrollY, [0, 200], [0, 70])
   const [phraseIdx, setPhraseIdx] = useState(0)
 
   useEffect(() => {
@@ -69,7 +70,7 @@ export function HeroSection({
 
         {/* Content */}
         <motion.div
-          style={{ opacity }}
+          style={{ opacity, y: cardY }}
           className="relative h-full flex flex-col justify-end pb-5 md:pb-16 md:items-center px-5 md:px-12"
         >
           <motion.div
