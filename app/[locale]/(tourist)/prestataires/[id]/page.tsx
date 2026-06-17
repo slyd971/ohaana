@@ -498,14 +498,13 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
         </section>
 
         {/* Smart availability */}
-        <section className="mb-6 bg-surface rounded-2xl border border-mist p-4 space-y-4">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h2 className="text-sm font-semibold text-charcoal uppercase tracking-wider">Disponibilités</h2>
-              <p className="mt-1 text-sm text-stone">Renseignez vos dates et votre lieu de séjour pour filtrer les créneaux compatibles.</p>
-            </div>
-            <CalendarDays size={18} className="text-deep-green flex-none" />
+        <section className="mb-6 bg-deep-green/6 rounded-2xl border border-deep-green/20 shadow-sm overflow-hidden">
+          <div className="flex items-center gap-3 px-4 py-3 bg-deep-green/8 border-b border-deep-green/15">
+            <CalendarDays size={16} className="text-deep-green flex-none" />
+            <h2 className="text-sm font-semibold text-deep-green uppercase tracking-wider">Disponibilités</h2>
           </div>
+          <div className="p-4 space-y-4">
+          <p className="text-sm text-charcoal/70">Renseignez vos dates et votre lieu de séjour pour filtrer les créneaux disponibles.</p>
 
           <div className="grid grid-cols-2 gap-2">
             <DateRangePicker
@@ -612,6 +611,7 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
             <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#F5A623] inline-block" /> Sur demande</span>
             <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-stone/40 inline-block" /> Complet</span>
           </div>
+          </div>{/* fin p-4 */}
         </section>
 
         {/* Included */}
