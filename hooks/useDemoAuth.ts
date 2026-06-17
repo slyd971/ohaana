@@ -20,6 +20,7 @@ export function useDemoAuth() {
     isLoggedIn: role !== null,
     isClient: role === 'client',
     isProvider: role === 'provider',
+    isPartner: role === 'partner',
     isGuest: role === null,
   }
 }

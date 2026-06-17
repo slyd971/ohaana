@@ -7,7 +7,7 @@ import { Link } from '@/lib/i18n/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { Mail, Lock, User, Briefcase } from 'lucide-react'
+import { Mail, Lock, User, Briefcase, Handshake } from 'lucide-react'
 import { setDemoRole } from '@/lib/demo-auth'
 
 export default function LoginPage() {
@@ -189,6 +189,20 @@ export default function LoginPage() {
           <span className="flex-1 text-left">
             Parcours Prestataire
             <span className="block text-[11px] text-stone font-normal">Dashboard · Services · Paiements</span>
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => { setDemoRole('partner'); router.push('/partner/dashboard') }}
+          className="w-full flex items-center gap-3 h-12 rounded-xl border border-mist bg-sand hover:bg-mist px-4 text-sm font-medium text-charcoal transition-colors"
+        >
+          <span className="w-8 h-8 rounded-full bg-turquoise/10 flex items-center justify-center flex-none">
+            <Handshake size={15} className="text-turquoise" />
+          </span>
+          <span className="flex-1 text-left">
+            Parcours Partenaire
+            <span className="block text-[11px] text-stone font-normal">Commissions · Apports · Lien affilié</span>
           </span>
         </button>
       </div>

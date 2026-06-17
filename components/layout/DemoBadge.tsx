@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { getDemoRole, setDemoRole, type DemoRole } from '@/lib/demo-auth'
-import { User, Briefcase, LogOut, ChevronUp } from 'lucide-react'
+import { User, Briefcase, Handshake, LogOut, ChevronUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function DemoBadge() {
@@ -27,6 +27,7 @@ export function DemoBadge() {
     setRole(r)
     setOpen(false)
     if (r === 'provider') router.push('/provider/dashboard')
+    else if (r === 'partner') router.push('/partner/dashboard')
     else if (r === 'client') router.push('/voyages')
   }
 
@@ -68,6 +69,18 @@ export function DemoBadge() {
             {role === 'provider' && <span className="ml-auto text-[10px] bg-turquoise/20 text-turquoise px-1.5 py-0.5 rounded-full">actif</span>}
           </button>
 
+          <button
+            onClick={() => switchTo('partner')}
+            className={cn(
+              'w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left transition-colors hover:bg-white/10',
+              role === 'partner' ? 'text-turquoise' : 'text-coconut/70'
+            )}
+          >
+            <Handshake size={15} />
+            Parcours Partenaire
+            {role === 'partner' && <span className="ml-auto text-[10px] bg-turquoise/20 text-turquoise px-1.5 py-0.5 rounded-full">actif</span>}
+          </button>
+
           <div className="h-px bg-white/10 mx-4" />
 
           <button
@@ -87,8 +100,8 @@ export function DemoBadge() {
         onClick={() => setOpen((v) => !v)}
         className="flex items-center gap-2 bg-charcoal text-coconut rounded-full px-3.5 py-2 text-xs font-semibold shadow-elevated border border-white/10 hover:bg-charcoal/90 transition-colors"
       >
-        {role === 'client' ? <User size={13} /> : <Briefcase size={13} />}
-        Demo · {role === 'client' ? 'Client' : 'Prestataire'}
+        {role === 'client' ? <User size={13} /> : role === 'partner' ? <Handshake size={13} /> : <Briefcase size={13} />}
+        Demo · {role === 'client' ? 'Client' : role === 'partner' ? 'Partenaire' : 'Prestataire'}
         <ChevronUp size={12} className={cn('transition-transform', open && 'rotate-180')} />
       </button>
     </div>

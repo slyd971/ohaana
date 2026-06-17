@@ -275,13 +275,15 @@ export function DateRangePicker({
       <CalendarDays size={14} className="text-deep-green flex-none" />
       <span className="flex-1 truncate">{displayValue || placeholder}</span>
       {displayValue && (
-        <button
-          type="button"
+        <span
+          role="button"
+          tabIndex={0}
           onClick={(e) => { e.stopPropagation(); onChange(null, null) }}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); onChange(null, null) } }}
           className="text-stone hover:text-charcoal transition-colors"
         >
           <X size={13} />
-        </button>
+        </span>
       )}
     </button>
   )
