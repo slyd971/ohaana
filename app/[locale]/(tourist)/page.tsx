@@ -7,6 +7,7 @@ import { HeroSection } from '@/components/home/HeroSection'
 import { ServiceRow } from '@/components/home/ServiceRow'
 import { Testimonials } from '@/components/home/Testimonials'
 import { type IslandFilter } from '@/components/home/IslandSelector'
+import { MoodSelector } from '@/components/home/MoodSelector'
 import { HOME_ROWS, getServicesByIds } from '@/lib/data/seed'
 import {
   Clock, Sparkles, Leaf, MessageCircle,
@@ -36,8 +37,16 @@ const DESTINATIONS = [
   'Dominique', 'Autre île', 'Pas encore décidé',
 ]
 
+const MOOD_FILTER: Record<string, string[]> = {
+  wellness: ['bien-être', 'spa', 'relaxation'],
+  soiree:   ['soirée', 'villa', 'coucher de soleil'],
+  food:     ['gastronomie', 'cuisine'],
+  culture:  ['culture', 'créole'],
+}
+
 export default function HomePage() {
   const [island, setIsland]       = useState<IslandFilter>('all')
+  const [mood, setMood]           = useState<string>('all')
   const [stayStart, setStayStart] = useState<Date | null>(null)
   const [stayEnd, setStayEnd]     = useState<Date | null>(null)
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
@@ -77,6 +86,10 @@ export default function HomePage() {
   function filterServices(ids: string[]) {
     let services = getServicesByIds(ids)
     if (island !== 'all') services = services.filter(s => s.island === island)
+    if (mood !== 'all') {
+      const kw = MOOD_FILTER[mood] ?? []
+      services = services.filter(s => kw.some(k => s.tags.some(t => t.includes(k))))
+    }
     return services
   }
 
@@ -145,7 +158,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── 4. Service rows ──────────────────────────────────────────────────── */}
+      {/* ── 4. Filtre humeur ─────────────────────────────────────────────────── */}
+      <div className="sticky top-16 z-20 bg-coconut/96 backdrop-blur-md border-b border-mist pt-2 pb-2">
+        <MoodSelector value={mood} onChange={setMood} />
+      </div>
+
+      {/* ── 5. Service rows ──────────────────────────────────────────────────── */}
       <div className="py-8 space-y-10 max-w-7xl mx-auto md:px-8">
         {HOME_ROWS.filter(r => DISPLAY_ROWS.includes(r.key)).map(({ key, label_fr, ids }) => (
           <ServiceRow
