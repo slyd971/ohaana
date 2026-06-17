@@ -4,10 +4,9 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from '@/lib/i18n/navigation'
 import { HeroSection } from '@/components/home/HeroSection'
-import { ServiceCard } from '@/components/service/ServiceCard'
+import { ServiceRow } from '@/components/home/ServiceRow'
 import { Testimonials } from '@/components/home/Testimonials'
 import { type IslandFilter } from '@/components/home/IslandSelector'
-import { MoodSelector, CATEGORIES } from '@/components/home/MoodSelector'
 import { HOME_ROWS, getServicesByIds } from '@/lib/data/seed'
 import {
   Clock, Sparkles, Leaf, MessageCircle,
@@ -39,7 +38,6 @@ const DESTINATIONS = [
 
 export default function HomePage() {
   const [island, setIsland]       = useState<IslandFilter>('all')
-  const [mood, setMood]           = useState<string>('popular')
   const [stayStart, setStayStart] = useState<Date | null>(null)
   const [stayEnd, setStayEnd]     = useState<Date | null>(null)
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
@@ -74,12 +72,13 @@ export default function HomePage() {
     })
   }
 
-  const activeRow = HOME_ROWS.find(r => r.key === mood) ?? HOME_ROWS[0]
-  const activeServices = (() => {
-    let services = getServicesByIds(activeRow.ids)
+  const DISPLAY_ROWS = ['popular', 'tonight', 'wellness']
+
+  function filterServices(ids: string[]) {
+    let services = getServicesByIds(ids)
     if (island !== 'all') services = services.filter(s => s.island === island)
     return services
-  })()
+  }
 
   function handleLeadSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -146,37 +145,18 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── 4. Controls (sticky) ─────────────────────────────────────────────── */}
-      <div className="sticky top-16 z-20 bg-coconut/96 backdrop-blur-md border-b border-mist pt-2 pb-2">
-        <MoodSelector value={mood} onChange={setMood} />
-      </div>
-
-      {/* ── 4. Service grid ──────────────────────────────────────────────────── */}
-      <div className="py-8 max-w-7xl mx-auto px-5 md:px-8">
-        <motion.div
-          key={mood}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25 }}
-        >
-          {activeServices.length === 0 ? (
-            <p className="text-center text-stone py-16 text-sm">
-              Aucun service disponible pour cette sélection.
-            </p>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {activeServices.map(s => (
-                <ServiceCard
-                  key={s.id}
-                  service={s}
-                  isFavorite={favorites.has(s.id)}
-                  onToggleFavorite={toggleFavorite}
-                  className="w-full"
-                />
-              ))}
-            </div>
-          )}
-        </motion.div>
+      {/* ── 4. Service rows ──────────────────────────────────────────────────── */}
+      <div className="py-8 space-y-10 max-w-7xl mx-auto md:px-8">
+        {HOME_ROWS.filter(r => DISPLAY_ROWS.includes(r.key)).map(({ key, label_fr, ids }) => (
+          <ServiceRow
+            key={key}
+            title={label_fr}
+            services={filterServices(ids)}
+            favorites={favorites}
+            onToggleFavorite={toggleFavorite}
+            seeAllHref={`/search?category=${key}`}
+          />
+        ))}
       </div>
 
       {/* ── 5. Témoignages ───────────────────────────────────────────────────── */}
