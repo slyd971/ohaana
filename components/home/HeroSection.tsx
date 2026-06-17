@@ -92,16 +92,16 @@ export function HeroSection({
         {/* Content */}
         <motion.div
           style={{ opacity }}
-          className="relative h-full flex flex-col justify-end pb-5 md:pb-10 px-5 md:px-12"
+          className="relative h-full flex flex-col justify-end pb-5 md:justify-center md:pb-0 md:items-center px-5 md:px-12"
         >
           <motion.div
             initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
-            className="max-w-sm"
+            className="max-w-sm md:max-w-2xl md:w-full"
           >
             {/* Frosted glass card */}
-            <div className="bg-coconut/88 backdrop-blur-lg rounded-3xl p-4 md:p-6 space-y-3 md:space-y-4 shadow-elevated border border-white/60">
+            <div className="bg-coconut/88 backdrop-blur-lg rounded-3xl p-4 md:p-8 space-y-3 md:space-y-5 shadow-elevated border border-white/60">
 
               {/* Island + date selectors — above the title */}
               <div className="flex items-center gap-2">
@@ -117,7 +117,7 @@ export function HeroSection({
                 </div>
               </div>
 
-              <h1 className="text-2xl md:text-5xl font-display text-deep-green leading-tight">
+              <h1 className="text-2xl md:text-5xl lg:text-6xl font-display text-deep-green leading-tight">
                 La Caraïbe authentique,{' '}
                 <span className="inline-block relative">
                   <AnimatePresence mode="wait">
@@ -134,7 +134,7 @@ export function HeroSection({
                   </AnimatePresence>
                 </span>
               </h1>
-              <p className="text-charcoal/75 text-sm md:text-base leading-relaxed">
+              <p className="text-charcoal/75 text-sm md:text-base leading-relaxed md:max-w-lg">
                 Chef(fe) à domicile, massages, DJ, shootings photo — réservez les meilleures expériences des Caraïbes, sélectionnées par des locaux.
               </p>
 
