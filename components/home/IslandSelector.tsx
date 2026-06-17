@@ -42,7 +42,7 @@ export function IslandSelector({ value, onChange }: IslandSelectorProps) {
           initial={{ opacity: 0, y: 6, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0 }}
-          className="absolute top-full mt-2 left-0 bg-coconut rounded-2xl border border-mist shadow-elevated overflow-hidden z-30 min-w-[180px]"
+          className="absolute top-full mt-2 left-0 bg-coconut rounded-2xl border border-mist shadow-elevated overflow-hidden z-[80] min-w-[180px]"
         >
           {ISLAND_OPTIONS.map(({ value: v, label, soon }) => (
             <button

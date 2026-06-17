@@ -25,10 +25,10 @@ const BY_ISLAND = [
 ]
 
 const TOP_SERVICES = [
-  { rank: 1, title: 'Dîner de chef en villa — Créole Prestige', provider: 'Chef Marcus',        bookings: 32, gmv: '5 760 €',  growth: '+41%' },
-  { rank: 2, title: 'DJ & ambiance live en villa',              provider: 'DJ Kenzo Caraïbes',  bookings: 28, gmv: '7 000 €',  growth: '+55%' },
+  { rank: 1, title: 'Dîner de chef à domicile — Créole Prestige', provider: 'Chef Marcus',        bookings: 32, gmv: '5 760 €',  growth: '+41%' },
+  { rank: 2, title: 'DJ & ambiance live à domicile',              provider: 'DJ Kenzo Caraïbes',  bookings: 28, gmv: '7 000 €',  growth: '+55%' },
   { rank: 3, title: 'Décoration romantique de villa',           provider: 'Tiphanie Événements', bookings: 24, gmv: '3 600 €', growth: '+65%' },
-  { rank: 4, title: 'Massage balinais en villa',                provider: 'Massage Madeleine',   bookings: 22, gmv: '2 640 €',  growth: '+19%' },
+  { rank: 4, title: 'Massage balinais à domicile',                provider: 'Massage Madeleine',   bookings: 22, gmv: '2 640 €',  growth: '+19%' },
   { rank: 5, title: 'Shooting photo couple — Lever de soleil',  provider: 'Studio Camille',      bookings: 18, gmv: '3 960 €',  growth: '+33%' },
 ]
 

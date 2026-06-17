@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
 
 type TravelerType = 'couple' | 'family' | 'friends' | 'solo'
-type Interest = 'luxury' | 'wellness' | 'adventure' | 'food' | 'culture' | 'relax'
+type Interest = 'wellness' | 'adventure' | 'food' | 'culture' | 'relax'
 
 const TRAVELERS: { value: TravelerType; label: string; emoji: string; desc: string }[] = [
   { value: 'couple',  label: 'En couple',   emoji: '💑', desc: 'Escapade romantique' },
@@ -19,7 +19,6 @@ const TRAVELERS: { value: TravelerType; label: string; emoji: string; desc: stri
 ]
 
 const INTERESTS: { value: Interest; label: string; emoji: string; img: string }[] = [
-  { value: 'luxury',    label: 'Luxe & prestige',   emoji: '💎', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop&q=85&bri=8&sat=8' },
   { value: 'wellness',  label: 'Bien-être & spa',   emoji: '🌿', img: 'https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?w=400&h=300&fit=crop&q=85&bri=8&sat=8' },
   { value: 'adventure', label: 'Aventure & nature', emoji: '🌊', img: 'https://images.unsplash.com/photo-1500514966906-fe245eea9344?w=400&h=300&fit=crop&q=85&bri=5&sat=10' },
   { value: 'food',      label: 'Gastronomie',       emoji: '🍽️', img: 'https://images.unsplash.com/photo-1555244162-803834f70033?w=400&h=300&fit=crop&q=85&bri=8&sat=8' },

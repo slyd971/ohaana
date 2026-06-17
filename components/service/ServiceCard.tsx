@@ -28,7 +28,6 @@ const TAG_BADGES: Record<string, string> = {
   'couple':            '💑 Couple',
   'famille':           '👨‍👩‍👧 Famille',
   'aventure':          '🏄 Aventure',
-  'luxe':              '✨ Exclusif',
   'bien-être':         '🧘 Bien-être',
   'coucher de soleil': '🌅 Sunset',
   'gastronomie':       '🍽️ Gastro',
@@ -38,7 +37,7 @@ const TAG_BADGES: Record<string, string> = {
 }
 
 const TAG_PRIORITY = [
-  'luxe', 'couple', 'famille', 'coucher de soleil',
+  'couple', 'famille', 'coucher de soleil',
   'bien-être', 'culture', 'aventure', 'gastronomie', 'nature', 'beauté',
 ]
 

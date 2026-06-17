@@ -43,14 +43,20 @@ const DAY_NAMES_SHORT = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']
 
 // Deterministic slot patterns based on day-of-month — simulates real availability
 const SLOT_PATTERNS = [
-  [{ time: '09:00', status: 'available' }, { time: '14:00', status: 'request' }],
-  [{ time: '10:00', status: 'available' }, { time: '16:00', status: 'full' }],
-  [{ time: '11:00', status: 'request' },   { time: '18:00', status: 'available' }],
-  [{ time: '09:00', status: 'full' },      { time: '15:00', status: 'available' }],
-  [{ time: '10:00', status: 'available' }, { time: '19:00', status: 'available' }],
-  [{ time: '14:00', status: 'request' },   { time: '20:00', status: 'available' }],
-  [{ time: '09:00', status: 'available' }, { time: '11:00', status: 'request' }],
+  [{ time: '09:00', status: 'available' }, { time: '11:00', status: 'available' }, { time: '14:00', status: 'request'  }, { time: '17:00', status: 'available' }],
+  [{ time: '09:00', status: 'request'   }, { time: '10:00', status: 'available' }, { time: '14:00', status: 'full'     }, { time: '16:00', status: 'available' }, { time: '19:00', status: 'request' }],
+  [{ time: '10:00', status: 'available' }, { time: '13:00', status: 'available' }, { time: '16:00', status: 'request'  }, { time: '18:00', status: 'available' }],
+  [{ time: '09:00', status: 'full'      }, { time: '11:00', status: 'available' }, { time: '15:00', status: 'available'}, { time: '20:00', status: 'request'   }],
+  [{ time: '10:00', status: 'available' }, { time: '14:00', status: 'available' }, { time: '18:00', status: 'available'}, { time: '20:00', status: 'available' }],
+  [{ time: '09:00', status: 'available' }, { time: '11:00', status: 'request'   }, { time: '14:00', status: 'available'}, { time: '18:00', status: 'full'      }, { time: '20:00', status: 'available' }],
+  [{ time: '09:00', status: 'available' }, { time: '10:00', status: 'available' }, { time: '15:00', status: 'request'  }, { time: '18:00', status: 'available' }],
 ]
+
+function dayStatus(slots: { status: string }[]) {
+  if (slots.some(s => s.status === 'available')) return 'available'
+  if (slots.some(s => s.status === 'request'))   return 'request'
+  return 'full'
+}
 
 function buildAvailability(start: Date | null, end: Date | null) {
   const today = new Date()
@@ -92,7 +98,7 @@ function getOfferings(service: ReturnType<typeof getServiceById>) {
 
   if (service.category_id === 'cat-2') {
     return [
-      { id: 'relax', title: 'Massage Relaxation Caraïbe', duration: '60 min', price: basePrice, description: 'Rituel détente en villa avec huiles locales.', includes: ['Table professionnelle', 'Huiles essentielles', 'Ambiance spa'] },
+      { id: 'relax', title: 'Massage Relaxation Caraïbe', duration: '60 min', price: basePrice, description: 'Rituel détente à domicile avec huiles locales.', includes: ['Table professionnelle', 'Huiles essentielles', 'Ambiance spa'] },
       { id: 'signature', title: 'Massage Signature', duration: '90 min', price: basePrice + 4000, description: 'Massage plus profond et personnalisé selon vos tensions.', includes: ['Diagnostic rapide', 'Table professionnelle', 'Huiles premium'] },
       { id: 'duo', title: 'Massage Duo Sunset', duration: '90 min', price: basePrice * 2 + 2000, description: 'Deux praticiens pour un moment à deux, idéal en fin de journée.', includes: ['Deux tables', 'Deux praticiens', 'Mise en ambiance'] },
       { id: 'pack', title: 'Pack Bien-être Villa', duration: '2h', price: basePrice * 2 + 8000, description: 'Massage, respiration guidée et rituel détente complet.', includes: ['Rituel complet', 'Produits locaux', 'Support Ohaana'] },
@@ -101,7 +107,7 @@ function getOfferings(service: ReturnType<typeof getServiceById>) {
 
   if (service.category_id === 'cat-1') {
     return [
-      { id: 'essential', title: service.title_fr, duration: service.duration_min ? formatDuration(service.duration_min) : 'Sur mesure', price: basePrice, description: 'Prestation complète à domicile, pensée pour votre villa.', includes: ['Préparation sur place', 'Service inclus', 'Produits locaux'] },
+      { id: 'essential', title: service.title_fr, duration: service.duration_min ? formatDuration(service.duration_min) : 'Sur mesure', price: basePrice, description: 'Prestation complète à domicile, pensée pour vous.', includes: ['Préparation sur place', 'Service inclus', 'Produits locaux'] },
       { id: 'signature', title: 'Menu Signature Caraïbe', duration: '3h30', price: basePrice + 4500, description: 'Une version plus gastronomique avec accords et dressage premium.', includes: ['Menu enrichi', 'Accords rhum', 'Service à table'] },
       { id: 'family', title: 'Table famille & enfants', duration: '2h30', price: Math.max(9000, basePrice - 3000), description: 'Une expérience plus souple pour les familles en séjour.', includes: ['Menu adapté', 'Option enfants', 'Rangement inclus'] },
     ]
@@ -110,7 +116,7 @@ function getOfferings(service: ReturnType<typeof getServiceById>) {
   return [
     { id: 'classic', title: service.title_fr, duration: service.duration_min ? formatDuration(service.duration_min) : 'Sur mesure', price: basePrice, description: service.description_fr, includes: ['Déplacement inclus', 'Matériel fourni', 'Coordination Ohaana'] },
     { id: 'signature', title: 'Version Signature', duration: service.duration_min ? formatDuration(service.duration_min + 30) : 'Sur mesure', price: basePrice + 3500, description: 'Une prestation renforcée avec préparation et finitions premium.', includes: ['Préparation étendue', 'Matériel fourni', 'Finitions premium'] },
-    { id: 'groupe', title: 'Format groupe privé', duration: service.duration_min ? formatDuration(service.duration_min + 60) : 'Sur mesure', price: basePrice + 7000, description: 'Pensé pour les familles, amis ou petites célébrations en villa.', includes: ['Format groupe', 'Coordination horaire', 'Support Ohaana'] },
+    { id: 'groupe', title: 'Format groupe privé', duration: service.duration_min ? formatDuration(service.duration_min + 60) : 'Sur mesure', price: basePrice + 7000, description: 'Pensé pour les familles, amis ou petites célébrations à domicile.', includes: ['Format groupe', 'Coordination horaire', 'Support Ohaana'] },
   ]
 }
 
@@ -206,25 +212,30 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
   const [stayEnd, setStayEnd] = useState<Date | null>(null)
   const [location, setLocation] = useState('')
   const [selectedSlot, setSelectedSlot] = useState<{ isoDate: string; day: string; date: string; time: string } | null>(null)
+  const [selectedDay, setSelectedDay] = useState<string | null>(null)
 
-  // Pre-fill location from island selected on home page
+  // Pre-fill location + stay dates from session
   useEffect(() => {
     try {
-      const saved = sessionStorage.getItem('ohaana_island')
-      if (saved && saved !== 'all') {
+      const savedIsland = sessionStorage.getItem('ohaana_island')
+      if (savedIsland && savedIsland !== 'all') {
         const labels: Record<string, string> = {
           guadeloupe: 'Guadeloupe',
           martinique: 'Martinique',
           saint_martin: 'Saint-Martin',
           saint_barth: 'Saint-Barth',
         }
-        setLocation(labels[saved] ?? '')
+        setLocation(labels[savedIsland] ?? '')
       }
+      const s = sessionStorage.getItem('ohaana_stay_start')
+      const e = sessionStorage.getItem('ohaana_stay_end')
+      if (s) { const d = new Date(s); if (!isNaN(d.getTime())) setStayStart(d) }
+      if (e) { const d = new Date(e); if (!isNaN(d.getTime())) setStayEnd(d) }
     } catch {}
   }, [])
 
-  // Reset slot when dates change
-  useEffect(() => { setSelectedSlot(null) }, [stayStart, stayEnd])
+  // Reset slot + selected day when dates change
+  useEffect(() => { setSelectedSlot(null); setSelectedDay(null) }, [stayStart, stayEnd])
 
   const availability = useMemo(() => buildAvailability(stayStart, stayEnd), [stayStart, stayEnd])
 
@@ -437,19 +448,70 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
             <DateRangePicker
               startDate={stayStart}
               endDate={stayEnd}
-              onChange={(s, e) => { setStayStart(s); setStayEnd(e) }}
+              onChange={(s, e) => {
+                setStayStart(s)
+                setStayEnd(e)
+                try {
+                  if (s) sessionStorage.setItem('ohaana_stay_start', s.toISOString())
+                  else sessionStorage.removeItem('ohaana_stay_start')
+                  if (e) sessionStorage.setItem('ohaana_stay_end', e.toISOString())
+                  else sessionStorage.removeItem('ohaana_stay_end')
+                } catch {}
+              }}
             />
             <LocationAutocomplete value={location} onChange={setLocation} />
           </div>
 
+          {/* Day chips — compact, click to expand slots */}
           <div className="grid grid-cols-4 gap-2">
-            {availability.map((day) => (
-              <div key={day.isoDate} className="rounded-xl border border-mist bg-coconut p-2">
-                <div className="text-center mb-2">
+            {availability.map((day) => {
+              const status = dayStatus(day.slots)
+              const isActive = selectedDay === day.isoDate
+              const hasSelected = selectedSlot?.isoDate === day.isoDate
+              return (
+                <button
+                  key={day.isoDate}
+                  type="button"
+                  onClick={() => setSelectedDay(isActive ? null : day.isoDate)}
+                  className={cn(
+                    'rounded-xl border p-2.5 text-center transition-all',
+                    isActive
+                      ? 'border-deep-green bg-deep-green/5 ring-2 ring-deep-green/15'
+                      : hasSelected
+                      ? 'border-turquoise bg-turquoise/5'
+                      : 'border-mist bg-coconut hover:border-deep-green/30'
+                  )}
+                >
                   <p className="text-[10px] uppercase text-stone">{day.day}</p>
-                  <p className="text-lg font-display text-charcoal">{day.date}</p>
-                </div>
-                <div className="space-y-1.5">
+                  <p className="text-lg font-display text-charcoal leading-tight">{day.date}</p>
+                  <div className="flex justify-center mt-1.5">
+                    <div className={cn('w-2 h-2 rounded-full', {
+                      'bg-turquoise': status === 'available',
+                      'bg-[#F5A623]': status === 'request',
+                      'bg-stone/40': status === 'full',
+                    })} />
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Expanded slots for selected day */}
+          {selectedDay && (() => {
+            const day = availability.find(d => d.isoDate === selectedDay)
+            if (!day) return null
+            return (
+              <motion.div
+                key={selectedDay}
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.18 }}
+                className="rounded-2xl bg-sand border border-mist p-4 space-y-3"
+              >
+                <p className="text-xs font-semibold text-charcoal uppercase tracking-wider">
+                  {day.day} {day.date} — Choisissez un créneau
+                </p>
+                <div className="flex flex-wrap gap-2">
                   {day.slots.map((slot) => {
                     const Icon = STATUS_ICON[slot.status as keyof typeof STATUS_ICON]
                     const isSelected = selectedSlot?.isoDate === day.isoDate && selectedSlot?.time === slot.time
@@ -462,26 +524,30 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
                           isSelected ? null : { isoDate: day.isoDate, day: day.day, date: day.date, time: slot.time }
                         )}
                         className={cn(
-                          'w-full inline-flex items-center justify-center gap-1 rounded-lg border px-1.5 py-1.5 text-[11px] font-medium transition-all',
-                          isSelected
-                            ? 'border-deep-green bg-deep-green text-white'
-                            : STATUS_STYLES[slot.status as keyof typeof STATUS_STYLES]
+                          'inline-flex items-center gap-1.5 rounded-xl border px-4 py-2.5 text-sm font-medium transition-all',
+                          slot.status === 'full'
+                            ? 'border-mist bg-mist/30 text-stone line-through cursor-not-allowed'
+                            : isSelected
+                            ? 'border-deep-green bg-deep-green text-white shadow-sm'
+                            : slot.status === 'available'
+                            ? 'border-turquoise/50 bg-turquoise/10 text-deep-green hover:bg-turquoise/20'
+                            : 'border-[#F5A623]/40 bg-[#F5A623]/10 text-charcoal hover:bg-[#F5A623]/20'
                         )}
                       >
-                        <Icon size={10} />
+                        <Icon size={13} />
                         {fmtSlot(slot.time)}
                       </button>
                     )
                   })}
                 </div>
-              </div>
-            ))}
-          </div>
+              </motion.div>
+            )
+          })()}
 
           <div className="flex flex-wrap gap-3 text-[11px] text-stone">
-            <span className="inline-flex items-center gap-1"><CheckCircle2 size={11} className="text-turquoise" /> Disponible</span>
-            <span className="inline-flex items-center gap-1"><CircleDashed size={11} className="text-[#F5A623]" /> Sur demande</span>
-            <span className="inline-flex items-center gap-1"><Circle size={11} /> Complet</span>
+            <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-turquoise inline-block" /> Disponible</span>
+            <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#F5A623] inline-block" /> Sur demande</span>
+            <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-stone/40 inline-block" /> Complet</span>
           </div>
         </section>
 

@@ -229,7 +229,7 @@ export default function ProviderOnboarding() {
         <input
           value={form.serviceTitle}
           onChange={(e) => set('serviceTitle', e.target.value)}
-          placeholder="Ex. Dîner privé créole en villa, 4–8 pers."
+          placeholder="Ex. Dîner privé créole à domicile, 4–8 pers."
           className="w-full px-4 py-3 rounded-xl border border-mist bg-white text-charcoal placeholder:text-stone text-sm focus:outline-none focus:border-deep-green transition-colors"
         />
       </div>

@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/lib/i18n/navigation'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
-import { Globe, Handshake, User } from 'lucide-react'
+import { Globe, Handshake, Heart, User } from 'lucide-react'
 import { OhaanaLogo } from './OhaanaLogo'
 
 interface HeaderProps {
@@ -67,17 +67,27 @@ export function Header({ transparent = false }: HeaderProps) {
         </nav>
 
         {/* Right actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <button
             aria-label="Changer de langue"
             className={cn(
-              'p-2 rounded-full transition-colors hover:bg-sand',
+              'p-1.5 rounded-full transition-colors hover:bg-sand',
               isOpaque ? 'text-charcoal-soft' : 'text-coconut/80'
             )}
           >
             <Globe size={18} />
           </button>
-          <Link href="/login">
+          <Link
+            href="/voyages"
+            aria-label="Mes favoris"
+            className={cn(
+              'p-1.5 rounded-full transition-colors hover:bg-sand',
+              isOpaque ? 'text-charcoal-soft' : 'text-coconut/80'
+            )}
+          >
+            <Heart size={18} />
+          </Link>
+          <Link href="/login" className="ml-1">
             <Button
               variant={isOpaque ? 'ghost' : 'outline'}
               size="sm"

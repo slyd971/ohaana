@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from '@/lib/i18n/navigation'
 import { HeroSection } from '@/components/home/HeroSection'
 import { ServiceRow } from '@/components/home/ServiceRow'
-import { IslandSelector, type IslandFilter } from '@/components/home/IslandSelector'
+import { type IslandFilter } from '@/components/home/IslandSelector'
 import { MoodSelector } from '@/components/home/MoodSelector'
 import { SERVICES, HOME_ROWS, getServicesByIds } from '@/lib/data/seed'
 import {
@@ -14,9 +14,8 @@ import {
 } from 'lucide-react'
 
 const MOOD_FILTER: Record<string, string[]> = {
-  luxury:    ['luxe', 'villa', 'prestige'],
   wellness:  ['bien-être', 'spa', 'relaxation'],
-  soiree:    ['soirée', 'luxe', 'villa', 'coucher de soleil'],
+  soiree:    ['soirée', 'villa', 'coucher de soleil'],
   food:      ['gastronomie', 'cuisine'],
   culture:   ['culture', 'créole'],
   relax:     ['relaxation', 'détente', 'plage', 'coucher de soleil'],
@@ -36,7 +35,7 @@ const WHY_ITEMS = [
   {
     icon: Sparkles,
     title: 'Expériences premium',
-    text: 'Chefs créoles, DJ, massages en villa, décorations romantiques — chez vous, au niveau.',
+    text: 'Chefs créoles, DJ, massages à domicile, décorations romantiques — chez vous, au niveau.',
   },
   {
     icon: MapPin,
@@ -51,9 +50,23 @@ const DESTINATIONS = [
 ]
 
 export default function HomePage() {
-  const [island, setIsland] = useState<IslandFilter>('all')
-  const [mood, setMood]     = useState<string>('all')
+  const [island, setIsland]       = useState<IslandFilter>('all')
+  const [mood, setMood]           = useState<string>('all')
+  const [stayStart, setStayStart] = useState<Date | null>(null)
+  const [stayEnd, setStayEnd]     = useState<Date | null>(null)
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
+
+  // Restore island + dates from previous session
+  useEffect(() => {
+    try {
+      const savedIsland = sessionStorage.getItem('ohaana_island')
+      if (savedIsland) setIsland(savedIsland as IslandFilter)
+      const s = sessionStorage.getItem('ohaana_stay_start')
+      const e = sessionStorage.getItem('ohaana_stay_end')
+      if (s) { const d = new Date(s); if (!isNaN(d.getTime())) setStayStart(d) }
+      if (e) { const d = new Date(e); if (!isNaN(d.getTime())) setStayEnd(d) }
+    } catch {}
+  }, [])
 
   // Lead capture state
   const [leadEmail, setLeadEmail]   = useState('')
@@ -101,19 +114,28 @@ export default function HomePage() {
     <div className="bg-coconut pb-20 md:pb-0">
 
       {/* ── 1. Hero ──────────────────────────────────────────────────────────── */}
-      <HeroSection />
+      <HeroSection
+        island={island}
+        onIslandChange={(v) => {
+          setIsland(v)
+          try { sessionStorage.setItem('ohaana_island', v) } catch {}
+        }}
+        stayStart={stayStart}
+        stayEnd={stayEnd}
+        onDatesChange={(s, e) => {
+          setStayStart(s)
+          setStayEnd(e)
+          try {
+            if (s) sessionStorage.setItem('ohaana_stay_start', s.toISOString())
+            else sessionStorage.removeItem('ohaana_stay_start')
+            if (e) sessionStorage.setItem('ohaana_stay_end', e.toISOString())
+            else sessionStorage.removeItem('ohaana_stay_end')
+          } catch {}
+        }}
+      />
 
       {/* ── 2. Controls (sticky) ─────────────────────────────────────────────── */}
-      <div className="sticky top-16 z-20 bg-coconut/96 backdrop-blur-md border-b border-mist pt-3 pb-2 space-y-2.5">
-        <div className="flex items-center justify-between px-5 md:px-8">
-            <IslandSelector
-              value={island}
-              onChange={(v) => {
-                setIsland(v)
-                try { sessionStorage.setItem('ohaana_island', v) } catch {}
-              }}
-            />
-        </div>
+      <div className="sticky top-16 z-20 bg-coconut/96 backdrop-blur-md border-b border-mist pt-2 pb-2">
         <MoodSelector value={mood} onChange={setMood} />
       </div>
 
@@ -149,7 +171,7 @@ export default function HomePage() {
             Vous ne trouvez pas<br />l&apos;expérience parfaite&nbsp;?
           </h2>
           <p className="text-coconut/70 text-sm md:text-base leading-relaxed max-w-sm mx-auto">
-            Notre concierge vous aide à composer un dîner privé en villa, organiser une soirée sur mesure, créer une demande en mariage, un anniversaire ou un programme complet à domicile — dans toutes les Caraïbes.
+            Notre concierge vous aide à composer un dîner privé à domicile, organiser une soirée sur mesure, créer une demande en mariage, un anniversaire ou un programme complet à domicile — dans toutes les Caraïbes.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <a
@@ -207,7 +229,7 @@ export default function HomePage() {
           </div>
           <div className="flex-1 text-center md:text-left space-y-3">
             <h2 className="text-xl md:text-2xl font-display text-charcoal">
-              Vous êtes chef, masseuse, DJ, photographe ou coach sportif&nbsp;?
+              Vous êtes chef(fe), masseur(se), DJ, photographe ou coach sportif&nbsp;?
             </h2>
             <p className="text-sm text-stone leading-relaxed">
               Recevez des demandes de voyageurs en séjour dans les Caraïbes et proposez vos prestations à domicile, sans infrastructure à gérer.

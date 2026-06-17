@@ -74,7 +74,7 @@ export default function ConciergePage() {
 
           <div>
             <h1 className="text-2xl font-display text-charcoal">Assistant séjour Ohaana</h1>
-            <p className="text-stone text-sm mt-1">Recommandations, prestataires et créneaux adaptés à votre villa.</p>
+            <p className="text-stone text-sm mt-1">Recommandations, prestataires et créneaux adaptés à votre séjour.</p>
           </div>
         </motion.div>
 

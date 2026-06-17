@@ -7,7 +7,7 @@ import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from '@/lib/i18n/navigation'
 import {
-  ChevronLeft, CheckCircle2, Clock, Users, ShieldCheck,
+  ChevronLeft, CheckCircle2, Clock, Heart, Users, ShieldCheck,
   Lock, Info, ChevronDown, ChevronUp, ChevronRight,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
@@ -210,10 +210,11 @@ export default function ReservationPage({ params }: { params: Promise<{ serviceI
   // on skip les sélecteurs et on affiche un récap compact
   const preselected = !!(initDate && initTime)
 
+  const [isFav, setIsFav] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date | null>(initDate)
   const [selectedTime, setSelectedTime] = useState<string | null>(initTime)
   const [editingSlot, setEditingSlot] = useState(!preselected)
-  const [guests, setGuests] = useState(1)
+  const [guests, setGuests] = useState(service.capacity_min)
   const [notes, setNotes] = useState('')
   const [notesOpen, setNotesOpen] = useState(false)
   const [showPayment, setShowPayment] = useState(false)
@@ -254,6 +255,17 @@ export default function ReservationPage({ params }: { params: Promise<{ serviceI
             <ChevronLeft size={22} />
           </Link>
           <p className="flex-1 text-sm font-semibold text-charcoal line-clamp-2 leading-tight">{service.title_fr}</p>
+          <button
+            type="button"
+            onClick={() => setIsFav(v => !v)}
+            aria-label="Ajouter aux favoris"
+            className="p-1.5 -mr-1 flex-none transition-colors"
+          >
+            <Heart
+              size={20}
+              className={cn(isFav ? 'fill-coral text-coral' : 'text-stone')}
+            />
+          </button>
         </div>
       </div>
 
@@ -395,8 +407,8 @@ export default function ReservationPage({ params }: { params: Promise<{ serviceI
             <div className="flex items-center gap-4">
               <button
                 type="button"
-                onClick={() => setGuests((g) => Math.max(1, g - 1))}
-                disabled={guests <= 1}
+                onClick={() => setGuests((g) => Math.max(service.capacity_min, g - 1))}
+                disabled={guests <= service.capacity_min}
                 className="w-9 h-9 rounded-full border-2 border-mist flex items-center justify-center text-lg font-medium text-charcoal hover:border-deep-green transition-colors disabled:opacity-30"
               >
                 −
@@ -413,7 +425,7 @@ export default function ReservationPage({ params }: { params: Promise<{ serviceI
             </div>
           </div>
           <p className="text-xs text-stone mt-2">
-            Maximum {service.capacity_max} personnes
+            Minimum {service.capacity_min} · Maximum {service.capacity_max} personnes
           </p>
         </div>
 

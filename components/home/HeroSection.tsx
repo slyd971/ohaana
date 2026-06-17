@@ -10,8 +10,10 @@ import {
   ShieldCheck,
   CreditCard,
   Headphones,
-  MapPin,
+  ChevronRight,
 } from 'lucide-react'
+import { IslandSelector, type IslandFilter } from '@/components/home/IslandSelector'
+import { DateRangePicker } from '@/components/ui/DateRangePicker'
 
 const HERO_IMG = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1600&h=900&fit=crop&q=90'
 
@@ -33,8 +35,21 @@ const VALUE_PROOFS = [
   },
 ]
 
+interface HeroSectionProps {
+  island: IslandFilter
+  onIslandChange: (v: IslandFilter) => void
+  stayStart: Date | null
+  stayEnd: Date | null
+  onDatesChange: (start: Date | null, end: Date | null) => void
+}
 
-export function HeroSection() {
+export function HeroSection({
+  island,
+  onIslandChange,
+  stayStart,
+  stayEnd,
+  onDatesChange,
+}: HeroSectionProps) {
   const ref = useRef<HTMLDivElement>(null)
   const { scrollY } = useScroll()
   const y = useTransform(scrollY, [0, 500], [0, 140])
@@ -42,24 +57,27 @@ export function HeroSection() {
 
   return (
     <>
-      <div ref={ref} className="relative h-[92dvh] min-h-[580px] overflow-hidden md:h-[82dvh] md:min-h-[620px]">
-        {/* Parallax background */}
-        <motion.div className="absolute inset-0 scale-110" style={{ y }}>
-          <Image
-            src={HERO_IMG}
-            alt="Villa caribéenne — lagon turquoise et nature tropicale"
-            fill
-            priority
-            className="object-cover object-center"
-            sizes="100vw"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-black/10" />
-        </motion.div>
+      {/* overflow-visible so the calendar dropdown can escape the hero boundary */}
+      <div ref={ref} className="relative h-[70dvh] min-h-[520px] md:h-[82dvh] md:min-h-[620px]">
+        {/* Parallax background — clipped separately */}
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div className="absolute inset-0 scale-110" style={{ y }}>
+            <Image
+              src={HERO_IMG}
+              alt="Villa caribéenne — lagon turquoise et nature tropicale"
+              fill
+              priority
+              className="object-cover object-center"
+              sizes="100vw"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-black/10" />
+          </motion.div>
+        </div>
 
         {/* Content */}
         <motion.div
           style={{ opacity }}
-          className="relative h-full flex flex-col justify-end pb-10 px-5 md:px-12"
+          className="relative h-full flex flex-col justify-end pb-5 md:pb-10 px-5 md:px-12"
         >
           <motion.div
             initial={{ opacity: 0, y: 32 }}
@@ -68,18 +86,27 @@ export function HeroSection() {
             className="max-w-sm"
           >
             {/* Frosted glass card */}
-            <div className="bg-coconut/88 backdrop-blur-lg rounded-3xl p-6 space-y-4 shadow-elevated border border-white/60">
-              <div className="inline-flex items-center gap-1.5 bg-sand rounded-full px-3 py-1 border border-mist">
-                <MapPin size={12} className="text-deep-green" />
-                <span className="text-xs font-medium text-charcoal">Guadeloupe • 120 expériences disponibles</span>
+            <div className="bg-coconut/88 backdrop-blur-lg rounded-3xl p-4 md:p-6 space-y-3 md:space-y-4 shadow-elevated border border-white/60">
+
+              {/* Island + date selectors — above the title */}
+              <div className="flex items-center gap-2">
+                <IslandSelector value={island} onChange={onIslandChange} />
+                <div className="flex-1 min-w-0">
+                  <DateRangePicker
+                    startDate={stayStart}
+                    endDate={stayEnd}
+                    onChange={onDatesChange}
+                    placeholder="Quand ?"
+                    upward
+                  />
+                </div>
               </div>
 
-              <h1 className="text-3xl md:text-5xl font-display text-deep-green leading-tight">
-                La Caraïbe authentique,<br />
-                <em>chez vous.</em>
+              <h1 className="text-2xl md:text-5xl font-display text-deep-green leading-tight">
+                La Caraïbe authentique, <em>chez vous.</em>
               </h1>
               <p className="text-charcoal/75 text-sm md:text-base leading-relaxed">
-                Chef à domicile, massages, DJ, shootings photo et expériences exclusives sélectionnés par des locaux.
+                Chef(fe) à domicile, massages, DJ, shootings photo — réservez les meilleures expériences des Caraïbes, sélectionnées par des locaux.
               </p>
 
               {/* Search bar */}
@@ -90,17 +117,23 @@ export function HeroSection() {
                 <Search size={16} className="text-deep-green flex-none" />
                 <span className="text-stone text-sm flex-1">Que souhaitez-vous vivre pendant votre séjour ?</span>
                 <span className="text-xs bg-deep-green text-coconut px-2.5 py-1 rounded-full font-medium group-hover:bg-coral transition-colors">
-                  Explorer
+                  Réserver
                 </span>
               </Link>
 
               {/* CTA concierge */}
               <Link
                 href="/concierge"
-                className="inline-flex items-center gap-2 text-deep-green text-sm font-medium hover:text-coral transition-colors"
+                className="flex items-center gap-2.5 bg-deep-green/8 hover:bg-deep-green/14 border border-deep-green/15 text-deep-green rounded-2xl px-4 py-2.5 text-sm font-medium transition-colors"
               >
-                <MessageCircle size={14} />
+                {/* Live dot */}
+                <span className="relative flex h-2 w-2 flex-none">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-turquoise opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-turquoise" />
+                </span>
+                <MessageCircle size={14} className="flex-none" />
                 Demander conseil à notre concierge
+                <ChevronRight size={13} className="ml-auto opacity-50 flex-none" />
               </Link>
             </div>
           </motion.div>

@@ -1,12 +1,11 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { LayoutGrid, Gem, Leaf, Waves, UtensilsCrossed, Landmark, Sun, type LucideIcon } from 'lucide-react'
+import { LayoutGrid, Leaf, Waves, UtensilsCrossed, Landmark, Sun, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const MOODS: { key: string; label: string; Icon: LucideIcon }[] = [
   { key: 'all',       label: 'Tout',        Icon: LayoutGrid },
-  { key: 'luxury',    label: 'Luxe',        Icon: Gem },
   { key: 'wellness',  label: 'Bien-être',   Icon: Leaf },
   { key: 'soiree',   label: 'Soirée',      Icon: Waves },
   { key: 'food',      label: 'Gastronomie', Icon: UtensilsCrossed },
