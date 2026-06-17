@@ -256,7 +256,7 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
   const { provider, images } = service
 
   return (
-    <div className="bg-coconut pb-52 md:pb-8">
+    <div className="bg-coconut pb-36 md:pb-8">
 
       {/* Sticky header — apparaît après le hero */}
       <motion.div
@@ -272,14 +272,14 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
           </div>
           <Link href={`/reserver/${service.id}?offer=${selected?.id ?? 'classic'}`}>
             <Button variant="primary" size="sm">
-              Réserver maintenant
+              Choisir mon créneau
             </Button>
           </Link>
         </div>
       </motion.div>
 
-      {/* Image gallery hero — tall, provider identity overlaid */}
-      <div className="relative h-[420px] md:h-[540px] bg-charcoal">
+      {/* Image gallery hero */}
+      <div className="relative h-[300px] md:h-[390px] bg-charcoal">
         {images.map((img, i) => (
           <motion.div
             key={img.id}
@@ -396,41 +396,52 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
 
         {/* Service menu */}
         <section className="mb-6">
-          <div className="flex items-end justify-between gap-4 mb-3">
-            <h2 className="text-sm font-semibold text-charcoal uppercase tracking-wider">Prestations disponibles</h2>
-            <span className="text-xs text-stone">Sélection directe</span>
-          </div>
+          <h2 className="text-sm font-semibold text-charcoal uppercase tracking-wider mb-3">Prestations disponibles</h2>
           <div className="space-y-3">
-            {offerings.map((offering) => (
-              <button
-                key={offering.id}
-                type="button"
-                onClick={() => setSelectedOffering(offering.id)}
-                className={cn(
-                  'w-full text-left rounded-2xl border bg-surface p-4 transition-all',
-                  selectedOffering === offering.id
-                    ? 'border-deep-green ring-2 ring-deep-green/10'
-                    : 'border-mist hover:border-deep-green/40'
-                )}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <h3 className="text-sm font-semibold text-charcoal">{offering.title}</h3>
-                    <p className="mt-1 text-xs text-stone">{offering.duration}</p>
+            {offerings.map((offering, idx) => {
+              const isSelected = selectedOffering === offering.id
+              const isRecommended = idx === 1
+              return (
+                <button
+                  key={offering.id}
+                  type="button"
+                  onClick={() => setSelectedOffering(offering.id)}
+                  className={cn(
+                    'w-full text-left rounded-2xl border p-4 transition-all',
+                    isSelected
+                      ? 'border-deep-green bg-deep-green/4 shadow-sm'
+                      : 'border-mist bg-surface hover:border-deep-green/40 hover:bg-sand/40'
+                  )}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="text-sm font-semibold text-charcoal">{offering.title}</h3>
+                        {isRecommended && (
+                          <span className="inline-flex items-center text-[10px] font-semibold text-deep-green bg-turquoise/15 border border-turquoise/25 px-1.5 py-0.5 rounded-full">
+                            Populaire
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-0.5 text-xs text-stone">{offering.duration}</p>
+                    </div>
+                    <div className="flex items-center gap-2 flex-none">
+                      <p className="text-sm font-semibold text-deep-green">{formatPrice(offering.price)}</p>
+                      {isSelected && <CheckCircle2 size={16} className="text-deep-green flex-none" />}
+                    </div>
                   </div>
-                  <p className="text-sm font-semibold text-deep-green flex-none">{formatPrice(offering.price)}</p>
-                </div>
-                <p className="mt-2 text-sm text-charcoal-soft leading-relaxed">{offering.description}</p>
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {offering.includes.map((item) => (
-                    <Badge key={item} variant="stone" className="gap-1">
-                      <CheckCircle2 size={11} />
-                      {item}
-                    </Badge>
-                  ))}
-                </div>
-              </button>
-            ))}
+                  <p className="mt-2 text-xs text-charcoal-soft leading-relaxed">{offering.description}</p>
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {offering.includes.map((item) => (
+                      <Badge key={item} variant="stone" className="gap-1">
+                        <CheckCircle2 size={11} />
+                        {item}
+                      </Badge>
+                    ))}
+                  </div>
+                </button>
+              )
+            })}
           </div>
         </section>
 
@@ -570,6 +581,32 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
           <p className="text-sm text-charcoal-soft leading-relaxed">{service.description_fr}</p>
         </section>
 
+        {/* Galerie */}
+        {images.length > 1 && (
+          <section className="mb-6">
+            <h3 className="text-sm font-semibold text-charcoal uppercase tracking-wider mb-3">Galerie</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {images.slice(0, 6).map((img, i) => (
+                <div
+                  key={img.id}
+                  className={cn(
+                    'relative overflow-hidden rounded-xl aspect-[4/3]',
+                    i === 0 ? 'col-span-2 md:col-span-1' : ''
+                  )}
+                >
+                  <Image
+                    src={img.url}
+                    alt={img.alt_fr ?? ''}
+                    fill
+                    className="object-cover hover:scale-105 transition-transform duration-500"
+                    sizes="(max-width: 768px) 50vw, 33vw"
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* Provider bio */}
         <section className="mb-6 bg-sand rounded-2xl p-4 space-y-3">
           <div className="flex items-center gap-3">
@@ -626,7 +663,7 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
         {/* Often booked with */}
         <section className="mb-6">
           <h3 className="text-sm font-semibold text-charcoal uppercase tracking-wider mb-3">
-            Souvent réservé avec
+            Complétez votre expérience
           </h3>
           <div className="flex gap-4 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
             {SERVICES
@@ -685,7 +722,7 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
               className="block"
             >
               <Button variant="primary" fullWidth size="lg">
-                {selectedSlot ? `Réserver ce créneau` : 'Réserver maintenant'}
+                {selectedSlot ? 'Réserver ce créneau' : 'Choisir mon créneau'}
               </Button>
             </Link>
 
@@ -724,7 +761,7 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
             className="flex-1"
           >
             <Button variant="primary" fullWidth size="lg">
-              {selectedSlot ? 'Réserver ce créneau' : 'Réserver maintenant'}
+              {selectedSlot ? 'Réserver ce créneau' : 'Choisir mon créneau'}
             </Button>
           </Link>
         </div>
