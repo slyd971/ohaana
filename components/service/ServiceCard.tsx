@@ -37,8 +37,7 @@ const TAG_BADGES: Record<string, string> = {
 }
 
 const TAG_PRIORITY = [
-  'couple', 'famille', 'coucher de soleil',
-  'bien-être', 'culture', 'aventure', 'gastronomie', 'nature', 'beauté',
+  'coucher de soleil', 'bien-être', 'culture', 'aventure', 'gastronomie', 'nature', 'beauté',
 ]
 
 export function ServiceCard({
