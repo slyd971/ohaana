@@ -39,7 +39,6 @@ export function HeroSection({
   const ref = useRef<HTMLDivElement>(null)
   const { scrollY } = useScroll()
   const y = useTransform(scrollY, [0, 500], [0, 140])
-  const opacity = useTransform(scrollY, [0, 280], [1, 0])
   const [phraseIdx, setPhraseIdx] = useState(0)
 
   useEffect(() => {
@@ -51,7 +50,7 @@ export function HeroSection({
 
   return (
     <>
-      <div ref={ref} className="relative h-[70dvh] min-h-[520px] md:h-[82dvh] md:min-h-[620px] overflow-hidden">
+      <div ref={ref} className="relative h-[70dvh] min-h-[520px] md:h-[70dvh] md:min-h-[560px] overflow-hidden">
         {/* Parallax background — clipped separately */}
         <div className="absolute inset-0 overflow-hidden">
           <motion.div className="absolute inset-0 scale-110" style={{ y }}>
@@ -68,18 +67,15 @@ export function HeroSection({
         </div>
 
         {/* Content */}
-        <motion.div
-          style={{ opacity }}
-          className="relative h-full flex flex-col justify-end pb-5 md:pb-16 md:items-center px-5 md:px-12"
-        >
+        <div className="relative h-full flex flex-col justify-end pb-5 md:pb-10 md:items-center px-5 md:px-12">
           <motion.div
             initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
-            className="max-w-sm md:max-w-2xl md:w-full"
+            className="max-w-sm md:max-w-lg md:w-full"
           >
             {/* Frosted glass card */}
-            <div className="bg-coconut/88 backdrop-blur-lg rounded-3xl p-4 md:p-8 space-y-3 md:space-y-5 shadow-elevated border border-white/60">
+            <div className="bg-coconut/88 backdrop-blur-lg rounded-3xl p-4 md:p-6 space-y-3 md:space-y-4 shadow-elevated border border-white/60">
 
               {/* Island + date selectors — above the title */}
               <div className="flex items-center gap-2">
@@ -94,7 +90,7 @@ export function HeroSection({
                 </div>
               </div>
 
-              <h1 className="text-2xl md:text-5xl lg:text-6xl font-display text-deep-green leading-tight">
+              <h1 className="text-2xl md:text-4xl font-display text-deep-green leading-tight">
                 La Caraïbe authentique,
                 <span className="block relative overflow-hidden">
                   <AnimatePresence mode="wait">
@@ -111,7 +107,7 @@ export function HeroSection({
                   </AnimatePresence>
                 </span>
               </h1>
-              <p className="text-charcoal/75 text-sm md:text-base leading-relaxed md:max-w-lg">
+              <p className="text-charcoal/75 text-sm leading-relaxed">
                 Chef.fe à domicile, massages, DJ, shootings photo — réservez les meilleures expériences des Caraïbes, sélectionnées par des locaux.
               </p>
 
@@ -143,7 +139,7 @@ export function HeroSection({
               </Link>
             </div>
           </motion.div>
-        </motion.div>
+        </div>
       </div>
 
     </>
