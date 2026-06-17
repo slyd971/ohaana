@@ -46,7 +46,7 @@ const MOOD_FILTER: Record<string, string[]> = {
   couples:  ['couple', 'romantique'],
 }
 
-const EDITORIAL_ROWS = ['popular', 'tonight']
+const EDITORIAL_KEYS = ['popular', 'tonight'] as const
 
 export default function HomePage() {
   const [island, setIsland]       = useState<IslandFilter>('all')
@@ -102,6 +102,9 @@ export default function HomePage() {
     if (island !== 'all') svcs = svcs.filter(s => s.island === island)
     return svcs
   }
+
+  const rowPopular = HOME_ROWS.find(r => r.key === 'popular')
+  const rowTonight = HOME_ROWS.find(r => r.key === 'tonight')
 
   function handleLeadSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -201,18 +204,15 @@ export default function HomePage() {
 
       {/* ── Zone 2 : Sélections éditoriales ──────────────────────────────────── */}
       <div className="py-4 pb-10 space-y-10 max-w-7xl mx-auto md:px-8">
-
-        {/* Row 1 — Incontournables */}
-        {(() => { const r = HOME_ROWS.find(r => r.key === 'popular')!; return (
+        {rowPopular && (
           <ServiceRow
-            key={r.key}
-            title={r.label_fr}
-            services={editorialServices(r.ids)}
+            title={rowPopular.label_fr}
+            services={editorialServices(rowPopular.ids)}
             favorites={favorites}
             onToggleFavorite={toggleFavorite}
             seeAllHref="/search?category=popular"
           />
-        )})()}
+        )}
 
         {/* Rappel concierge */}
         <div className="mx-5 md:mx-0 rounded-2xl border border-deep-green/15 bg-deep-green/5 px-5 py-4 flex items-center gap-4">
@@ -232,18 +232,15 @@ export default function HomePage() {
           </Link>
         </div>
 
-        {/* Row 2 — Disponible ce soir */}
-        {(() => { const r = HOME_ROWS.find(r => r.key === 'tonight')!; return (
+        {rowTonight && (
           <ServiceRow
-            key={r.key}
-            title={r.label_fr}
-            services={editorialServices(r.ids)}
+            title={rowTonight.label_fr}
+            services={editorialServices(rowTonight.ids)}
             favorites={favorites}
             onToggleFavorite={toggleFavorite}
             seeAllHref="/search?category=tonight"
           />
-        )})()}
-
+        )}
       </div>
 
       {/* ── 5. Témoignages ───────────────────────────────────────────────────── */}
