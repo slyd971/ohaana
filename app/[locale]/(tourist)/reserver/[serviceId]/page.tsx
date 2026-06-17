@@ -254,34 +254,32 @@ export default function ReservationPage({ params }: { params: Promise<{ serviceI
           {selectedDate && (
             <motion.div
               key="times"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.25 }}
-              className="overflow-hidden border-b border-mist"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="border-b border-mist px-4 py-5"
             >
-              <div className="px-4 py-5">
-                <h2 className="text-base font-semibold text-charcoal mb-3">Choisissez un créneau</h2>
-                <div className="grid grid-cols-3 gap-2">
-                  {TIMES.map((t) => (
-                    <button
-                      key={t}
-                      type="button"
-                      onClick={() => {
-                        setSelectedTime(t)
-                        setShowPayment(false)
-                      }}
-                      className={cn(
-                        'py-3 rounded-xl border-2 text-sm font-medium transition-all',
-                        selectedTime === t
-                          ? 'border-deep-green bg-deep-green text-white'
-                          : 'border-mist bg-surface text-charcoal hover:border-deep-green/40',
-                      )}
-                    >
-                      {t}
-                    </button>
-                  ))}
-                </div>
+              <h2 className="text-base font-semibold text-charcoal mb-3">Choisissez un créneau</h2>
+              <div className="grid grid-cols-3 gap-2">
+                {TIMES.map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => {
+                      setSelectedTime(t)
+                      setShowPayment(false)
+                    }}
+                    className={cn(
+                      'py-3 rounded-xl border-2 text-sm font-medium transition-all',
+                      selectedTime === t
+                        ? 'border-deep-green bg-deep-green text-white'
+                        : 'border-mist bg-surface text-charcoal hover:border-deep-green/40',
+                    )}
+                  >
+                    {t}
+                  </button>
+                ))}
               </div>
             </motion.div>
           )}
@@ -372,26 +370,15 @@ export default function ReservationPage({ params }: { params: Promise<{ serviceI
               <ChevronDown size={16} className="text-stone" />
             )}
           </button>
-          <AnimatePresence initial={false}>
-            {notesOpen && (
-              <motion.div
-                key="notes"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.22 }}
-                className="overflow-hidden"
-              >
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Allergies, préférences, occasion particulière…"
-                  rows={3}
-                  className="w-full mt-3 rounded-xl border border-mist bg-surface px-4 py-3 text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green resize-none"
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {notesOpen && (
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Allergies, préférences, occasion particulière…"
+              rows={3}
+              className="w-full mt-3 rounded-xl border border-mist bg-surface px-4 py-3 text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green resize-none"
+            />
+          )}
         </div>
 
         {/* ── Payment form (revealed on CTA click) ─────────── */}
@@ -399,11 +386,10 @@ export default function ReservationPage({ params }: { params: Promise<{ serviceI
           {showPayment && canBook && (
             <motion.div
               key="payment"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-              className="overflow-hidden"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
             >
               <div className="px-4 py-5">
                 <h2 className="text-base font-semibold text-charcoal mb-4">Paiement sécurisé</h2>
