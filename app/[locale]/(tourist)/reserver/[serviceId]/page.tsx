@@ -19,12 +19,18 @@ const TIMES = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '18:00', '1
 const DAY_NAMES = ['dim', 'lun', 'mar', 'mer', 'jeu', 'ven', 'sam']
 const MONTH_NAMES = ['jan', 'fév', 'mar', 'avr', 'mai', 'jun', 'jul', 'aoû', 'sep', 'oct', 'nov', 'déc']
 
-function getDates() {
+function getDates(anchor?: Date | null) {
+  // Generate 90 days starting from tomorrow, or from 3 days before anchor if it's far in the future
+  const today = new Date()
+  const start = anchor && anchor > new Date(today.getTime() + 22 * 86400000)
+    ? new Date(anchor.getTime() - 3 * 86400000)
+    : new Date(today.getTime() + 86400000)
+
   const dates: Date[] = []
-  for (let i = 1; i <= 21; i++) {
-    const d = new Date()
-    d.setDate(d.getDate() + i)
-    dates.push(d)
+  for (let i = 0; i < 90; i++) {
+    const d = new Date(start)
+    d.setDate(start.getDate() + i)
+    if (d > today) dates.push(d)
   }
   return dates
 }
@@ -136,7 +142,7 @@ export default function ReservationPage({ params }: { params: Promise<{ serviceI
   const [selectedDate, setSelectedDate] = useState<Date | null>(initDate)
   const [selectedTime, setSelectedTime] = useState<string | null>(initTime)
   const [editingSlot, setEditingSlot] = useState(!preselected)
-  const [guests, setGuests] = useState(service.capacity_min)
+  const [guests, setGuests] = useState(1)
   const [notes, setNotes] = useState('')
   const [notesOpen, setNotesOpen] = useState(false)
   const [showPayment, setShowPayment] = useState(false)
@@ -144,7 +150,7 @@ export default function ReservationPage({ params }: { params: Promise<{ serviceI
   const [confirmed, setConfirmed] = useState(false)
 
   const cover = service.images.find((i) => i.is_cover) ?? service.images[0]
-  const dates = getDates()
+  const dates = getDates(selectedDate)
   const total = service.price_cents * guests
   const { platformFee } = computeFees(total)
   const canBook = !!selectedDate && !!selectedTime
@@ -173,11 +179,11 @@ export default function ReservationPage({ params }: { params: Promise<{ serviceI
     <div className="min-h-dvh bg-coconut">
       {/* Sticky header */}
       <div className="sticky top-0 z-40 bg-coconut/95 backdrop-blur-md border-b border-mist">
-        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center gap-3">
-          <Link href={`/prestataires/${service.id}`} className="p-1.5 -ml-1 text-charcoal">
+        <div className="max-w-2xl mx-auto px-4 min-h-14 py-2 flex items-center gap-3">
+          <Link href={`/prestataires/${service.id}`} className="p-1.5 -ml-1 text-charcoal flex-none">
             <ChevronLeft size={22} />
           </Link>
-          <p className="flex-1 text-sm font-semibold text-charcoal truncate">{service.title_fr}</p>
+          <p className="flex-1 text-sm font-semibold text-charcoal line-clamp-2 leading-tight">{service.title_fr}</p>
         </div>
       </div>
 
@@ -337,8 +343,8 @@ export default function ReservationPage({ params }: { params: Promise<{ serviceI
             <div className="flex items-center gap-4">
               <button
                 type="button"
-                onClick={() => setGuests((g) => Math.max(service.capacity_min, g - 1))}
-                disabled={guests <= service.capacity_min}
+                onClick={() => setGuests((g) => Math.max(1, g - 1))}
+                disabled={guests <= 1}
                 className="w-9 h-9 rounded-full border-2 border-mist flex items-center justify-center text-lg font-medium text-charcoal hover:border-deep-green transition-colors disabled:opacity-30"
               >
                 −
@@ -355,7 +361,7 @@ export default function ReservationPage({ params }: { params: Promise<{ serviceI
             </div>
           </div>
           <p className="text-xs text-stone mt-2">
-            Minimum {service.capacity_min} · Maximum {service.capacity_max} personnes
+            Maximum {service.capacity_max} personnes
           </p>
         </div>
 

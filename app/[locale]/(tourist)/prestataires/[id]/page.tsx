@@ -58,7 +58,7 @@ function buildAvailability(start: Date | null, end: Date | null) {
   const to   = end   ?? new Date(today.getTime() + 4 * 86400000)
   const days: { isoDate: string; day: string; date: string; slots: { time: string; status: string }[] }[] = []
   const cursor = new Date(from)
-  while (cursor <= to && days.length < 7) {
+  while (cursor <= to) {
     const d = new Date(cursor)
     days.push({
       isoDate: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
@@ -442,9 +442,9 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
             <LocationAutocomplete value={location} onChange={setLocation} />
           </div>
 
-          <div className={cn('grid gap-2', availability.length <= 4 ? 'grid-cols-4' : 'grid-cols-4 overflow-x-auto')}>
+          <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
             {availability.map((day) => (
-              <div key={day.isoDate} className="rounded-xl border border-mist bg-coconut p-2 flex-none">
+              <div key={day.isoDate} className="rounded-xl border border-mist bg-coconut p-2 flex-none w-[72px]">
                 <div className="text-center mb-2">
                   <p className="text-[10px] uppercase text-stone">{day.day}</p>
                   <p className="text-lg font-display text-charcoal">{day.date}</p>
