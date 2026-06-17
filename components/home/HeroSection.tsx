@@ -39,6 +39,7 @@ export function HeroSection({
   const ref = useRef<HTMLDivElement>(null)
   const { scrollY } = useScroll()
   const y = useTransform(scrollY, [0, 500], [0, 140])
+  const opacity = useTransform(scrollY, [0, 280], [1, 0])
   const [phraseIdx, setPhraseIdx] = useState(0)
 
   useEffect(() => {
@@ -50,7 +51,7 @@ export function HeroSection({
 
   return (
     <>
-      <div ref={ref} className="sticky top-0 z-0 h-[70dvh] min-h-[520px] md:h-[82dvh] md:min-h-[620px] overflow-hidden">
+      <div ref={ref} className="relative h-[70dvh] min-h-[520px] md:h-[82dvh] md:min-h-[620px] overflow-hidden">
         {/* Parallax background — clipped separately */}
         <div className="absolute inset-0 overflow-hidden">
           <motion.div className="absolute inset-0 scale-110" style={{ y }}>
@@ -67,7 +68,10 @@ export function HeroSection({
         </div>
 
         {/* Content */}
-        <div className="relative h-full flex flex-col justify-end pb-5 md:pb-16 md:items-center px-5 md:px-12">
+        <motion.div
+          style={{ opacity }}
+          className="relative h-full flex flex-col justify-end pb-5 md:pb-16 md:items-center px-5 md:px-12"
+        >
           <motion.div
             initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
@@ -139,7 +143,7 @@ export function HeroSection({
               </Link>
             </div>
           </motion.div>
-        </div>
+        </motion.div>
       </div>
 
     </>

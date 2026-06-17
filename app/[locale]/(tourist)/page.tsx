@@ -138,9 +138,6 @@ export default function HomePage() {
         }}
       />
 
-      {/* contenu glisse par-dessus le hero sticky */}
-      <div className="relative z-10 bg-coconut">
-
       {/* ── 2. Pourquoi Ohaana ───────────────────────────────────────────────── */}
       <section className="px-5 md:px-8 py-14 max-w-7xl mx-auto">
         <motion.div
@@ -386,7 +383,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      </div>{/* fin wrapper z-10 */}
     </div>
   )
 }
