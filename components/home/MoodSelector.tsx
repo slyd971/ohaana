@@ -1,16 +1,22 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { LayoutGrid, Leaf, Waves, UtensilsCrossed, Landmark, Sun, type LucideIcon } from 'lucide-react'
+import {
+  LayoutGrid, Leaf, Music2, ChefHat, Heart,
+  Sparkles, Users, Landmark, Moon, type LucideIcon,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const MOODS: { key: string; label: string; Icon: LucideIcon }[] = [
-  { key: 'all',       label: 'Tout',        Icon: LayoutGrid },
-  { key: 'wellness',  label: 'Bien-être',   Icon: Leaf },
-  { key: 'soiree',   label: 'Soirée',      Icon: Waves },
-  { key: 'food',      label: 'Gastronomie', Icon: UtensilsCrossed },
-  { key: 'culture',   label: 'Culture',     Icon: Landmark },
-  { key: 'relax',     label: 'Détente',     Icon: Sun },
+export const CATEGORIES: { key: string; label: string; Icon: LucideIcon }[] = [
+  { key: 'popular',      label: 'Tout',         Icon: LayoutGrid },
+  { key: 'tonight',      label: 'Ce soir',      Icon: Moon       },
+  { key: 'wellness',     label: 'Bien-être',    Icon: Leaf       },
+  { key: 'soiree',       label: 'Soirée',       Icon: Music2     },
+  { key: 'privateChefs', label: 'Chef privé',   Icon: ChefHat    },
+  { key: 'couplesFav',   label: 'Couples',      Icon: Heart      },
+  { key: 'beaute',       label: 'Beauté',       Icon: Sparkles   },
+  { key: 'family',       label: 'Famille',      Icon: Users      },
+  { key: 'culture',      label: 'Culture',      Icon: Landmark   },
 ]
 
 interface MoodSelectorProps {
@@ -24,7 +30,7 @@ export function MoodSelector({ value, onChange }: MoodSelectorProps) {
       className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide px-5 md:px-0"
       style={{ scrollbarWidth: 'none' }}
     >
-      {MOODS.map(({ key, label, Icon }) => {
+      {CATEGORIES.map(({ key, label, Icon }) => {
         const active = key === value
         return (
           <motion.button

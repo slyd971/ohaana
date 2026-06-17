@@ -4,23 +4,15 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from '@/lib/i18n/navigation'
 import { HeroSection } from '@/components/home/HeroSection'
-import { ServiceRow } from '@/components/home/ServiceRow'
+import { ServiceCard } from '@/components/service/ServiceCard'
 import { Testimonials } from '@/components/home/Testimonials'
 import { type IslandFilter } from '@/components/home/IslandSelector'
-import { MoodSelector } from '@/components/home/MoodSelector'
-import { SERVICES, HOME_ROWS, getServicesByIds } from '@/lib/data/seed'
+import { MoodSelector, CATEGORIES } from '@/components/home/MoodSelector'
+import { HOME_ROWS, getServicesByIds } from '@/lib/data/seed'
 import {
   Clock, Sparkles, Leaf, MessageCircle,
   Building2, ChevronRight, Mail, CheckCircle,
 } from 'lucide-react'
-
-const MOOD_FILTER: Record<string, string[]> = {
-  wellness:  ['bien-être', 'spa', 'relaxation'],
-  soiree:    ['soirée', 'villa', 'coucher de soleil'],
-  food:      ['gastronomie', 'cuisine'],
-  culture:   ['culture', 'créole'],
-  relax:     ['relaxation', 'détente', 'plage', 'coucher de soleil'],
-}
 
 const WHY_ITEMS = [
   {
@@ -47,7 +39,7 @@ const DESTINATIONS = [
 
 export default function HomePage() {
   const [island, setIsland]       = useState<IslandFilter>('all')
-  const [mood, setMood]           = useState<string>('all')
+  const [mood, setMood]           = useState<string>('popular')
   const [stayStart, setStayStart] = useState<Date | null>(null)
   const [stayEnd, setStayEnd]     = useState<Date | null>(null)
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
@@ -82,21 +74,12 @@ export default function HomePage() {
     })
   }
 
-  function filterServices(services: typeof SERVICES) {
-    let result = services
-    // Island filter
-    if (island !== 'all') {
-      result = result.filter((s) => s.island === island)
-    }
-    // Mood filter
-    if (mood !== 'all') {
-      const keywords = MOOD_FILTER[mood] ?? []
-      result = result.filter((s) =>
-        keywords.some((kw) => s.tags.some((tag) => tag.includes(kw)))
-      )
-    }
-    return result
-  }
+  const activeRow = HOME_ROWS.find(r => r.key === mood) ?? HOME_ROWS[0]
+  const activeServices = (() => {
+    let services = getServicesByIds(activeRow.ids)
+    if (island !== 'all') services = services.filter(s => s.island === island)
+    return services
+  })()
 
   function handleLeadSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -168,22 +151,32 @@ export default function HomePage() {
         <MoodSelector value={mood} onChange={setMood} />
       </div>
 
-      {/* ── 4. Service rows ──────────────────────────────────────────────────── */}
-      <div className="py-8 space-y-10 max-w-7xl mx-auto md:px-8">
-        {HOME_ROWS.map(({ key, label_fr, ids }) => {
-          const all = getServicesByIds(ids)
-          const filtered = filterServices(all)
-          return (
-            <ServiceRow
-              key={key}
-              title={label_fr}
-              services={filtered}
-              favorites={favorites}
-              onToggleFavorite={toggleFavorite}
-              seeAllHref={`/search?mood=${key}`}
-            />
-          )
-        })}
+      {/* ── 4. Service grid ──────────────────────────────────────────────────── */}
+      <div className="py-8 max-w-7xl mx-auto px-5 md:px-8">
+        <motion.div
+          key={mood}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25 }}
+        >
+          {activeServices.length === 0 ? (
+            <p className="text-center text-stone py-16 text-sm">
+              Aucun service disponible pour cette sélection.
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {activeServices.map(s => (
+                <ServiceCard
+                  key={s.id}
+                  service={s}
+                  isFavorite={favorites.has(s.id)}
+                  onToggleFavorite={toggleFavorite}
+                  className="w-full"
+                />
+              ))}
+            </div>
+          )}
+        </motion.div>
       </div>
 
       {/* ── 5. Témoignages ───────────────────────────────────────────────────── */}
