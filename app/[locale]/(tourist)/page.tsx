@@ -5,6 +5,8 @@ import { motion } from 'framer-motion'
 import { Link } from '@/lib/i18n/navigation'
 import { HeroSection } from '@/components/home/HeroSection'
 import { ServiceRow } from '@/components/home/ServiceRow'
+import { HowItWorks } from '@/components/home/HowItWorks'
+import { Testimonials } from '@/components/home/Testimonials'
 import { type IslandFilter } from '@/components/home/IslandSelector'
 import { MoodSelector } from '@/components/home/MoodSelector'
 import { SERVICES, HOME_ROWS, getServicesByIds } from '@/lib/data/seed'
@@ -134,12 +136,15 @@ export default function HomePage() {
         }}
       />
 
-      {/* ── 2. Controls (sticky) ─────────────────────────────────────────────── */}
+      {/* ── 2. Comment ça marche ─────────────────────────────────────────────── */}
+      <HowItWorks />
+
+      {/* ── 3. Controls (sticky) ─────────────────────────────────────────────── */}
       <div className="sticky top-16 z-20 bg-coconut/96 backdrop-blur-md border-b border-mist pt-2 pb-2">
         <MoodSelector value={mood} onChange={setMood} />
       </div>
 
-      {/* ── 3. Service rows ──────────────────────────────────────────────────── */}
+      {/* ── 4. Service rows ──────────────────────────────────────────────────── */}
       <div className="py-8 space-y-10 max-w-7xl mx-auto md:px-8">
         {HOME_ROWS.map(({ key, label_fr, ids }) => {
           const all = getServicesByIds(ids)
@@ -157,7 +162,10 @@ export default function HomePage() {
         })}
       </div>
 
-      {/* ── 4. Concierge section ─────────────────────────────────────────────── */}
+      {/* ── 5. Témoignages ───────────────────────────────────────────────────── */}
+      <Testimonials />
+
+      {/* ── 6. Concierge section ─────────────────────────────────────────────── */}
       <section className="mx-5 md:mx-8 mb-10 rounded-3xl overflow-hidden relative"
         style={{ background: 'linear-gradient(135deg, var(--deep-green) 0%, #0F2B1D 100%)' }}
       >

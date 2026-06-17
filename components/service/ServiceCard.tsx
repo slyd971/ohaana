@@ -62,10 +62,11 @@ export function ServiceCard({
 
   return (
     <motion.div
+      whileHover={{ y: -4, transition: { duration: 0.2 } }}
       whileTap={{ scale: 0.97 }}
       className={cn(
         'relative flex-none rounded-2xl overflow-hidden bg-surface cursor-pointer group',
-        'shadow-card hover:shadow-elevated transition-all duration-300',
+        'shadow-card hover:shadow-elevated transition-shadow duration-300',
         widths[size],
         className
       )}

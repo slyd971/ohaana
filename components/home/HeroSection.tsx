@@ -1,8 +1,8 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { Link } from '@/lib/i18n/navigation'
 import {
   Search,
@@ -16,6 +16,13 @@ import { IslandSelector, type IslandFilter } from '@/components/home/IslandSelec
 import { DateRangePicker } from '@/components/ui/DateRangePicker'
 
 const HERO_IMG = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1600&h=900&fit=crop&q=90'
+
+const ROTATING_PHRASES = [
+  'chez vous.',
+  'ce soir.',
+  'sur mesure.',
+  'en toute sérénité.',
+]
 
 const VALUE_PROOFS = [
   {
@@ -54,6 +61,14 @@ export function HeroSection({
   const { scrollY } = useScroll()
   const y = useTransform(scrollY, [0, 500], [0, 140])
   const opacity = useTransform(scrollY, [0, 300], [1, 0])
+  const [phraseIdx, setPhraseIdx] = useState(0)
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setPhraseIdx((i) => (i + 1) % ROTATING_PHRASES.length)
+    }, 2800)
+    return () => clearInterval(id)
+  }, [])
 
   return (
     <>
@@ -103,7 +118,21 @@ export function HeroSection({
               </div>
 
               <h1 className="text-2xl md:text-5xl font-display text-deep-green leading-tight">
-                La Caraïbe authentique, <em>chez vous.</em>
+                La Caraïbe authentique,{' '}
+                <span className="inline-block relative">
+                  <AnimatePresence mode="wait">
+                    <motion.em
+                      key={phraseIdx}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.35, ease: 'easeInOut' }}
+                      className="inline-block"
+                    >
+                      {ROTATING_PHRASES[phraseIdx]}
+                    </motion.em>
+                  </AnimatePresence>
+                </span>
               </h1>
               <p className="text-charcoal/75 text-sm md:text-base leading-relaxed">
                 Chef(fe) à domicile, massages, DJ, shootings photo — réservez les meilleures expériences des Caraïbes, sélectionnées par des locaux.
