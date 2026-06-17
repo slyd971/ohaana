@@ -23,6 +23,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
+import { DateRangePicker } from '@/components/ui/DateRangePicker'
 import { ServiceCard } from '@/components/service/ServiceCard'
 import { getServiceById, SERVICES } from '@/lib/data/seed'
 import { formatPrice, formatDuration, cn } from '@/lib/utils'
@@ -104,6 +105,8 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
   const [imgIndex, setImgIndex] = useState(0)
   const [isFav, setIsFav] = useState(false)
   const [stickyVisible, setStickyVisible] = useState(false)
+  const [stayStart, setStayStart] = useState<Date | null>(null)
+  const [stayEnd, setStayEnd] = useState<Date | null>(null)
   const offerings = getOfferings(service)
   const [selectedOffering, setSelectedOffering] = useState(offerings[0]?.id)
   const selected = offerings.find((offering) => offering.id === selectedOffering) ?? offerings[0]
@@ -310,10 +313,10 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            <input
-              type="text"
-              placeholder="Dates de séjour"
-              className="h-11 rounded-xl border border-mist bg-coconut px-3 text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green"
+            <DateRangePicker
+              startDate={stayStart}
+              endDate={stayEnd}
+              onChange={(s, e) => { setStayStart(s); setStayEnd(e) }}
             />
             <input
               type="text"
