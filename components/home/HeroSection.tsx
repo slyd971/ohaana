@@ -119,7 +119,7 @@ export function HeroSection({
                 <Search size={16} className="text-deep-green flex-none" />
                 <span className="text-stone text-sm flex-1">Que souhaitez-vous vivre pendant votre séjour ?</span>
                 <span className="text-xs bg-deep-green text-coconut px-2.5 py-1 rounded-full font-medium group-hover:bg-coral transition-colors">
-                  Réserver
+                  Explorer
                 </span>
               </Link>
 
