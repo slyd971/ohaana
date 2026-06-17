@@ -144,7 +144,6 @@ export default function HomePage() {
           transition={{ duration: 0.6 }}
           className="text-center mb-10"
         >
-          <p className="text-xs text-stone uppercase tracking-widest mb-2">Pourquoi nous choisir</p>
           <h2 className="text-2xl md:text-3xl font-display text-charcoal">
             Pourquoi passer par Ohaana&nbsp;?
           </h2>
