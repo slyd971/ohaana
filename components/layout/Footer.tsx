@@ -63,6 +63,7 @@ export function Footer() {
             <ul className="space-y-2 text-xs">
               {[
                 { label: 'Devenir prestataire', href: '/register?role=provider' },
+                { label: 'Espace partenaire',   href: '/partner/dashboard' },
                 { label: 'Concierge',           href: '/concierge' },
                 { label: 'À propos',            href: '/about' },
               ].map(({ label, href }) => (
