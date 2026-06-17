@@ -39,7 +39,7 @@ export function HeroSection({
   const ref = useRef<HTMLDivElement>(null)
   const { scrollY } = useScroll()
   const y = useTransform(scrollY, [0, 500], [0, 140])
-  const opacity = useTransform(scrollY, [0, 60], [1, 0])
+  const opacity = useTransform(scrollY, [0, 280], [1, 0])
   const [phraseIdx, setPhraseIdx] = useState(0)
 
   useEffect(() => {
@@ -95,8 +95,8 @@ export function HeroSection({
               </div>
 
               <h1 className="text-2xl md:text-5xl lg:text-6xl font-display text-deep-green leading-tight">
-                La Caraïbe authentique,{' '}
-                <span className="inline-block relative">
+                La Caraïbe authentique,
+                <span className="block relative overflow-hidden">
                   <AnimatePresence mode="wait">
                     <motion.em
                       key={phraseIdx}
@@ -104,7 +104,7 @@ export function HeroSection({
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -8 }}
                       transition={{ duration: 0.35, ease: 'easeInOut' }}
-                      className="inline-block"
+                      className="block whitespace-nowrap"
                     >
                       {ROTATING_PHRASES[phraseIdx]}
                     </motion.em>
