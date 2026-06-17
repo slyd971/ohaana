@@ -254,10 +254,10 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
         transition={{ duration: 0.2, ease: 'easeOut' }}
         className="fixed top-0 inset-x-0 z-50 bg-coconut/95 backdrop-blur-md border-b border-mist md:hidden"
       >
-        <div className="max-w-2xl mx-auto px-4 h-16 flex items-center gap-3">
+        <div className="max-w-2xl mx-auto px-4 min-h-16 py-2 flex items-center gap-3">
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-charcoal truncate">{service.title_fr}</p>
-            <p className="text-xs text-stone">{formatPrice(selected?.price ?? service.price_cents)} · pers.</p>
+            <p className="text-sm font-semibold text-charcoal line-clamp-2 leading-tight">{service.title_fr}</p>
+            <p className="text-xs text-stone mt-0.5">{formatPrice(selected?.price ?? service.price_cents)} · pers.</p>
           </div>
           <Link href={`/reserver/${service.id}?offer=${selected?.id ?? 'classic'}`}>
             <Button variant="primary" size="sm">
@@ -320,7 +320,7 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
             <Image src={provider.user.avatar_url} alt={provider.user.full_name} fill className="object-cover" sizes="64px" />
           </div>
           <div className="flex-1 min-w-0 pb-0.5">
-            <h1 className="text-2xl md:text-3xl font-display text-white leading-tight drop-shadow-sm line-clamp-2">
+            <h1 className="text-2xl md:text-3xl font-display text-white leading-tight drop-shadow-sm line-clamp-3">
               {service.title_fr}
             </h1>
             <div className="flex items-center gap-2 mt-1">
@@ -442,9 +442,9 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
             <LocationAutocomplete value={location} onChange={setLocation} />
           </div>
 
-          <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+          <div className="grid grid-cols-4 gap-2">
             {availability.map((day) => (
-              <div key={day.isoDate} className="rounded-xl border border-mist bg-coconut p-2 flex-none w-[72px]">
+              <div key={day.isoDate} className="rounded-xl border border-mist bg-coconut p-2">
                 <div className="text-center mb-2">
                   <p className="text-[10px] uppercase text-stone">{day.day}</p>
                   <p className="text-lg font-display text-charcoal">{day.date}</p>

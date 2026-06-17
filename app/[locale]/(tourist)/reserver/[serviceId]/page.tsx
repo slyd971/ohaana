@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from '@/lib/i18n/navigation'
 import {
   ChevronLeft, CheckCircle2, Clock, Users, ShieldCheck,
-  Lock, Info, ChevronDown, ChevronUp,
+  Lock, Info, ChevronDown, ChevronUp, ChevronRight,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -16,23 +16,94 @@ import { getServiceById } from '@/lib/data/seed'
 import { formatPrice, computeFees, formatDuration, cn } from '@/lib/utils'
 
 const TIMES = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '18:00', '19:00', '20:00']
-const DAY_NAMES = ['dim', 'lun', 'mar', 'mer', 'jeu', 'ven', 'sam']
-const MONTH_NAMES = ['jan', 'fév', 'mar', 'avr', 'mai', 'jun', 'jul', 'aoû', 'sep', 'oct', 'nov', 'déc']
 
-function getDates(anchor?: Date | null) {
-  // Generate 90 days starting from tomorrow, or from 3 days before anchor if it's far in the future
+const MONTHS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre']
+const DAYS_FR   = ['L','M','M','J','V','S','D']
+
+function startOfDay(d: Date) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()) }
+function isSameDay(a: Date, b: Date) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
+}
+function getCalendarCells(year: number, month: number): (Date | null)[] {
+  const firstDow = (new Date(year, month, 1).getDay() + 6) % 7 // Mon=0
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+  const cells: (Date | null)[] = []
+  for (let i = 0; i < firstDow; i++) cells.push(null)
+  for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(year, month, d))
+  while (cells.length % 7 !== 0) cells.push(null)
+  return cells
+}
+
+function InlineCalendar({ selected, onChange }: { selected: Date | null; onChange: (d: Date) => void }) {
   const today = new Date()
-  const start = anchor && anchor > new Date(today.getTime() + 22 * 86400000)
-    ? new Date(anchor.getTime() - 3 * 86400000)
-    : new Date(today.getTime() + 86400000)
+  const init = selected ?? new Date(today.getTime() + 86400000)
+  const [viewYear, setViewYear]   = useState(init.getFullYear())
+  const [viewMonth, setViewMonth] = useState(init.getMonth())
 
-  const dates: Date[] = []
-  for (let i = 0; i < 90; i++) {
-    const d = new Date(start)
-    d.setDate(start.getDate() + i)
-    if (d > today) dates.push(d)
+  function prevMonth() {
+    if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1) }
+    else setViewMonth(m => m - 1)
   }
-  return dates
+  function nextMonth() {
+    if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y + 1) }
+    else setViewMonth(m => m + 1)
+  }
+
+  const cells = getCalendarCells(viewYear, viewMonth)
+  const todayStart = startOfDay(today)
+
+  return (
+    <div>
+      {/* Month navigation */}
+      <div className="flex items-center justify-between mb-3">
+        <button type="button" onClick={prevMonth}
+          className="p-2 rounded-xl hover:bg-mist transition-colors text-stone hover:text-charcoal">
+          <ChevronLeft size={18} />
+        </button>
+        <span className="text-sm font-semibold text-charcoal capitalize">
+          {MONTHS_FR[viewMonth]} {viewYear}
+        </span>
+        <button type="button" onClick={nextMonth}
+          className="p-2 rounded-xl hover:bg-mist transition-colors text-stone hover:text-charcoal">
+          <ChevronRight size={18} />
+        </button>
+      </div>
+
+      {/* Weekday headers */}
+      <div className="grid grid-cols-7 mb-1">
+        {DAYS_FR.map((d, i) => (
+          <div key={i} className="text-center text-[10px] font-medium text-stone py-1">{d}</div>
+        ))}
+      </div>
+
+      {/* Day cells */}
+      <div className="grid grid-cols-7">
+        {cells.map((day, i) => {
+          if (!day) return <div key={`e-${i}`} />
+          const isPast = startOfDay(day) < todayStart
+          const isSelected = selected ? isSameDay(day, selected) : false
+          const isToday = isSameDay(day, today)
+          return (
+            <button
+              key={day.toISOString()}
+              type="button"
+              disabled={isPast}
+              onClick={() => onChange(day)}
+              className={cn(
+                'h-10 w-full flex items-center justify-center rounded-full text-sm font-medium transition-all',
+                isPast  && 'text-mist cursor-not-allowed',
+                isSelected && 'bg-deep-green text-white',
+                !isSelected && isToday && 'border border-deep-green text-deep-green',
+                !isSelected && !isToday && !isPast && 'text-charcoal hover:bg-mist',
+              )}
+            >
+              {day.getDate()}
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
 }
 
 function formatDateLong(d: Date) {
@@ -150,7 +221,6 @@ export default function ReservationPage({ params }: { params: Promise<{ serviceI
   const [confirmed, setConfirmed] = useState(false)
 
   const cover = service.images.find((i) => i.is_cover) ?? service.images[0]
-  const dates = getDates(selectedDate)
   const total = service.price_cents * guests
   const { platformFee } = computeFees(total)
   const canBook = !!selectedDate && !!selectedTime
@@ -265,33 +335,15 @@ export default function ReservationPage({ params }: { params: Promise<{ serviceI
           /* Sélecteurs complets */
           <>
             <div className="px-4 py-5 border-b border-mist">
-              <h2 className="text-base font-semibold text-charcoal mb-3">Sélectionnez une date</h2>
-              <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
-                {dates.map((d) => {
-                  const isSelected = selectedDate?.toDateString() === d.toDateString()
-                  return (
-                    <button
-                      key={d.toISOString()}
-                      type="button"
-                      onClick={() => {
-                        setSelectedDate(d)
-                        setSelectedTime(null)
-                        setShowPayment(false)
-                      }}
-                      className={cn(
-                        'flex-none flex flex-col items-center px-3.5 py-2.5 rounded-2xl border-2 transition-all min-w-[60px]',
-                        isSelected
-                          ? 'border-deep-green bg-deep-green text-white'
-                          : 'border-mist bg-surface text-charcoal hover:border-deep-green/40',
-                      )}
-                    >
-                      <span className="text-[10px] font-medium capitalize opacity-80">{DAY_NAMES[d.getDay()]}</span>
-                      <span className="text-xl font-semibold leading-snug">{d.getDate()}</span>
-                      <span className="text-[10px] capitalize opacity-80">{MONTH_NAMES[d.getMonth()]}</span>
-                    </button>
-                  )
-                })}
-              </div>
+              <h2 className="text-base font-semibold text-charcoal mb-4">Sélectionnez une date</h2>
+              <InlineCalendar
+                selected={selectedDate}
+                onChange={(d) => {
+                  setSelectedDate(d)
+                  setSelectedTime(null)
+                  setShowPayment(false)
+                }}
+              />
             </div>
 
             <AnimatePresence initial={false}>
