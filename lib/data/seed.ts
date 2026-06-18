@@ -30,6 +30,13 @@ const LOCAL = {
   barmaid:     '/photos/barmaid-yael.jpeg',
   coach:       '/photos/coach-sportif-eric.jpeg',
   photographe: '/photos/photographe-william.jpeg',
+  yoga:        '/photos/yoga-plage-tropicale.jpeg',
+  dj:          '/photos/dj-soiree-villa.jpeg',
+  danse:       '/photos/danse-caribeenne.jpeg',
+  coiffure:    '/photos/coiffure-tresses.jpeg',
+  maquillage:  '/photos/maquillage-artiste.jpeg',
+  deco:        '/photos/deco-romantique-villa.jpeg',
+  babysitter:  '/photos/babysitter-villa.jpeg',
 }
 
 const IMG = {
@@ -314,7 +321,7 @@ export const SERVICES = [
     created_at: '2024-01-01', updated_at: '2024-01-01',
     provider: PROVIDERS[3],
     images: [
-      { id: 'i-5a', service_id: 's-5', url: LOCAL.coach, alt_fr: 'Coach Éric sur la plage caribéenne', alt_en: 'Coach Eric on Caribbean beach', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
+      { id: 'i-5a', service_id: 's-5', url: LOCAL.yoga, alt_fr: 'Yoga au coucher de soleil sous les palmiers', alt_en: 'Sunset yoga under palm trees', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
       { id: 'i-5b', service_id: 's-5', url: IMG.yoga, alt_fr: 'Yoga à domicile', alt_en: 'Yoga at home', sort_order: 1, is_cover: false, created_at: '2024-01-01' }],
   },
   {
@@ -368,7 +375,7 @@ export const SERVICES = [
     created_at: '2024-01-01', updated_at: '2024-01-01',
     provider: PROVIDERS[5],
     images: [
-      { id: 'i-11a', service_id: 's-11', url: IMG.tresses, alt_fr: 'Tresses africaines', alt_en: 'African braids', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
+      { id: 'i-11a', service_id: 's-11', url: LOCAL.coiffure, alt_fr: 'Tresses africaines à domicile', alt_en: 'African braids home visit', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
       { id: 'i-11b', service_id: 's-11', url: IMG.coiffure, alt_fr: 'Coiffure créole', alt_en: 'Creole hairstyle', sort_order: 1, is_cover: false, created_at: '2024-01-01' }],
   },
   {
@@ -386,7 +393,7 @@ export const SERVICES = [
     created_at: '2024-01-01', updated_at: '2024-01-01',
     provider: PROVIDERS[6],
     images: [
-      { id: 'i-13a', service_id: 's-13', url: IMG.famille, alt_fr: 'Garde enfants Martinique', alt_en: 'Childcare Martinique', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
+      { id: 'i-13a', service_id: 's-13', url: LOCAL.babysitter, alt_fr: 'Babysitter avec enfants à domicile', alt_en: 'Babysitter with children at villa', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
       { id: 'i-13b', service_id: 's-13', url: IMG.enfants, alt_fr: 'Activités enfants à domicile', alt_en: 'Kids activities at home', sort_order: 1, is_cover: false, created_at: '2024-01-01' }],
   },
   {
@@ -441,7 +448,7 @@ export const SERVICES = [
     created_at: '2024-01-01', updated_at: '2024-01-01',
     provider: PROVIDERS[14],
     images: [
-      { id: 'i-17a', service_id: 's-17', url: IMG.deco_villa, alt_fr: 'Décoration romantique villa', alt_en: 'Romantic villa decoration', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
+      { id: 'i-17a', service_id: 's-17', url: LOCAL.deco, alt_fr: 'Table romantique décorée fleurs et bougies', alt_en: 'Romantic table with flowers and candles', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
       { id: 'i-17b', service_id: 's-17', url: IMG.fleurs, alt_fr: 'Fleurs tropicales', alt_en: 'Tropical flowers', sort_order: 1, is_cover: false, created_at: '2024-01-01' }],
   },
   {
@@ -459,7 +466,7 @@ export const SERVICES = [
     created_at: '2024-01-01', updated_at: '2024-01-01',
     provider: PROVIDERS[7],
     images: [
-      { id: 'i-18a', service_id: 's-18', url: IMG.dj, alt_fr: 'DJ ambiance caraïbe', alt_en: 'Caribbean DJ vibes', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
+      { id: 'i-18a', service_id: 's-18', url: LOCAL.dj, alt_fr: 'DJ Kenzo — soirée lumières villa', alt_en: 'DJ Kenzo — villa party lights', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
       { id: 'i-18b', service_id: 's-18', url: IMG.villa, alt_fr: 'Soirée à domicile', alt_en: 'Home party', sort_order: 1, is_cover: false, created_at: '2024-01-01' }],
   },
   {
@@ -531,7 +538,7 @@ export const SERVICES = [
     created_at: '2024-01-01', updated_at: '2024-01-01',
     provider: PROVIDERS[11],
     images: [
-      { id: 'i-22a', service_id: 's-22', url: IMG.danse, alt_fr: 'Cours de zouk à domicile', alt_en: 'Zouk class at home', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
+      { id: 'i-22a', service_id: 's-22', url: LOCAL.danse, alt_fr: 'Couple dansant au bord de la mer', alt_en: 'Couple dancing by the sea', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
       { id: 'i-22b', service_id: 's-22', url: IMG.danse2, alt_fr: 'Danse en couple', alt_en: 'Couple dancing', sort_order: 1, is_cover: false, created_at: '2024-01-01' }],
   },
   {
@@ -549,7 +556,7 @@ export const SERVICES = [
     created_at: '2024-01-01', updated_at: '2024-01-01',
     provider: PROVIDERS[12],
     images: [
-      { id: 'i-23a', service_id: 's-23', url: IMG.beaute, alt_fr: 'Maquillage artiste', alt_en: 'Artist makeup', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
+      { id: 'i-23a', service_id: 's-23', url: LOCAL.maquillage, alt_fr: 'Maquilleuse Kaïssa à domicile', alt_en: 'Makeup artist Kaïssa at villa', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
       { id: 'i-23b', service_id: 's-23', url: IMG.maquillage, alt_fr: 'Séance maquillage', alt_en: 'Makeup session', sort_order: 1, is_cover: false, created_at: '2024-01-01' }],
   }]
 
