@@ -1,16 +1,17 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { useLocale } from 'next-intl'
 import { LayoutGrid, Leaf, Waves, UtensilsCrossed, Landmark, Heart, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-export const CATEGORIES: { key: string; label: string; Icon: LucideIcon }[] = [
-  { key: 'all',      label: 'Tout',        Icon: LayoutGrid      },
-  { key: 'wellness', label: 'Bien-être',   Icon: Leaf            },
-  { key: 'soiree',   label: 'Soirée',      Icon: Waves           },
-  { key: 'food',     label: 'Gastronomie', Icon: UtensilsCrossed },
-  { key: 'couples',  label: 'Couples',     Icon: Heart           },
-  { key: 'culture',  label: 'Culture',     Icon: Landmark        },
+export const CATEGORIES: { key: string; label: { fr: string; en: string }; Icon: LucideIcon }[] = [
+  { key: 'all',      label: { fr: 'Tout', en: 'All' }, Icon: LayoutGrid },
+  { key: 'wellness', label: { fr: 'Bien-être', en: 'Wellness' }, Icon: Leaf },
+  { key: 'soiree',   label: { fr: 'Soirée', en: 'Evening' }, Icon: Waves },
+  { key: 'food',     label: { fr: 'Gastronomie', en: 'Food' }, Icon: UtensilsCrossed },
+  { key: 'couples',  label: { fr: 'Couples', en: 'Couples' }, Icon: Heart },
+  { key: 'culture',  label: { fr: 'Culture', en: 'Culture' }, Icon: Landmark },
 ]
 
 interface MoodSelectorProps {
@@ -19,6 +20,9 @@ interface MoodSelectorProps {
 }
 
 export function MoodSelector({ value, onChange }: MoodSelectorProps) {
+  const locale = useLocale()
+  const lang = locale === 'en' ? 'en' : 'fr'
+
   return (
     <div
       className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide px-5 md:px-0"
@@ -40,7 +44,7 @@ export function MoodSelector({ value, onChange }: MoodSelectorProps) {
             )}
           >
             <Icon size={14} />
-            <span>{label}</span>
+            <span>{label[lang]}</span>
           </motion.button>
         )
       })}

@@ -2,17 +2,18 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useLocale } from 'next-intl'
 import { MapPin } from 'lucide-react'
 import type { Island } from '@/types/database'
 
 export type IslandFilter = Island | 'all'
 
-const ISLAND_OPTIONS: { value: IslandFilter; label: string; soon?: boolean }[] = [
-  { value: 'all',          label: 'Toutes les îles' },
-  { value: 'guadeloupe',   label: 'Guadeloupe' },
-  { value: 'martinique',   label: 'Martinique', soon: true },
-  { value: 'saint_martin', label: 'Saint-Martin', soon: true },
-  { value: 'saint_barth',  label: 'Saint-Barth', soon: true },
+const ISLAND_OPTIONS: { value: IslandFilter; label: { fr: string; en: string }; soon?: boolean }[] = [
+  { value: 'all',          label: { fr: 'Toutes les îles', en: 'All islands' } },
+  { value: 'guadeloupe',   label: { fr: 'Guadeloupe', en: 'Guadeloupe' } },
+  { value: 'martinique',   label: { fr: 'Martinique', en: 'Martinique' }, soon: true },
+  { value: 'saint_martin', label: { fr: 'Saint-Martin', en: 'Saint-Martin' }, soon: true },
+  { value: 'saint_barth',  label: { fr: 'Saint-Barth', en: 'Saint-Barth' }, soon: true },
 ]
 
 interface IslandSelectorProps {
@@ -22,8 +23,10 @@ interface IslandSelectorProps {
 
 export function IslandSelector({ value, onChange }: IslandSelectorProps) {
   const [open, setOpen] = useState(false)
+  const locale = useLocale()
+  const lang = locale === 'en' ? 'en' : 'fr'
 
-  const currentLabel = ISLAND_OPTIONS.find((o) => o.value === value)?.label ?? 'Toutes les îles'
+  const currentLabel = ISLAND_OPTIONS.find((o) => o.value === value)?.label[lang] ?? ISLAND_OPTIONS[0].label[lang]
 
   return (
     <div className="relative">
@@ -53,9 +56,9 @@ export function IslandSelector({ value, onChange }: IslandSelectorProps) {
                 v === value ? 'text-deep-green font-medium bg-sand' : 'text-charcoal'
               }`}
             >
-              {label}
+              {label[lang]}
               {soon && (
-                <span className="text-xs text-stone ml-2">bientôt</span>
+                <span className="text-xs text-stone ml-2">{lang === 'en' ? 'soon' : 'bientôt'}</span>
               )}
             </button>
           ))}

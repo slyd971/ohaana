@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useLocale } from 'next-intl'
 import { Link } from '@/lib/i18n/navigation'
 import { HeroSection } from '@/components/home/HeroSection'
 import { ServiceRow } from '@/components/home/ServiceRow'
@@ -33,9 +34,32 @@ const WHY_ITEMS = [
   },
 ]
 
+const WHY_ITEMS_EN = [
+  {
+    icon: Leaf,
+    title: 'Locally selected',
+    text: 'We avoid soulless tourist traps. Every provider is met and reviewed in person.',
+  },
+  {
+    icon: Clock,
+    title: 'Time saved',
+    text: 'A concierge organizes everything for you: itinerary, bookings, timing, and surprises.',
+  },
+  {
+    icon: Sparkles,
+    title: 'Premium experiences',
+    text: 'Creole chefs, DJs, in-villa massages, romantic decorations — at your place, done properly.',
+  },
+]
+
 const DESTINATIONS = [
   'Guadeloupe', 'Martinique', 'Saint-Martin', 'Saint-Barth',
   'Dominique', 'Autre île', 'Pas encore décidé',
+]
+
+const DESTINATIONS_EN = [
+  'Guadeloupe', 'Martinique', 'Saint-Martin', 'Saint-Barth',
+  'Dominica', 'Another island', 'Not decided yet',
 ]
 
 const MOOD_FILTER: Record<string, string[]> = {
@@ -46,26 +70,47 @@ const MOOD_FILTER: Record<string, string[]> = {
   couples:  ['couple', 'romantique'],
 }
 
-const EDITORIAL_KEYS = ['popular', 'tonight'] as const
+function getInitialHomeState() {
+  if (typeof window === 'undefined') {
+    return {
+      island: 'all' as IslandFilter,
+      stayStart: null as Date | null,
+      stayEnd: null as Date | null,
+    }
+  }
+
+  try {
+    const savedIsland = sessionStorage.getItem('ohaana_island')
+    const s = sessionStorage.getItem('ohaana_stay_start')
+    const e = sessionStorage.getItem('ohaana_stay_end')
+    const start = s ? new Date(s) : null
+    const end = e ? new Date(e) : null
+
+    return {
+      island: (savedIsland || 'all') as IslandFilter,
+      stayStart: start && !isNaN(start.getTime()) ? start : null,
+      stayEnd: end && !isNaN(end.getTime()) ? end : null,
+    }
+  } catch {
+    return {
+      island: 'all' as IslandFilter,
+      stayStart: null as Date | null,
+      stayEnd: null as Date | null,
+    }
+  }
+}
 
 export default function HomePage() {
-  const [island, setIsland]       = useState<IslandFilter>('all')
+  const locale = useLocale()
+  const isEn = locale === 'en'
+  const whyItems = isEn ? WHY_ITEMS_EN : WHY_ITEMS
+  const destinations = isEn ? DESTINATIONS_EN : DESTINATIONS
+  const [initialHomeState] = useState(getInitialHomeState)
+  const [island, setIsland]       = useState<IslandFilter>(initialHomeState.island)
   const [mood, setMood]           = useState<string>('all')
-  const [stayStart, setStayStart] = useState<Date | null>(null)
-  const [stayEnd, setStayEnd]     = useState<Date | null>(null)
+  const [stayStart, setStayStart] = useState<Date | null>(initialHomeState.stayStart)
+  const [stayEnd, setStayEnd]     = useState<Date | null>(initialHomeState.stayEnd)
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
-
-  // Restore island + dates from previous session
-  useEffect(() => {
-    try {
-      const savedIsland = sessionStorage.getItem('ohaana_island')
-      if (savedIsland) setIsland(savedIsland as IslandFilter)
-      const s = sessionStorage.getItem('ohaana_stay_start')
-      const e = sessionStorage.getItem('ohaana_stay_end')
-      if (s) { const d = new Date(s); if (!isNaN(d.getTime())) setStayStart(d) }
-      if (e) { const d = new Date(e); if (!isNaN(d.getTime())) setStayEnd(d) }
-    } catch {}
-  }, [])
 
   // Lead capture state
   const [leadEmail, setLeadEmail]   = useState('')
@@ -148,11 +193,11 @@ export default function HomePage() {
           className="text-center mb-10"
         >
           <h2 className="text-2xl md:text-3xl font-display text-deep-green">
-            Pourquoi passer par Ohaana&nbsp;?
+            {isEn ? 'Why book with Ohaana?' : 'Pourquoi passer par Ohaana ?'}
           </h2>
         </motion.div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
-          {WHY_ITEMS.map(({ icon: Icon, title, text }, i) => (
+          {whyItems.map(({ icon: Icon, title, text }, i) => (
             <motion.div
               key={title}
               initial={{ opacity: 0, y: 16 }}
@@ -184,7 +229,7 @@ export default function HomePage() {
         >
           {explorerServices.length === 0 ? (
             <p className="text-center text-stone py-16 text-sm">
-              Aucun service disponible pour cette sélection.
+              {isEn ? 'No service available for this selection.' : 'Aucun service disponible pour cette sélection.'}
             </p>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -206,7 +251,7 @@ export default function HomePage() {
       <div className="py-4 pb-10 space-y-10 max-w-7xl mx-auto md:px-8">
         {rowPopular && (
           <ServiceRow
-            title={rowPopular.label_fr}
+            title={isEn ? rowPopular.label_en : rowPopular.label_fr}
             services={editorialServices(rowPopular.ids)}
             favorites={favorites}
             onToggleFavorite={toggleFavorite}
@@ -221,20 +266,20 @@ export default function HomePage() {
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-turquoise" />
           </span>
           <p className="text-sm text-deep-green flex-1 leading-snug">
-            <span className="font-semibold">Vous ne savez pas quoi choisir ?</span>{' '}
-            Notre concierge compose votre programme en moins de 2h.
+            <span className="font-semibold">{isEn ? 'Not sure what to choose?' : 'Vous ne savez pas quoi choisir ?'}</span>{' '}
+            {isEn ? 'Our concierge builds your program in under 2 hours.' : 'Notre concierge compose votre programme en moins de 2h.'}
           </p>
           <Link
             href="/concierge"
             className="flex-none text-xs font-medium bg-deep-green text-coconut px-3.5 py-2 rounded-full hover:bg-coral transition-colors whitespace-nowrap"
           >
-            Demander conseil
+            {isEn ? 'Ask for advice' : 'Demander conseil'}
           </Link>
         </div>
 
         {rowTonight && (
           <ServiceRow
-            title={rowTonight.label_fr}
+            title={isEn ? rowTonight.label_en : rowTonight.label_fr}
             services={editorialServices(rowTonight.ids)}
             favorites={favorites}
             onToggleFavorite={toggleFavorite}
@@ -256,13 +301,15 @@ export default function HomePage() {
         <div className="relative px-6 py-10 md:py-14 max-w-2xl mx-auto text-center space-y-5">
           <span className="inline-flex items-center gap-2 bg-coconut/10 border border-coconut/15 text-coconut/80 text-xs px-3 py-1 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-turquoise animate-pulse" />
-            Réponse en moins de 2h · 7j/7
+            {isEn ? 'Reply in under 2 hours · 7 days a week' : 'Réponse en moins de 2h · 7j/7'}
           </span>
           <h2 className="text-2xl md:text-3xl font-display text-coconut leading-snug">
-            Vous hésitez ou vous n&apos;avez<br />pas trouvé ce que vous cherchez&nbsp;?
+            {isEn ? <>Still unsure or did not<br />find what you need?</> : <>Vous hésitez ou vous n&apos;avez<br />pas trouvé ce que vous cherchez&nbsp;?</>}
           </h2>
           <p className="text-coconut/70 text-sm md:text-base leading-relaxed max-w-sm mx-auto">
-            Décrivez ce que vous souhaitez vivre — dîner privé, soirée sur mesure, demande en mariage, programme complet. Camille, notre concierge locale, s&apos;occupe de tout.
+            {isEn
+              ? 'Tell us what you want to experience: a private dinner, a tailored evening, a proposal, a full itinerary. Camille, our local concierge, handles everything.'
+              : 'Décrivez ce que vous souhaitez vivre — dîner privé, soirée sur mesure, demande en mariage, programme complet. Camille, notre concierge locale, s\'occupe de tout.'}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <a
@@ -272,13 +319,13 @@ export default function HomePage() {
               className="inline-flex items-center gap-2 bg-coral text-coconut px-6 py-3 rounded-full font-medium text-sm hover:bg-coral-light transition-colors shadow-sm"
             >
               <MessageCircle size={16} />
-              Parler à Camille
+              {isEn ? 'Talk to Camille' : 'Parler à Camille'}
             </a>
             <Link
               href="/concierge"
               className="inline-flex items-center gap-2 bg-coconut/10 text-coconut border border-coconut/20 px-6 py-3 rounded-full font-medium text-sm hover:bg-coconut/20 transition-colors"
             >
-              Créer mon programme
+              {isEn ? 'Create my program' : 'Créer mon programme'}
               <ChevronRight size={14} />
             </Link>
           </div>
@@ -293,17 +340,19 @@ export default function HomePage() {
           </div>
           <div className="flex-1 text-center md:text-left space-y-3">
             <h2 className="text-xl md:text-2xl font-display text-charcoal">
-              Vous êtes chef.fe, masseur.se, DJ, photographe ou coach sportif&nbsp;?
+              {isEn ? 'Are you a chef, massage therapist, DJ, photographer, or fitness coach?' : 'Vous êtes chef.fe, masseur.se, DJ, photographe ou coach sportif ?'}
             </h2>
             <p className="text-sm text-stone leading-relaxed">
-              Recevez des demandes de voyageurs en séjour dans les Caraïbes et proposez vos prestations à domicile, sans infrastructure à gérer.
+              {isEn
+                ? 'Receive requests from travelers staying in the Caribbean and offer your services at their place, without managing any infrastructure.'
+                : 'Recevez des demandes de voyageurs en séjour dans les Caraïbes et proposez vos prestations à domicile, sans infrastructure à gérer.'}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start pt-1">
               <Link
                 href="/register?role=provider"
                 className="inline-flex items-center gap-2 bg-deep-green text-coconut px-5 py-2.5 rounded-full text-sm font-medium hover:bg-deep-green-light transition-colors"
               >
-                Rejoindre Ohaana
+                {isEn ? 'Join Ohaana' : 'Rejoindre Ohaana'}
                 <ChevronRight size={14} />
               </Link>
               <a
@@ -311,7 +360,7 @@ export default function HomePage() {
                 className="inline-flex items-center gap-2 border border-mist text-charcoal px-5 py-2.5 rounded-full text-sm font-medium hover:border-deep-green/40 transition-colors"
               >
                 <Mail size={14} />
-                Nous contacter
+                {isEn ? 'Contact us' : 'Nous contacter'}
               </a>
             </div>
           </div>
@@ -322,12 +371,14 @@ export default function HomePage() {
       <section className="px-5 md:px-8 py-14 bg-deep-green">
         <div className="max-w-md mx-auto text-center space-y-6">
           <div className="space-y-2">
-            <p className="text-xs text-coconut/50 uppercase tracking-widest">Lancement en cours</p>
+            <p className="text-xs text-coconut/50 uppercase tracking-widest">{isEn ? 'Launch in progress' : 'Lancement en cours'}</p>
             <h2 className="text-2xl font-display text-coconut">
-              Recevoir la sélection Ohaana
+              {isEn ? 'Get the Ohaana selection' : 'Recevoir la sélection Ohaana'}
             </h2>
             <p className="text-sm text-coconut/60 leading-relaxed">
-              On vous envoie les plus belles expériences de la saison, les nouvelles destinations et les offres en avant-première.
+              {isEn
+                ? 'We will send you the season’s best experiences, new destinations, and early offers.'
+                : 'On vous envoie les plus belles expériences de la saison, les nouvelles destinations et les offres en avant-première.'}
             </p>
           </div>
 
@@ -338,8 +389,8 @@ export default function HomePage() {
               className="flex flex-col items-center gap-3 py-6"
             >
               <CheckCircle size={40} className="text-turquoise" />
-              <p className="text-coconut font-medium">C&apos;est noté !</p>
-              <p className="text-coconut/60 text-sm">On vous contacte dès le lancement.</p>
+              <p className="text-coconut font-medium">{isEn ? 'You are on the list!' : 'C’est noté !'}</p>
+              <p className="text-coconut/60 text-sm">{isEn ? 'We will contact you as soon as we launch.' : 'On vous contacte dès le lancement.'}</p>
             </motion.div>
           ) : (
             <form onSubmit={handleLeadSubmit} className="space-y-3">
@@ -357,14 +408,14 @@ export default function HomePage() {
                 className="w-full h-12 rounded-xl bg-white/10 border border-coconut/20 px-4 text-sm text-coconut focus:outline-none focus:border-turquoise transition-colors"
                 style={{ colorScheme: 'dark' }}
               >
-                <option value="" className="text-charcoal bg-coconut">Destination prévue</option>
-                {DESTINATIONS.map((d) => (
+                <option value="" className="text-charcoal bg-coconut">{isEn ? 'Planned destination' : 'Destination prévue'}</option>
+                {destinations.map((d) => (
                   <option key={d} value={d} className="text-charcoal bg-coconut">{d}</option>
                 ))}
               </select>
               <input
                 type="tel"
-                placeholder="WhatsApp (optionnel)"
+                placeholder={isEn ? 'WhatsApp (optional)' : 'WhatsApp (optionnel)'}
                 value={leadWA}
                 onChange={(e) => setLeadWA(e.target.value)}
                 className="w-full h-12 rounded-xl bg-white/10 border border-coconut/20 px-4 text-sm text-coconut placeholder:text-coconut/40 focus:outline-none focus:border-turquoise transition-colors"
@@ -373,10 +424,10 @@ export default function HomePage() {
                 type="submit"
                 className="w-full h-12 rounded-xl bg-coral text-coconut font-medium text-sm hover:bg-coral-light transition-colors shadow-sm"
               >
-                Me prévenir du lancement
+                {isEn ? 'Notify me at launch' : 'Me prévenir du lancement'}
               </button>
               <p className="text-[11px] text-coconut/30">
-                Pas de spam. Désabonnement en un clic.
+                {isEn ? 'No spam. Unsubscribe in one click.' : 'Pas de spam. Désabonnement en un clic.'}
               </p>
             </form>
           )}

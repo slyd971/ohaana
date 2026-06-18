@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
+import { useLocale } from 'next-intl'
 import { Link } from '@/lib/i18n/navigation'
 import {
   Search,
@@ -14,12 +15,28 @@ import { DateRangePicker } from '@/components/ui/DateRangePicker'
 
 const HERO_IMG = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1600&h=900&fit=crop&q=90'
 
-const ROTATING_PHRASES = [
-  'chez vous.',
-  'ce soir.',
-  'sur mesure.',
-  'en toute sérénité.',
-]
+const COPY = {
+  fr: {
+    alt: 'Villa caribéenne — lagon turquoise et nature tropicale',
+    placeholder: 'Quand ?',
+    title: 'La Caraïbe authentique,',
+    phrases: ['chez vous.', 'ce soir.', 'sur mesure.', 'en toute sérénité.'],
+    subtitle: 'Chef.fe à domicile, massages, DJ, shootings photo — réservez les meilleures expériences des Caraïbes, sélectionnées par des locaux.',
+    search: 'Que souhaitez-vous vivre pendant votre séjour ?',
+    explore: 'Explorer',
+    concierge: 'Demander conseil à notre concierge',
+  },
+  en: {
+    alt: 'Caribbean villa with a turquoise lagoon and tropical nature',
+    placeholder: 'When?',
+    title: 'The authentic Caribbean,',
+    phrases: ['at your place.', 'tonight.', 'tailored for you.', 'without the stress.'],
+    subtitle: 'Private chefs, massages, DJs, photo shoots — book the best Caribbean experiences, selected by locals.',
+    search: 'What would you like to experience during your stay?',
+    explore: 'Explore',
+    concierge: 'Ask our concierge',
+  },
+} as const
 
 interface HeroSectionProps {
   island: IslandFilter
@@ -37,16 +54,18 @@ export function HeroSection({
   onDatesChange,
 }: HeroSectionProps) {
   const ref = useRef<HTMLDivElement>(null)
+  const locale = useLocale()
+  const copy = COPY[locale === 'en' ? 'en' : 'fr']
   const { scrollY } = useScroll()
   const y = useTransform(scrollY, [0, 500], [0, 140])
   const [phraseIdx, setPhraseIdx] = useState(0)
 
   useEffect(() => {
     const id = setInterval(() => {
-      setPhraseIdx((i) => (i + 1) % ROTATING_PHRASES.length)
+      setPhraseIdx((i) => (i + 1) % copy.phrases.length)
     }, 2800)
     return () => clearInterval(id)
-  }, [])
+  }, [copy.phrases.length])
 
   return (
     <>
@@ -56,7 +75,7 @@ export function HeroSection({
           <motion.div className="absolute inset-0 scale-110" style={{ y }}>
             <Image
               src={HERO_IMG}
-              alt="Villa caribéenne — lagon turquoise et nature tropicale"
+              alt={copy.alt}
               fill
               priority
               className="object-cover object-center"
@@ -85,13 +104,13 @@ export function HeroSection({
                     startDate={stayStart}
                     endDate={stayEnd}
                     onChange={onDatesChange}
-                    placeholder="Quand ?"
+                    placeholder={copy.placeholder}
                   />
                 </div>
               </div>
 
               <h1 className="text-2xl md:text-4xl font-display text-deep-green leading-tight">
-                La Caraïbe authentique,
+                {copy.title}
                 <span className="block relative overflow-hidden">
                   <AnimatePresence mode="wait">
                     <motion.em
@@ -102,13 +121,13 @@ export function HeroSection({
                       transition={{ duration: 0.35, ease: 'easeInOut' }}
                       className="block whitespace-nowrap"
                     >
-                      {ROTATING_PHRASES[phraseIdx]}
+                      {copy.phrases[phraseIdx]}
                     </motion.em>
                   </AnimatePresence>
                 </span>
               </h1>
               <p className="text-charcoal/75 text-sm leading-relaxed">
-                Chef.fe à domicile, massages, DJ, shootings photo — réservez les meilleures expériences des Caraïbes, sélectionnées par des locaux.
+                {copy.subtitle}
               </p>
 
               {/* Search bar */}
@@ -117,9 +136,9 @@ export function HeroSection({
                 className="flex items-center gap-3 bg-white rounded-2xl px-4 py-3 border border-mist hover:border-deep-green/40 hover:shadow-sm transition-all group"
               >
                 <Search size={16} className="text-deep-green flex-none" />
-                <span className="text-stone text-sm flex-1">Que souhaitez-vous vivre pendant votre séjour ?</span>
+                <span className="text-stone text-sm flex-1">{copy.search}</span>
                 <span className="text-xs bg-deep-green text-coconut px-2.5 py-1 rounded-full font-medium group-hover:bg-coral transition-colors">
-                  Explorer
+                  {copy.explore}
                 </span>
               </Link>
 
@@ -134,7 +153,7 @@ export function HeroSection({
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-turquoise" />
                 </span>
                 <MessageCircle size={14} className="flex-none" />
-                Demander conseil à notre concierge
+                {copy.concierge}
                 <ChevronRight size={13} className="ml-auto opacity-50 flex-none" />
               </Link>
             </div>

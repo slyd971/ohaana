@@ -1,12 +1,14 @@
 'use client'
 
+import { useState } from 'react'
 import { useLocale } from 'next-intl'
 import { useRouter, usePathname } from '@/lib/i18n/navigation'
 import { cn } from '@/lib/utils'
+import { Globe } from 'lucide-react'
 
 const LOCALES = [
-  { code: 'fr', label: 'Français' },
-  { code: 'en', label: 'English' },
+  { code: 'fr', label: 'Français', flag: '🇫🇷' },
+  { code: 'en', label: 'English', flag: '🇬🇧' },
 ] as const
 
 interface LanguageSwitcherProps {
@@ -18,9 +20,11 @@ export function LanguageSwitcher({ variant = 'header', className }: LanguageSwit
   const locale = useLocale()
   const router = useRouter()
   const pathname = usePathname()
+  const [open, setOpen] = useState(false)
 
   const switchLocale = (code: string) => {
     router.replace(pathname, { locale: code })
+    setOpen(false)
   }
 
   if (variant === 'footer') {
@@ -41,25 +45,40 @@ export function LanguageSwitcher({ variant = 'header', className }: LanguageSwit
     )
   }
 
-  // Header variant — compact "FR · EN" text toggle
+  // Header variant
   return (
-    <div className={cn('flex items-center gap-1', className)}>
-      {LOCALES.map(({ code }, i) => (
-        <span key={code} className="flex items-center gap-1">
-          {i > 0 && <span className="text-charcoal-soft/25 text-xs">·</span>}
+    <div className={cn('relative', className)}>
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        aria-label="Changer de langue"
+        aria-expanded={open}
+        className="flex h-8 w-8 items-center justify-center rounded-full border border-mist/70 bg-coconut/75 text-deep-green shadow-sm backdrop-blur-sm transition-colors hover:border-deep-green/30 hover:bg-coconut"
+      >
+        <Globe size={15} aria-hidden="true" />
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full z-[80] mt-1.5 min-w-16 overflow-hidden rounded-lg border border-mist bg-coconut/95 py-0.5 shadow-elevated backdrop-blur-md">
+          {LOCALES.map(({ code, label, flag }) => (
           <button
+            key={code}
+            type="button"
             onClick={() => switchLocale(code)}
+            aria-label={`Passer en ${label}`}
             className={cn(
-              'text-[11px] font-medium uppercase tracking-wide transition-colors',
+              'flex w-full items-center gap-1.5 px-2.5 py-1.5 text-left text-[11px] font-medium uppercase tracking-wide transition-colors',
               locale === code
-                ? 'text-deep-green'
-                : 'text-charcoal-soft/40 hover:text-charcoal-soft/70'
+                ? 'bg-sand text-deep-green'
+                : 'text-charcoal-soft/60 hover:bg-sand/60 hover:text-charcoal'
             )}
           >
+            <span aria-hidden="true" className="text-xs leading-none">{flag}</span>
             {code}
           </button>
-        </span>
-      ))}
+          ))}
+        </div>
+      )}
     </div>
   )
 }

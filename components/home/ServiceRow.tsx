@@ -2,7 +2,9 @@
 
 import { useRef } from 'react'
 import { motion } from 'framer-motion'
+import { useLocale } from 'next-intl'
 import { ChevronRight } from 'lucide-react'
+import { Link } from '@/lib/i18n/navigation'
 import { ServiceCard } from '@/components/service/ServiceCard'
 import type { SERVICES } from '@/lib/data/seed'
 
@@ -24,6 +26,8 @@ export function ServiceRow({
   seeAllHref = '/search',
 }: ServiceRowProps) {
   const rowRef = useRef<HTMLDivElement>(null)
+  const locale = useLocale()
+  const isEn = locale === 'en'
 
   if (!services.length) return null
 
@@ -38,12 +42,12 @@ export function ServiceRow({
       {/* Header */}
       <div className="flex items-center justify-between px-5 md:px-0">
         <h2 className="text-lg font-display text-charcoal">{title}</h2>
-        <a
+        <Link
           href={seeAllHref}
           className="flex items-center gap-0.5 text-sm text-deep-green font-medium"
         >
-          Voir tout <ChevronRight size={15} />
-        </a>
+          {isEn ? 'See all' : 'Voir tout'} <ChevronRight size={15} />
+        </Link>
       </div>
 
       {/* Horizontal scroll */}

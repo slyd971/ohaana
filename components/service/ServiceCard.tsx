@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { motion } from 'framer-motion'
+import { useLocale } from 'next-intl'
 import { Heart, Clock, MapPin } from 'lucide-react'
 import { cn, formatPrice, formatDuration } from '@/lib/utils'
 import { Link } from '@/lib/i18n/navigation'
@@ -24,16 +25,16 @@ const ISLAND_LABELS: Record<string, string> = {
   saint_barth:  'Saint-Barth',
 }
 
-const TAG_BADGES: Record<string, string> = {
-  'couple':            '💑 Couple',
-  'famille':           '👨‍👩‍👧 Famille',
-  'aventure':          '🏄 Aventure',
-  'bien-être':         '🧘 Bien-être',
-  'coucher de soleil': '🌅 Sunset',
-  'gastronomie':       '🍽️ Gastro',
-  'culture':           '🎭 Culture',
-  'nature':            '🌿 Nature',
-  'beauté':            '💅 Beauté',
+const TAG_BADGES: Record<string, { fr: string; en: string }> = {
+  'couple':            { fr: 'Couple', en: 'Couple' },
+  'famille':           { fr: 'Famille', en: 'Family' },
+  'aventure':          { fr: 'Aventure', en: 'Adventure' },
+  'bien-être':         { fr: 'Bien-être', en: 'Wellness' },
+  'coucher de soleil': { fr: 'Sunset', en: 'Sunset' },
+  'gastronomie':       { fr: 'Gastro', en: 'Food' },
+  'culture':           { fr: 'Culture', en: 'Culture' },
+  'nature':            { fr: 'Nature', en: 'Nature' },
+  'beauté':            { fr: 'Beauté', en: 'Beauty' },
 }
 
 const TAG_PRIORITY = [
@@ -47,8 +48,12 @@ export function ServiceCard({
   size = 'md',
   className,
 }: ServiceCardProps) {
+  const locale = useLocale()
+  const isEn = locale === 'en'
   const cover = service.images.find((img) => img.is_cover) ?? service.images[0]
   const price = formatPrice(service.price_cents)
+  const title = isEn ? service.title_en : service.title_fr
+  const coverAlt = isEn ? cover?.alt_en : cover?.alt_fr
   const providerName = service.provider?.business_name ?? 'Ohaana'
   const providerUserName = service.provider?.user?.full_name ?? providerName
   const providerAvatar = service.provider?.user?.avatar_url
@@ -75,7 +80,7 @@ export function ServiceCard({
         <div className={cn('relative overflow-hidden', heights[size])}>
           <Image
             src={cover?.url ?? ''}
-            alt={cover?.alt_fr ?? service.title_fr}
+            alt={coverAlt ?? title}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 768px) 256px, 288px"
@@ -88,7 +93,7 @@ export function ServiceCard({
               type="button"
               onClick={(e) => { e.preventDefault(); onToggleFavorite(service.id) }}
               className="absolute top-2.5 right-2.5 p-1.5 rounded-full bg-white/25 backdrop-blur-sm hover:bg-white/50 transition-colors"
-              aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+              aria-label={isFavorite ? (isEn ? 'Remove from favorites' : 'Retirer des favoris') : (isEn ? 'Add to favorites' : 'Ajouter aux favoris')}
             >
               <Heart
                 size={15}
@@ -100,7 +105,7 @@ export function ServiceCard({
           {/* Badge top-left */}
           {service.is_featured && (
             <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-coral text-coconut text-[10px] font-semibold tracking-wide">
-              Populaire
+              {isEn ? 'Popular' : 'Populaire'}
             </span>
           )}
 
@@ -108,7 +113,7 @@ export function ServiceCard({
           <div className="absolute bottom-2.5 left-3 right-3 flex items-end justify-between">
             <div>
               <span className="text-coconut text-sm font-semibold drop-shadow-md">{price}</span>
-              <span className="text-coconut/70 text-xs"> / pers.</span>
+              <span className="text-coconut/70 text-xs"> {isEn ? '/ person' : '/ pers.'}</span>
             </div>
             <span className="flex items-center gap-0.5 text-coconut/80 text-[10px] drop-shadow-md">
               <MapPin size={9} />
@@ -143,7 +148,7 @@ export function ServiceCard({
 
           {/* Title */}
           <h3 className="text-sm font-semibold text-charcoal leading-snug line-clamp-2">
-            {service.title_fr}
+            {title}
           </h3>
 
           {/* Duration + tag badge */}
@@ -156,7 +161,7 @@ export function ServiceCard({
             ) : <div />}
             {primaryTag && (
               <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-sand text-charcoal-soft font-medium flex-none">
-                {TAG_BADGES[primaryTag]}
+                {TAG_BADGES[primaryTag][isEn ? 'en' : 'fr']}
               </span>
             )}
           </div>

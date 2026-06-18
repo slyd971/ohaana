@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
+import { useLocale } from 'next-intl'
 import { Search, SlidersHorizontal, X, MapPin } from 'lucide-react'
 import { ServiceCard } from '@/components/service/ServiceCard'
 import { SERVICES, CATEGORIES, CATEGORY_ICONS } from '@/lib/data/seed'
@@ -10,16 +11,27 @@ import { cn } from '@/lib/utils'
 type SortKey = 'popular' | 'price_asc' | 'price_desc'
 
 const PRICE_RANGES = [
-  { label: 'Tous', min: 0, max: Infinity },
-  { label: '< 50€', min: 0, max: 5000 },
-  { label: '50–100€', min: 5000, max: 10000 },
-  { label: '100–200€', min: 10000, max: 20000 },
-  { label: '200€+', min: 20000, max: Infinity },
+  { label: { fr: 'Tous', en: 'All' }, min: 0, max: Infinity },
+  { label: { fr: '< 50€', en: '< €50' }, min: 0, max: 5000 },
+  { label: { fr: '50–100€', en: '€50–100' }, min: 5000, max: 10000 },
+  { label: { fr: '100–200€', en: '€100–200' }, min: 10000, max: 20000 },
+  { label: { fr: '200€+', en: '€200+' }, min: 20000, max: Infinity },
 ]
 
+function getInitialCategoryId() {
+  if (typeof window === 'undefined') return null
+
+  const params = new URLSearchParams(window.location.search)
+  const categoryParam = params.get('cat')
+  return CATEGORIES.find((category) => category.slug === categoryParam)?.id ?? null
+}
+
 export default function SearchPage() {
+  const locale = useLocale()
+  const isEn = locale === 'en'
+  const lang = isEn ? 'en' : 'fr'
   const [query, setQuery] = useState('')
-  const [categoryId, setCategoryId] = useState<string | null>(null)
+  const [categoryId, setCategoryId] = useState<string | null>(getInitialCategoryId)
   const [priceRange, setPriceRange] = useState(0)
   const [sortKey, setSortKey] = useState<SortKey>('popular')
   const [showFilters, setShowFilters] = useState(false)
@@ -37,13 +49,6 @@ export default function SearchPage() {
     })
   }
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const categoryParam = params.get('cat')
-    const initialCategory = CATEGORIES.find((category) => category.slug === categoryParam)?.id ?? null
-    if (initialCategory) setCategoryId(initialCategory)
-  }, [])
-
   const { min, max } = PRICE_RANGES[priceRange]
 
   const results = useMemo(() => {
@@ -54,6 +59,7 @@ export default function SearchPage() {
       list = list.filter(
         (s) =>
           s.title_fr.toLowerCase().includes(q) ||
+          s.title_en.toLowerCase().includes(q) ||
           s.provider.business_name.toLowerCase().includes(q) ||
           s.tags.some((t) => t.includes(q))
       )
@@ -81,7 +87,7 @@ export default function SearchPage() {
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Trouver un chef, un massage ou une expérience"
+              placeholder={isEn ? 'Find a chef, massage, or experience' : 'Trouver un chef, un massage ou une expérience'}
               className="w-full h-11 pl-9 pr-4 bg-surface border border-mist rounded-xl text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green focus:ring-2 focus:ring-deep-green/15"
             />
             {query && (
@@ -112,7 +118,7 @@ export default function SearchPage() {
               !categoryId ? 'bg-deep-green text-coconut border-deep-green' : 'bg-surface border-mist text-stone hover:border-deep-green'
             )}
           >
-            Tout
+            {isEn ? 'All' : 'Tout'}
           </button>
           {CATEGORIES.map((cat) => (
             <button
@@ -125,7 +131,7 @@ export default function SearchPage() {
               )}
             >
               {(() => { const Icon = CATEGORY_ICONS[cat.slug]; return Icon ? <Icon size={13} /> : null })()}
-              <span>{cat.name_fr}</span>
+              <span>{isEn ? cat.name_en : cat.name_fr}</span>
             </button>
           ))}
         </div>
@@ -140,7 +146,7 @@ export default function SearchPage() {
           className="bg-sand border-b border-mist px-4 md:px-8 py-4 space-y-4 max-w-7xl mx-auto"
         >
           <div>
-            <p className="text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">Budget</p>
+            <p className="text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">{isEn ? 'Budget' : 'Budget'}</p>
             <div className="flex flex-wrap gap-2">
               {PRICE_RANGES.map((range, i) => (
                 <button
@@ -152,19 +158,19 @@ export default function SearchPage() {
                     priceRange === i ? 'bg-deep-green text-coconut border-deep-green' : 'bg-coconut border-mist text-stone'
                   )}
                 >
-                  {range.label}
+                  {range.label[lang]}
                 </button>
               ))}
             </div>
           </div>
 
           <div>
-            <p className="text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">Trier par</p>
+            <p className="text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">{isEn ? 'Sort by' : 'Trier par'}</p>
             <div className="flex flex-wrap gap-2">
               {([
-                { key: 'popular', label: 'Popularité' },
-                { key: 'price_asc', label: 'Prix ↑' },
-                { key: 'price_desc', label: 'Prix ↓' },
+                { key: 'popular', label: isEn ? 'Popularity' : 'Popularité' },
+                { key: 'price_asc', label: isEn ? 'Price ↑' : 'Prix ↑' },
+                { key: 'price_desc', label: isEn ? 'Price ↓' : 'Prix ↓' },
               ] as { key: SortKey; label: string }[]).map(({ key, label }) => (
                 <button
                   key={key}
@@ -187,19 +193,23 @@ export default function SearchPage() {
       <div className="px-4 md:px-8 py-6 max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-4">
           <p className="text-sm text-stone">
-            <span className="font-semibold text-charcoal">{results.length}</span> expérience{results.length !== 1 ? 's' : ''} trouvée{results.length !== 1 ? 's' : ''}
+            {isEn ? (
+              <><span className="font-semibold text-charcoal">{results.length}</span> experience{results.length !== 1 ? 's' : ''} found</>
+            ) : (
+              <><span className="font-semibold text-charcoal">{results.length}</span> expérience{results.length !== 1 ? 's' : ''} trouvée{results.length !== 1 ? 's' : ''}</>
+            )}
           </p>
           <button type="button" className="flex items-center gap-1.5 text-xs text-deep-green font-medium flex-none">
             <MapPin size={13} />
-            <span className="hidden sm:inline">Voir sur carte</span>
+            <span className="hidden sm:inline">{isEn ? 'View on map' : 'Voir sur carte'}</span>
           </button>
         </div>
 
         {results.length === 0 ? (
           <div className="text-center py-16 space-y-3">
             <p className="text-4xl">🌴</p>
-            <p className="text-charcoal font-medium">Aucune expérience trouvée</p>
-            <p className="text-sm text-stone">Essayez d&apos;autres filtres ou mots-clés</p>
+            <p className="text-charcoal font-medium">{isEn ? 'No experiences found' : 'Aucune expérience trouvée'}</p>
+            <p className="text-sm text-stone">{isEn ? 'Try different filters or keywords' : 'Essayez d&apos;autres filtres ou mots-clés'}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 xl:gap-5">
