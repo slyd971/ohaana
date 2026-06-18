@@ -26,6 +26,7 @@ const P = (id: string, w = 800, h = 600) =>
 
 const LOCAL = {
   chef:        '/photos/chef-cuisto-muriel.jpeg',
+  chef_marcus: '/photos/chef-marcus.jpeg',
   masseuse:    '/photos/masseuse-ingrid.jpeg',
   barmaid:     '/photos/barmaid-yael.jpeg',
   coach:       '/photos/coach-sportif-eric.jpeg',
@@ -266,7 +267,7 @@ export const SERVICES = [
     created_at: '2024-01-01', updated_at: '2024-01-01',
     provider: PROVIDERS[0],
     images: [
-      { id: 'i-1a', service_id: 's-1', url: LOCAL.chef, alt_fr: 'Chef Muriel en cuisine créole', alt_en: 'Chef Muriel cooking Creole cuisine', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
+      { id: 'i-1a', service_id: 's-1', url: LOCAL.chef_marcus, alt_fr: 'Chef Marcus en cuisine', alt_en: 'Chef Marcus cooking', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
       { id: 'i-1b', service_id: 's-1', url: IMG.chef, alt_fr: 'Chef Marcus en cuisine', alt_en: 'Chef Marcus cooking', sort_order: 1, is_cover: false, created_at: '2024-01-01' },
       { id: 'i-1c', service_id: 's-1', url: IMG.villa, alt_fr: 'Villa de luxe', alt_en: 'Luxury villa', sort_order: 2, is_cover: false, created_at: '2024-01-01' }],
   },
@@ -412,7 +413,7 @@ export const SERVICES = [
     created_at: '2024-01-01', updated_at: '2024-01-01',
     provider: PROVIDERS[0],
     images: [
-      { id: 'i-14a', service_id: 's-14', url: LOCAL.chef, alt_fr: 'Chef Muriel — brunch créole en terrasse', alt_en: 'Chef Muriel — Creole terrace brunch', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
+      { id: 'i-14a', service_id: 's-14', url: LOCAL.chef_marcus, alt_fr: 'Chef Marcus — brunch créole en terrasse', alt_en: 'Chef Marcus — Creole terrace brunch', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
       { id: 'i-14b', service_id: 's-14', url: IMG.villa, alt_fr: 'Villa vue mer', alt_en: 'Sea view villa', sort_order: 1, is_cover: false, created_at: '2024-01-01' }],
   },
   {
@@ -563,8 +564,8 @@ export const SERVICES = [
 
 // ─── Sections homepage ───────────────────────────────────────────────────────
 export const HOME_ROWS = [
-  { key: 'popular',      label_fr: 'Incontournables',           label_en: 'Must-haves',           ids: ['s-1', 's-2', 's-8', 's-7', 's-17', 's-18'] },
-  { key: 'tonight',      label_fr: 'Disponible ce soir',        label_en: 'Available Tonight',    ids: ['s-5', 's-2', 's-20', 's-8', 's-14'] },
+  { key: 'popular',      label_fr: 'Incontournables',           label_en: 'Must-haves',           ids: ['s-1', 's-2', 's-4', 's-7', 's-17', 's-18'] },
+  { key: 'tonight',      label_fr: 'Disponible ce soir',        label_en: 'Available Tonight',    ids: ['s-5', 's-2', 's-20', 's-18', 's-14'] },
   { key: 'privateChefs', label_fr: 'Chefs privés',              label_en: 'Private Chefs',        ids: ['s-1', 's-7', 's-14'] },
   { key: 'wellness',     label_fr: 'Bien-être & beauté',        label_en: 'Wellness & Beauty',    ids: ['s-2', 's-8', 's-5', 's-21', 's-20'] },
   { key: 'couplesFav',   label_fr: 'Idées pour les couples',    label_en: "Couples' Ideas",       ids: ['s-8', 's-17', 's-4', 's-1', 's-19'] },
