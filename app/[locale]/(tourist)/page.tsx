@@ -20,17 +20,17 @@ const WHY_ITEMS = [
   {
     icon: Leaf,
     title: 'Sélection locale',
-    text: 'Ohaana sélectionne des prestataires de confiance pour vous faire découvrir les Antilles autrement.',
+    text: 'On évite les expériences touristiques sans âme. Chaque prestataire est rencontré en personne.',
   },
   {
     icon: Clock,
     title: 'Gain de temps',
-    text: 'Ohaana simplifie votre séjour grâce à un accompagnement et des réservations centralisées.',
+    text: 'Un concierge organise tout pour vous — itinéraire, réservations, horaires, surprises.',
   },
   {
     icon: Sparkles,
     title: 'Expériences premium',
-    text: 'Accédez à des expériences exclusives et des services haut de gamme soigneusement sélectionnés.',
+    text: 'Chefs créoles, DJ, massages à domicile, décorations romantiques — chez vous, au niveau.',
   },
   {
     icon: MessageCircle,
@@ -43,17 +43,17 @@ const WHY_ITEMS_EN = [
   {
     icon: Leaf,
     title: 'Locally selected',
-    text: 'Ohaana selects trusted providers so you can experience the Caribbean differently.',
+    text: 'We avoid soulless tourist traps. Every provider is met and reviewed in person.',
   },
   {
     icon: Clock,
     title: 'Time saved',
-    text: 'Ohaana simplifies your stay with guidance and centralized bookings.',
+    text: 'A concierge organizes everything for you: itinerary, bookings, timing, and surprises.',
   },
   {
     icon: Sparkles,
     title: 'Premium experiences',
-    text: 'Access exclusive experiences and high-end services carefully selected for quality.',
+    text: 'Creole chefs, DJs, in-villa massages, romantic decorations — at your place, done properly.',
   },
   {
     icon: MessageCircle,
@@ -76,17 +76,17 @@ const WHY_ITEMS_ES = [
   {
     icon: Leaf,
     title: 'Selección local',
-    text: 'Ohaana selecciona proveedores de confianza para descubrir las Antillas de otra manera.',
+    text: 'Evitamos las experiencias turísticas sin alma. Cada proveedor es conocido personalmente.',
   },
   {
     icon: Clock,
     title: 'Tiempo ganado',
-    text: 'Ohaana simplifica tu estancia con acompañamiento y reservas centralizadas.',
+    text: 'Un conserje organiza todo por ti — itinerario, reservas, horarios y sorpresas.',
   },
   {
     icon: Sparkles,
     title: 'Experiencias premium',
-    text: 'Accede a experiencias exclusivas y servicios premium seleccionados cuidadosamente.',
+    text: 'Chefs criollos, DJs, masajes en villa, decoraciones románticas — en tu alojamiento, al más alto nivel.',
   },
   {
     icon: MessageCircle,
@@ -362,7 +362,20 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* '- -' Zone 2 : Sélections éditoriales '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
+      {/* '- -' Zone 2 : Ce soir '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
+      {rowTonight && (
+        <div className="pb-14 max-w-7xl mx-auto md:px-8">
+          <ServiceRow
+            title={L(rowTonight.label_fr, rowTonight.label_en, 'Disponible esta noche')}
+            services={editorialServices(rowTonight.ids)}
+            favorites={favorites}
+            onToggleFavorite={toggleFavorite}
+            seeAllHref="/search?category=tonight"
+          />
+        </div>
+      )}
+
+      {/* '- -' Zone 3 : Sélections éditoriales '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
       <section className="px-5 md:px-8 pt-2 pb-6 max-w-7xl mx-auto">
         <div className="max-w-2xl">
           <h2 className="text-xl md:text-2xl font-display text-charcoal">
@@ -410,18 +423,6 @@ export default function HomePage() {
           </div>
         </div>
       </div>
-
-      {rowTonight && (
-        <div className="pb-14 max-w-7xl mx-auto md:px-8">
-          <ServiceRow
-            title={L(rowTonight.label_fr, rowTonight.label_en, 'Disponible esta noche')}
-            services={editorialServices(rowTonight.ids)}
-            favorites={favorites}
-            onToggleFavorite={toggleFavorite}
-            seeAllHref="/search?category=tonight"
-          />
-        </div>
-      )}
 
       {/* '- -' 5. Témoignages '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
       <Testimonials />

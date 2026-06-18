@@ -24,6 +24,14 @@ export const CATEGORY_ICONS: Record<string, LucideIcon> = {
 const P = (id: string, w = 800, h = 600) =>
   `https://images.unsplash.com/${id}?w=${w}&h=${h}&fit=crop&q=85&bri=8&sat=8`
 
+const LOCAL = {
+  chef:        '/photos/chef-cuisto-muriel.jpeg',
+  masseuse:    '/photos/masseuse-ingrid.jpeg',
+  barmaid:     '/photos/barmaid-yael.jpeg',
+  coach:       '/photos/coach-sportif-eric.jpeg',
+  photographe: '/photos/photographe-william.jpeg',
+}
+
 const IMG = {
   // Cuisine & chef
   chef:          P('photo-1504674900247-0877df9cc836'),
@@ -250,7 +258,7 @@ export const SERVICES = [
     created_at: '2024-01-01', updated_at: '2024-01-01',
     provider: PROVIDERS[0],
     images: [
-      { id: 'i-1a', service_id: 's-1', url: IMG.chefPlat, alt_fr: 'Plat créole gastronomique', alt_en: 'Gourmet Creole dish', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
+      { id: 'i-1a', service_id: 's-1', url: LOCAL.chef, alt_fr: 'Chef Muriel en cuisine créole', alt_en: 'Chef Muriel cooking Creole cuisine', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
       { id: 'i-1b', service_id: 's-1', url: IMG.chef, alt_fr: 'Chef Marcus en cuisine', alt_en: 'Chef Marcus cooking', sort_order: 1, is_cover: false, created_at: '2024-01-01' },
       { id: 'i-1c', service_id: 's-1', url: IMG.villa, alt_fr: 'Villa de luxe', alt_en: 'Luxury villa', sort_order: 2, is_cover: false, created_at: '2024-01-01' }],
   },
@@ -269,7 +277,7 @@ export const SERVICES = [
     created_at: '2024-01-01', updated_at: '2024-01-01',
     provider: PROVIDERS[1],
     images: [
-      { id: 'i-2a', service_id: 's-2', url: IMG.massage, alt_fr: 'Massage bien-être', alt_en: 'Wellness massage', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
+      { id: 'i-2a', service_id: 's-2', url: LOCAL.masseuse, alt_fr: 'Masseuse Ingrid à domicile', alt_en: 'Masseuse Ingrid home visit', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
       { id: 'i-2b', service_id: 's-2', url: IMG.villa, alt_fr: 'Villa privée', alt_en: 'Private villa', sort_order: 1, is_cover: false, created_at: '2024-01-01' },
       { id: 'i-2c', service_id: 's-2', url: IMG.spa, alt_fr: 'Ambiance spa', alt_en: 'Spa atmosphere', sort_order: 2, is_cover: false, created_at: '2024-01-01' }],
   },
@@ -288,7 +296,7 @@ export const SERVICES = [
     created_at: '2024-01-01', updated_at: '2024-01-01',
     provider: PROVIDERS[2],
     images: [
-      { id: 'i-4a', service_id: 's-4', url: IMG.photo, alt_fr: 'Portrait lifestyle à domicile', alt_en: 'Lifestyle portrait at home', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
+      { id: 'i-4a', service_id: 's-4', url: LOCAL.photographe, alt_fr: 'Photographe William en action', alt_en: 'Photographer William at work', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
       { id: 'i-4b', service_id: 's-4', url: IMG.photo, alt_fr: 'Shooting couple', alt_en: 'Couple shoot', sort_order: 1, is_cover: false, created_at: '2024-01-01' }],
   },
   {
@@ -306,7 +314,7 @@ export const SERVICES = [
     created_at: '2024-01-01', updated_at: '2024-01-01',
     provider: PROVIDERS[3],
     images: [
-      { id: 'i-5a', service_id: 's-5', url: IMG.yoga, alt_fr: 'Yoga privé à domicile', alt_en: 'Private yoga at home', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
+      { id: 'i-5a', service_id: 's-5', url: LOCAL.coach, alt_fr: 'Coach Éric sur la plage caribéenne', alt_en: 'Coach Eric on Caribbean beach', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
       { id: 'i-5b', service_id: 's-5', url: IMG.yoga, alt_fr: 'Yoga à domicile', alt_en: 'Yoga at home', sort_order: 1, is_cover: false, created_at: '2024-01-01' }],
   },
   {
@@ -324,7 +332,7 @@ export const SERVICES = [
     created_at: '2024-01-01', updated_at: '2024-01-01',
     provider: PROVIDERS[4],
     images: [
-      { id: 'i-7a', service_id: 's-7', url: IMG.cooking, alt_fr: 'Cours de cuisine créole', alt_en: 'Creole cooking class', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
+      { id: 'i-7a', service_id: 's-7', url: LOCAL.chef, alt_fr: 'Chef Muriel — cours de cuisine créole', alt_en: 'Chef Muriel — Creole cooking class', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
       { id: 'i-7b', service_id: 's-7', url: IMG.chefPlat, alt_fr: 'Plats créoles', alt_en: 'Creole dishes', sort_order: 1, is_cover: false, created_at: '2024-01-01' }],
   },
   {
@@ -342,7 +350,7 @@ export const SERVICES = [
     created_at: '2024-01-01', updated_at: '2024-01-01',
     provider: PROVIDERS[1],
     images: [
-      { id: 'i-8a', service_id: 's-8', url: IMG.spa, alt_fr: 'Duo massage spa', alt_en: 'Couple spa massage', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
+      { id: 'i-8a', service_id: 's-8', url: LOCAL.masseuse, alt_fr: 'Masseuse Ingrid — duo aromathérapie', alt_en: 'Masseuse Ingrid — couple aromatherapy', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
       { id: 'i-8b', service_id: 's-8', url: IMG.villa, alt_fr: 'Villa de luxe', alt_en: 'Luxury villa', sort_order: 1, is_cover: false, created_at: '2024-01-01' }],
   },
   {
@@ -396,7 +404,7 @@ export const SERVICES = [
     created_at: '2024-01-01', updated_at: '2024-01-01',
     provider: PROVIDERS[0],
     images: [
-      { id: 'i-14a', service_id: 's-14', url: IMG.chef, alt_fr: 'Brunch gastronomique', alt_en: 'Gourmet brunch', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
+      { id: 'i-14a', service_id: 's-14', url: LOCAL.chef, alt_fr: 'Chef Muriel — brunch créole en terrasse', alt_en: 'Chef Muriel — Creole terrace brunch', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
       { id: 'i-14b', service_id: 's-14', url: IMG.villa, alt_fr: 'Villa vue mer', alt_en: 'Sea view villa', sort_order: 1, is_cover: false, created_at: '2024-01-01' }],
   },
   {
@@ -414,7 +422,7 @@ export const SERVICES = [
     created_at: '2024-01-01', updated_at: '2024-01-01',
     provider: PROVIDERS[2],
     images: [
-      { id: 'i-15a', service_id: 's-15', url: IMG.famille, alt_fr: 'Shooting famille Caraïbes', alt_en: 'Caribbean family shoot', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
+      { id: 'i-15a', service_id: 's-15', url: LOCAL.photographe, alt_fr: 'Photographe William — shooting famille', alt_en: 'Photographer William — family shoot', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
       { id: 'i-15b', service_id: 's-15', url: IMG.villa, alt_fr: 'Photo famille en villa', alt_en: 'Family villa photo', sort_order: 1, is_cover: false, created_at: '2024-01-01' }],
   },
   // ── Nouveaux services à domicile ─────────────────────────────────────────
@@ -469,7 +477,7 @@ export const SERVICES = [
     created_at: '2024-01-01', updated_at: '2024-01-01',
     provider: PROVIDERS[8],
     images: [
-      { id: 'i-19a', service_id: 's-19', url: IMG.cocktails, alt_fr: 'Cocktails créoles', alt_en: 'Creole cocktails', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
+      { id: 'i-19a', service_id: 's-19', url: LOCAL.barmaid, alt_fr: 'Barman Yaël — masterclass cocktails créoles', alt_en: 'Barman Yaël — Creole cocktail masterclass', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
       { id: 'i-19b', service_id: 's-19', url: IMG.rhum_villa, alt_fr: 'Rhum arrangé à domicile', alt_en: 'Home rum tasting', sort_order: 1, is_cover: false, created_at: '2024-01-01' }],
   },
   {
@@ -487,7 +495,7 @@ export const SERVICES = [
     created_at: '2024-01-01', updated_at: '2024-01-01',
     provider: PROVIDERS[9],
     images: [
-      { id: 'i-20a', service_id: 's-20', url: IMG.trainer, alt_fr: 'Personal training à domicile', alt_en: 'Personal training at home', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
+      { id: 'i-20a', service_id: 's-20', url: LOCAL.coach, alt_fr: 'Coach Éric — HIIT sur la plage', alt_en: 'Coach Eric — beach HIIT session', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
       { id: 'i-20b', service_id: 's-20', url: IMG.fitness2, alt_fr: 'Séance fitness', alt_en: 'Fitness session', sort_order: 1, is_cover: false, created_at: '2024-01-01' }],
   },
   {
