@@ -20,8 +20,14 @@ from pathlib import Path
 
 def call_claude(prompt: str, system: str) -> str:
     try:
+        import os
         import urllib.request
         import json as _json
+
+        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+        if not api_key:
+            print("✗ ANTHROPIC_API_KEY non définie. Exportez-la avant de lancer le script.")
+            sys.exit(1)
 
         payload = _json.dumps({
             "model": "claude-sonnet-4-6",
@@ -33,7 +39,11 @@ def call_claude(prompt: str, system: str) -> str:
         req = urllib.request.Request(
             "https://api.anthropic.com/v1/messages",
             data=payload,
-            headers={"Content-Type": "application/json"},
+            headers={
+                "Content-Type": "application/json",
+                "x-api-key": api_key,
+                "anthropic-version": "2023-06-01",
+            },
             method="POST"
         )
 

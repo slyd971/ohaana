@@ -97,6 +97,12 @@ Le script génère un `audit-report.md` avec :
 Tu gères les traductions des fichiers i18n (next-intl / i18next) du projet Ohaana.
 Quand on te demande de traduire du contenu, tu utilises `translate.py`.
 
+## Prérequis
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+```
+
 ## Commandes
 
 ```bash
