@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">Ohaana</title>
+  <circle cx="256" cy="256" r="256" fill="#123322"/>
+  <circle cx="256" cy="176" r="96" fill="#E8604A" opacity="0.16"/>
+  <circle cx="256" cy="176" r="64" fill="#E8604A"/>
+  <g stroke="#FDFAF4" stroke-linecap="round">
+    <line x1="256" y1="82" x2="256" y2="56" stroke-width="24"/>
+    <line x1="350" y1="176" x2="376" y2="176" stroke-width="24"/>
+    <line x1="256" y1="270" x2="256" y2="292" stroke-width="20" opacity="0.55"/>
+    <line x1="162" y1="176" x2="136" y2="176" stroke-width="24"/>
+    <line x1="326" y1="106" x2="346" y2="86" stroke-width="18" opacity="0.7"/>
+    <line x1="326" y1="246" x2="344" y2="264" stroke-width="18" opacity="0.45"/>
+    <line x1="186" y1="106" x2="166" y2="86" stroke-width="18" opacity="0.7"/>
+    <line x1="186" y1="246" x2="168" y2="264" stroke-width="18" opacity="0.45"/>
+  </g>
+  <path
+    d="M32 329 C80 297 128 353 192 320 C256 288 312 353 368 320 C424 296 464 329 480 329"
+    fill="none"
+    stroke="#FDFAF4"
+    stroke-width="16"
+    stroke-linecap="round"
+    opacity="0.22"
+  />
+  <path
+    d="M16 384 C64 344 120 408 192 368 C256 336 320 408 384 376 C432 352 472 384 496 384"
+    fill="none"
+    stroke="#2ABFB8"
+    stroke-width="36"
+    stroke-linecap="round"
+  />
+  <g stroke="#FDFAF4" stroke-linecap="round" opacity="0.32">
+    <line x1="144" y1="440" x2="184" y2="440" stroke-width="12"/>
+    <line x1="328" y1="456" x2="368" y2="456" stroke-width="12"/>
+  </g>
+</svg>

@@ -27,7 +27,7 @@ const TESTIMONIALS = [
     color: 'bg-turquoise/20 text-turquoise',
     rating: 5,
     text_fr: 'Le massage à domicile de Madeleine était tout simplement parfait. Huiles artisanales, ambiance bougies, vue sur le lagon. Ohaana a pensé à tout — même le matériel était déjà installé à notre arrivée.',
-    text_en: 'Madeleine's in-home massage was simply perfect. Handmade oils, candlelit atmosphere, lagoon view. Ohaana thought of everything — even the equipment was already set up when we arrived.',
+    text_en: "Madeleine's in-home massage was simply perfect. Handmade oils, candlelit atmosphere, lagoon view. Ohaana thought of everything — even the equipment was already set up when we arrived.",
     text_es: 'El masaje a domicilio de Madeleine fue sencillamente perfecto. Aceites artesanales, velas, vista a la laguna. Ohaana pensó en todo — el equipo ya estaba listo cuando llegamos.',
     service_fr: 'Massage balinais à domicile',
     service_en: 'Balinese massage at home',

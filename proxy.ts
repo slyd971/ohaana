@@ -28,7 +28,7 @@ function isDemoMode(): boolean {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  const pathnameWithoutLocale = pathname.replace(/^\/(fr|en)/, '') || '/'
+  const pathnameWithoutLocale = pathname.replace(/^\/(fr|en|es)/, '') || '/'
 
   if (pathnameWithoutLocale === '/register') {
     const role = request.nextUrl.searchParams.get('role')
@@ -71,7 +71,7 @@ export async function proxy(request: NextRequest) {
       const { data: { user } } = await supabase.auth.getUser()
 
       if (!user) {
-        const localeMatch = pathname.match(/^\/(fr|en)(?=\/|$)/)
+        const localeMatch = pathname.match(/^\/(fr|en|es)(?=\/|$)/)
         const localePrefix = localeMatch?.[0] ?? ''
         const loginUrl = new URL(`${localePrefix}/login`, request.url)
         loginUrl.searchParams.set('redirectTo', `${pathname}${request.nextUrl.search}`)

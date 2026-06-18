@@ -3,13 +3,14 @@ import { SERVICES } from '@/lib/data/seed'
 
 const BASE = 'https://ohaana.com'
 
-function u(path: string, locale: 'fr' | 'en') {
-  return locale === 'fr' ? `${BASE}${path}` : `${BASE}/en${path}`
+function u(path: string, locale: 'fr' | 'en' | 'es') {
+  if (locale === 'fr') return `${BASE}${path}`
+  return `${BASE}/${locale}${path}`
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date()
-  const locales = ['fr', 'en'] as const
+  const locales = ['fr', 'en', 'es'] as const
   const entries: MetadataRoute.Sitemap = []
 
   // Home
