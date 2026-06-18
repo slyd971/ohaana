@@ -370,7 +370,7 @@ export default function HomePage() {
             services={editorialServices(rowTonight.ids)}
             favorites={favorites}
             onToggleFavorite={toggleFavorite}
-            seeAllHref="/search?category=tonight"
+            seeAllHref="/search"
           />
         </div>
       )}
