@@ -2,14 +2,14 @@
 
 import { motion } from 'framer-motion'
 import { useLocale } from 'next-intl'
-import { LayoutGrid, Leaf, Waves, UtensilsCrossed, Landmark, Heart, type LucideIcon } from 'lucide-react'
+import { LayoutGrid, Flower2, Waves, UtensilsCrossed, Landmark, Heart, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type Lang = 'fr' | 'en' | 'es'
 
 export const CATEGORIES: { key: string; label: Record<Lang, string>; Icon: LucideIcon }[] = [
   { key: 'all',      label: { fr: 'Tout', en: 'All', es: 'Todo' }, Icon: LayoutGrid },
-  { key: 'wellness', label: { fr: 'Bien-être', en: 'Wellness', es: 'Bienestar' }, Icon: Leaf },
+  { key: 'wellness', label: { fr: 'Bien-être', en: 'Wellness', es: 'Bienestar' }, Icon: Flower2 },
   { key: 'soiree',   label: { fr: 'Soirée', en: 'Evening', es: 'Velada' }, Icon: Waves },
   { key: 'food',     label: { fr: 'Gastronomie', en: 'Food', es: 'Gastronomía' }, Icon: UtensilsCrossed },
   { key: 'couples',  label: { fr: 'Couples', en: 'Couples', es: 'Parejas' }, Icon: Heart },
@@ -27,7 +27,7 @@ export function MoodSelector({ value, onChange }: MoodSelectorProps) {
 
   return (
     <div
-      className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide px-5 md:px-0"
+      className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide"
       style={{ scrollbarWidth: 'none' }}
     >
       {CATEGORIES.map(({ key, label, Icon }) => {

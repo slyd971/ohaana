@@ -20,17 +20,22 @@ const WHY_ITEMS = [
   {
     icon: Leaf,
     title: 'Sélection locale',
-    text: 'On évite les expériences touristiques sans âme. Chaque prestataire est rencontré en personne.',
+    text: 'Ohaana sélectionne des prestataires de confiance pour vous faire découvrir les Antilles autrement.',
   },
   {
     icon: Clock,
     title: 'Gain de temps',
-    text: 'Un concierge organise tout pour vous  - itinéraire, réservations, horaires, surprises.',
+    text: 'Ohaana simplifie votre séjour grâce à un accompagnement et des réservations centralisées.',
   },
   {
     icon: Sparkles,
     title: 'Expériences premium',
-    text: 'Chefs créoles, DJ, massages à domicile, décorations romantiques  - chez vous, au niveau.',
+    text: 'Accédez à des expériences exclusives et des services haut de gamme soigneusement sélectionnés.',
+  },
+  {
+    icon: MessageCircle,
+    title: 'Support local',
+    text: 'Une équipe locale vous accompagne avant et pendant votre séjour.',
   },
 ]
 
@@ -38,17 +43,22 @@ const WHY_ITEMS_EN = [
   {
     icon: Leaf,
     title: 'Locally selected',
-    text: 'We avoid soulless tourist traps. Every provider is met and reviewed in person.',
+    text: 'Ohaana selects trusted providers so you can experience the Caribbean differently.',
   },
   {
     icon: Clock,
     title: 'Time saved',
-    text: 'A concierge organizes everything for you: itinerary, bookings, timing, and surprises.',
+    text: 'Ohaana simplifies your stay with guidance and centralized bookings.',
   },
   {
     icon: Sparkles,
     title: 'Premium experiences',
-    text: 'Creole chefs, DJs, in-villa massages, romantic decorations  - at your place, done properly.',
+    text: 'Access exclusive experiences and high-end services carefully selected for quality.',
+  },
+  {
+    icon: MessageCircle,
+    title: 'Local support',
+    text: 'A local team helps before and during your stay.',
   },
 ]
 
@@ -66,17 +76,22 @@ const WHY_ITEMS_ES = [
   {
     icon: Leaf,
     title: 'Selección local',
-    text: 'Evitamos las experiencias turísticas sin alma. Cada proveedor es conocido personalmente.',
+    text: 'Ohaana selecciona proveedores de confianza para descubrir las Antillas de otra manera.',
   },
   {
     icon: Clock,
     title: 'Tiempo ganado',
-    text: 'Un conserje organiza todo por ti  - itinerario, reservas, horarios y sorpresas.',
+    text: 'Ohaana simplifica tu estancia con acompañamiento y reservas centralizadas.',
   },
   {
     icon: Sparkles,
     title: 'Experiencias premium',
-    text: 'Chefs criollos, DJs, masajes en villa, decoraciones románticas  - en tu alojamiento, al más alto nivel.',
+    text: 'Accede a experiencias exclusivas y servicios premium seleccionados cuidadosamente.',
+  },
+  {
+    icon: MessageCircle,
+    title: 'Soporte local',
+    text: 'Un equipo local te acompaña antes y durante tu estancia.',
   },
 ]
 
@@ -135,6 +150,7 @@ export default function HomePage() {
   const [stayStart, setStayStart] = useState<Date | null>(initialHomeState.stayStart)
   const [stayEnd, setStayEnd]     = useState<Date | null>(initialHomeState.stayEnd)
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
+  const [showAllExplorer, setShowAllExplorer] = useState(false)
 
   // Lead capture state
   const [leadEmail, setLeadEmail]   = useState('')
@@ -174,6 +190,11 @@ export default function HomePage() {
 
   const rowPopular = HOME_ROWS.find(r => r.key === 'popular')
   const rowTonight = HOME_ROWS.find(r => r.key === 'tonight')
+  const featuredServices = (() => {
+    return editorialServices(rowPopular?.ids ?? []).slice(0, 6)
+  })()
+  const visibleExplorerServices = showAllExplorer ? explorerServices : explorerServices.slice(0, 8)
+  const hasMoreExplorerServices = explorerServices.length > visibleExplorerServices.length
 
   function handleLeadSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -191,6 +212,7 @@ export default function HomePage() {
         island={island}
         onIslandChange={(v) => {
           setIsland(v)
+          setShowAllExplorer(false)
           try { sessionStorage.setItem('ohaana_island', v) } catch {}
         }}
         stayStart={stayStart}
@@ -208,43 +230,81 @@ export default function HomePage() {
       />
 
       {/* '- -' 2. Pourquoi Ohaana '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
-      <section className="px-5 md:px-8 py-14 max-w-7xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-60px' }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-10"
-        >
-          <h2 className="text-2xl md:text-3xl font-display text-deep-green">
-            {L('Pourquoi passer par Ohaana ?', 'Why book with Ohaana?', '¿Por qué reservar con Ohaana?')}
-          </h2>
-        </motion.div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
-          {whyItems.map(({ icon: Icon, title, text }, i) => (
-            <motion.div
-              key={title}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="bg-surface rounded-2xl p-6 border border-mist shadow-card space-y-3"
+      <section className="border-y border-mist/70 bg-[#F7F7F4]">
+        <div className="max-w-7xl mx-auto px-5 md:px-8 py-10 md:py-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.6 }}
+            className="mb-6 md:mb-8"
+          >
+            <h2 className="text-2xl md:text-3xl font-display text-charcoal">
+              {L('Pourquoi réserver avec Ohaana ?', 'Why book with Ohaana?', '¿Por qué reservar con Ohaana?')}
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm md:text-base text-stone leading-relaxed">
+              {L('Des expériences locales sélectionnées avec soin, loin des activités touristiques standardisées.', 'Carefully selected local experiences, far from standardized tourist activities.', 'Experiencias locales cuidadosamente seleccionadas, lejos de las actividades turísticas estandarizadas.')}
+            </p>
+          </motion.div>
+          <div className="space-y-4 sm:space-y-0">
+            <div
+              className="-mx-5 flex gap-4 overflow-x-auto px-5 pb-1 scroll-snap-x sm:mx-0 sm:grid sm:grid-cols-4 sm:gap-8 sm:overflow-visible sm:px-0 sm:pb-0 scrollbar-hide"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
-              <div className="w-10 h-10 rounded-xl bg-sand flex items-center justify-center">
-                <Icon size={18} className="text-deep-green" />
-              </div>
-              <h3 className="font-semibold text-charcoal text-sm">{title}</h3>
-              <p className="text-xs text-stone leading-relaxed">{text}</p>
-            </motion.div>
-          ))}
+              {whyItems.map(({ icon: Icon, title, text }, i) => (
+                <motion.div
+                  key={title}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-40px' }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  className="w-[calc(100vw-2.5rem)] flex-none rounded-2xl border border-mist/80 bg-white p-5 shadow-card space-y-3 sm:w-auto sm:min-w-0 sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none"
+                >
+                  <div className="flex h-12 w-12 items-center justify-center sm:h-11 sm:w-11">
+                    <Icon size={34} strokeWidth={1.7} className="text-charcoal sm:size-8" />
+                  </div>
+                  <h3 className="font-semibold text-charcoal text-base sm:text-sm">{title}</h3>
+                  <p className="text-sm text-stone leading-relaxed">{text}</p>
+                </motion.div>
+              ))}
+              <div className="w-1 flex-none sm:hidden" />
+            </div>
+            <div className="flex justify-center gap-1.5 sm:hidden" aria-hidden="true">
+              {whyItems.map((item) => (
+                <span key={item.title} className="h-1.5 w-1.5 rounded-full bg-charcoal/35" />
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
       {/* '- -' Zone 1 : Explorer '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
+      <section className="px-5 md:px-8 pt-8 pb-4 max-w-7xl mx-auto">
+        <div className="max-w-2xl">
+          <h2 className="text-xl md:text-2xl font-display text-charcoal">
+            {L('Explorer par catégorie', 'Explore by category', 'Explorar por categoría')}
+          </h2>
+          <p className="mt-1.5 text-sm text-stone">
+            {L(
+              "Choisissez le type d'expérience que vous recherchez.",
+              'Choose the type of experience you are looking for.',
+              'Elige el tipo de experiencia que buscas.'
+            )}
+          </p>
+        </div>
+      </section>
       <div className="sticky top-16 z-20 bg-coconut/96 backdrop-blur-md border-b border-mist pt-2 pb-2">
-        <MoodSelector value={mood} onChange={setMood} />
+        <div className="max-w-7xl mx-auto px-5 md:px-8">
+          <MoodSelector
+            value={mood}
+            onChange={(nextMood) => {
+              setMood(nextMood)
+              setShowAllExplorer(false)
+            }}
+          />
+        </div>
       </div>
-      <div className="py-8 px-5 md:px-8 max-w-7xl mx-auto">
+      <div className="pt-8 pb-8 px-5 md:px-8 max-w-7xl mx-auto">
         <motion.div
           key={mood + island}
           initial={{ opacity: 0, y: 10 }}
@@ -257,7 +317,7 @@ export default function HomePage() {
             </p>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {explorerServices.map(s => (
+              {visibleExplorerServices.map(s => (
                 <ServiceCard
                   key={s.id}
                   service={s}
@@ -268,23 +328,23 @@ export default function HomePage() {
               ))}
             </div>
           )}
+          {hasMoreExplorerServices && (
+            <div className="flex justify-center pt-7">
+              <button
+                type="button"
+                onClick={() => setShowAllExplorer(true)}
+                className="inline-flex items-center justify-center rounded-full border border-mist bg-coconut px-5 py-2.5 text-sm font-medium text-deep-green transition-colors hover:border-deep-green/40 hover:bg-sand"
+              >
+                {L('Voir plus', 'See more', 'Ver más')}
+              </button>
+            </div>
+          )}
         </motion.div>
       </div>
 
-      {/* '- -' Zone 2 : Sélections éditoriales '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
-      <div className="py-4 pb-10 space-y-10 max-w-7xl mx-auto md:px-8">
-        {rowPopular && (
-          <ServiceRow
-            title={locale === 'en' ? rowPopular.label_en : rowPopular.label_fr}
-            services={editorialServices(rowPopular.ids)}
-            favorites={favorites}
-            onToggleFavorite={toggleFavorite}
-            seeAllHref="/search?category=popular"
-          />
-        )}
-
-        {/* Rappel concierge */}
-        <div className="mx-5 md:mx-0 rounded-2xl border border-deep-green/15 bg-deep-green/5 px-5 py-4 flex items-center gap-4">
+      {/* Rappel concierge */}
+      <div className="px-5 md:px-8 pb-16 md:pb-20 max-w-7xl mx-auto">
+        <div className="rounded-2xl border border-deep-green/15 bg-deep-green/5 px-5 py-4 flex items-center gap-4">
           <span className="relative flex h-2.5 w-2.5 flex-none">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-turquoise opacity-75" />
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-turquoise" />
@@ -300,17 +360,68 @@ export default function HomePage() {
             {L('Demander conseil', 'Ask for advice', 'Pedir consejo')}
           </Link>
         </div>
+      </div>
 
-        {rowTonight && (
+      {/* '- -' Zone 2 : Sélections éditoriales '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
+      <section className="px-5 md:px-8 pt-2 pb-6 max-w-7xl mx-auto">
+        <div className="max-w-2xl">
+          <h2 className="text-xl md:text-2xl font-display text-charcoal">
+            {L('Les incontournables', 'Essential picks', 'Imprescindibles')}
+          </h2>
+          <p className="mt-1.5 text-sm text-stone">
+            {L(
+              'Les expériences les plus appréciées par les voyageurs.',
+              'The experiences travelers love most.',
+              'Las experiencias más apreciadas por los viajeros.'
+            )}
+          </p>
+        </div>
+      </section>
+      <div className="px-5 md:px-8 pb-14 max-w-7xl mx-auto">
+        <div className="space-y-3 sm:space-y-0">
+          <div
+            className="-mx-5 flex gap-4 overflow-x-auto px-5 pb-1 scroll-snap-x sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3 lg:gap-6 scrollbar-hide"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {featuredServices.map((service, i) => (
+              <motion.div
+                key={service.id}
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.4, delay: i * 0.05 }}
+                className="w-[82vw] max-w-[21rem] flex-none sm:w-auto sm:max-w-none sm:min-w-0"
+              >
+                <ServiceCard
+                  service={service}
+                  isFavorite={favorites.has(service.id)}
+                  onToggleFavorite={toggleFavorite}
+                  size="lg"
+                  className="w-full"
+                />
+              </motion.div>
+            ))}
+            <div className="w-1 flex-none sm:hidden" />
+          </div>
+          <div className="flex justify-center gap-1.5 sm:hidden" aria-hidden="true">
+            {featuredServices.map((service) => (
+              <span key={service.id} className="h-1.5 w-1.5 rounded-full bg-charcoal/35" />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {rowTonight && (
+        <div className="pb-14 max-w-7xl mx-auto md:px-8">
           <ServiceRow
-            title={locale === 'en' ? rowTonight.label_en : rowTonight.label_fr}
+            title={L(rowTonight.label_fr, rowTonight.label_en, 'Disponible esta noche')}
             services={editorialServices(rowTonight.ids)}
             favorites={favorites}
             onToggleFavorite={toggleFavorite}
             seeAllHref="/search?category=tonight"
           />
-        )}
-      </div>
+        </div>
+      )}
 
       {/* '- -' 5. Témoignages '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
       <Testimonials />
