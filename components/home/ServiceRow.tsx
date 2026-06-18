@@ -1,11 +1,12 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { useLocale } from 'next-intl'
 import { ChevronRight } from 'lucide-react'
 import { Link } from '@/lib/i18n/navigation'
 import { ServiceCard } from '@/components/service/ServiceCard'
+import { cn } from '@/lib/utils'
 import type { SERVICES } from '@/lib/data/seed'
 
 type ServiceData = typeof SERVICES[0]
@@ -25,9 +26,47 @@ export function ServiceRow({
   onToggleFavorite,
   seeAllHref = '/search',
 }: ServiceRowProps) {
-  const rowRef = useRef<HTMLDivElement>(null)
-  const locale = useLocale()
-  const seeAll = locale === 'en' ? 'See all' : locale === 'es' ? 'Ver todo' : 'Voir tout'
+  const rowRef  = useRef<HTMLDivElement>(null)
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([])
+  const locale  = useLocale()
+  const seeAll  = locale === 'en' ? 'See all' : locale === 'es' ? 'Ver todo' : 'Voir tout'
+
+  const [activeIdx, setActiveIdx] = useState(0)
+
+  // Track which card is most visible in the scroll container
+  useEffect(() => {
+    const row = rowRef.current
+    if (!row) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        let maxRatio = 0
+        let maxIdx   = activeIdx
+        entries.forEach((entry) => {
+          const idx = cardRefs.current.indexOf(entry.target as HTMLDivElement)
+          if (idx !== -1 && entry.intersectionRatio > maxRatio) {
+            maxRatio = entry.intersectionRatio
+            maxIdx   = idx
+          }
+        })
+        if (maxRatio > 0) setActiveIdx(maxIdx)
+      },
+      { root: row, threshold: [0.4, 0.6, 0.8] }
+    )
+
+    cardRefs.current.forEach((el) => { if (el) observer.observe(el) })
+    return () => observer.disconnect()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [services.length])
+
+  const scrollTo = useCallback((idx: number) => {
+    const card = cardRefs.current[idx]
+    const row  = rowRef.current
+    if (!card || !row) return
+    const offset = card.offsetLeft - row.offsetLeft - 20
+    row.scrollTo({ left: offset, behavior: 'smooth' })
+    setActiveIdx(idx)
+  }, [])
 
   if (!services.length) return null
 
@@ -58,6 +97,7 @@ export function ServiceRow({
           {services.map((service, i) => (
             <motion.div
               key={service.id}
+              ref={(el) => { cardRefs.current[i] = el }}
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -74,9 +114,23 @@ export function ServiceRow({
           ))}
           <div className="w-1 flex-none md:hidden" />
         </div>
-        <div className="flex justify-center gap-1.5 md:hidden" aria-hidden="true">
-          {services.map((service) => (
-            <span key={service.id} className="h-1.5 w-1.5 rounded-full bg-charcoal/35" />
+
+        {/* Dots — mobile only, cliquables */}
+        <div className="flex justify-center gap-2 md:hidden" role="tablist" aria-label="Navigation">
+          {services.map((service, i) => (
+            <button
+              key={service.id}
+              role="tab"
+              aria-selected={i === activeIdx}
+              aria-label={`Service ${i + 1}`}
+              onClick={() => scrollTo(i)}
+              className={cn(
+                'rounded-full transition-all duration-300',
+                i === activeIdx
+                  ? 'w-5 h-2 bg-deep-green'
+                  : 'w-2 h-2 bg-charcoal/20 hover:bg-charcoal/40'
+              )}
+            />
           ))}
         </div>
       </div>
