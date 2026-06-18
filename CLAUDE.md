@@ -81,9 +81,71 @@ Le script génère un `audit-report.md` avec :
 
 ```
 /
-├── audit.py              ← script principal
+├── audit.py              ← script audit
+├── translate.py          ← script traduction i18n
 ├── CLAUDE.md             ← ce fichier
 └── rapports/
     ├── audit-report.md   ← dernier rapport prod
     └── audit-staging.md  ← dernier rapport staging
 ```
+
+---
+
+# Agent Traduction i18n — Ohaana
+
+## Rôle
+Tu gères les traductions des fichiers i18n (next-intl / i18next) du projet Ohaana.
+Quand on te demande de traduire du contenu, tu utilises `translate.py`.
+
+## Commandes
+
+```bash
+# Traduire tout le fichier FR → EN + ES
+python translate.py --input messages/fr.json
+
+# Traduire vers une seule langue
+python translate.py --input messages/fr.json --langs en
+
+# Traduire une seule clé (utile pour tester ou corriger)
+python translate.py --input messages/fr.json --key homepage.hero.title
+
+# Ajouter les nouvelles clés sans écraser les traductions existantes
+python translate.py --input messages/fr.json --merge
+```
+
+## Structure attendue du projet
+
+```
+messages/
+├── fr.json      → source (référence)
+├── en.json      → généré / mis à jour par l'agent
+└── es.json      → généré / mis à jour par l'agent
+```
+
+## Workflow recommandé
+
+1. **Développement** : toujours écrire les nouvelles clés dans `fr.json` en premier
+2. **Avant un déploiement** : lancer `python translate.py --input messages/fr.json --merge`
+3. **Correction d'une clé** : utiliser `--key` pour ne retraduire qu'une valeur
+4. **Première fois** : lancer sans `--merge` pour générer les fichiers complets
+
+## Règles de traduction appliquées
+
+- **Registre** : premium et chaleureux — ni trop formel, ni trop familier
+- **Variables** conservées telles quelles : `{name}`, `{count}`, `{price}`
+- **Noms propres** non traduits : Ohaana, Guadeloupe, Martinique, Saint-Martin, Camille
+- **Anglais** : ton lifestyle premium (Airbnb Experiences, Mr & Mrs Smith)
+- **Espagnol** : castillan international
+
+## Ce que tu fais si on te demande de "corriger une traduction"
+
+1. Identifier la clé concernée dans `fr.json`
+2. Lancer `python translate.py --input messages/fr.json --key <la.cle>`
+3. Afficher le résultat et demander validation avant d'écrire dans le fichier
+4. Si validé, mettre à jour manuellement le fichier EN/ES concerné
+
+## Ce que tu NE fais pas
+
+- Ne jamais modifier `fr.json` — c'est la source de vérité
+- Ne jamais traduire les clés JSON, seulement les valeurs
+- Ne jamais inventer une traduction sans passer par l'API
