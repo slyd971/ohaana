@@ -37,6 +37,7 @@ const LOCAL = {
   maquillage:  '/photos/maquillage-artiste.jpeg',
   deco:        '/photos/deco-romantique-villa.jpeg',
   babysitter:  '/photos/babysitter-villa.jpeg',
+  beaute:      '/photos/soins-beaute-naomi.jpeg',
 }
 
 const IMG = {
@@ -520,7 +521,7 @@ export const SERVICES = [
     created_at: '2024-01-01', updated_at: '2024-01-01',
     provider: PROVIDERS[10],
     images: [
-      { id: 'i-21a', service_id: 's-21', url: IMG.nails, alt_fr: 'Soins ongles à domicile', alt_en: 'Nail care at home', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
+      { id: 'i-21a', service_id: 's-21', url: LOCAL.beaute, alt_fr: 'Soins ongles professionnels à domicile', alt_en: 'Professional nail care at villa', sort_order: 0, is_cover: true, created_at: '2024-01-01' },
       { id: 'i-21b', service_id: 's-21', url: IMG.beaute, alt_fr: 'Maquillage professionnel', alt_en: 'Professional makeup', sort_order: 1, is_cover: false, created_at: '2024-01-01' }],
   },
   {
