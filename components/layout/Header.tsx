@@ -1,53 +1,28 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { useTranslations, useLocale } from 'next-intl'
-import { Link, useRouter, usePathname } from '@/lib/i18n/navigation'
+import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/lib/i18n/navigation'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
-import { Globe, Heart, User, Check } from 'lucide-react'
+import { Heart, User } from 'lucide-react'
 import { OhaanaLogo } from './OhaanaLogo'
+import { LanguageSwitcher } from './LanguageSwitcher'
 
 interface HeaderProps {
   transparent?: boolean
 }
 
-const LOCALES = [
-  { code: 'fr', label: 'Français', flag: '🇫🇷' },
-  { code: 'en', label: 'English', flag: '🇬🇧' },
-] as const
-
 export function Header({ transparent = false }: HeaderProps) {
   const t = useTranslations('nav')
   const tAuth = useTranslations('auth')
-  const locale = useLocale()
-  const router = useRouter()
-  const pathname = usePathname()
-
   const [scrolled, setScrolled] = useState(false)
-  const [langOpen, setLangOpen] = useState(false)
-  const langRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
-
-  useEffect(() => {
-    const onClickOutside = (e: MouseEvent) => {
-      if (langRef.current && !langRef.current.contains(e.target as Node)) {
-        setLangOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', onClickOutside)
-    return () => document.removeEventListener('mousedown', onClickOutside)
-  }, [])
-
-  const switchLocale = (code: string) => {
-    router.replace(pathname, { locale: code })
-    setLangOpen(false)
-  }
 
   const isOpaque = !transparent || scrolled
 
@@ -83,36 +58,8 @@ export function Header({ transparent = false }: HeaderProps) {
         </nav>
 
         {/* Right actions */}
-        <div className="flex items-center gap-1">
-          {/* Language switcher */}
-          <div ref={langRef} className="relative">
-            <button
-              aria-label="Changer de langue"
-              onClick={() => setLangOpen((v) => !v)}
-              className={cn(
-                'p-1.5 rounded-full transition-colors hover:bg-sand',
-                isOpaque ? 'text-charcoal-soft' : 'text-coconut/80'
-              )}
-            >
-              <Globe size={18} />
-            </button>
-
-            {langOpen && (
-              <div className="absolute right-0 top-full mt-2 w-40 bg-coconut border border-mist rounded-xl shadow-lg py-1 z-50">
-                {LOCALES.map(({ code, label, flag }) => (
-                  <button
-                    key={code}
-                    onClick={() => switchLocale(code)}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-charcoal-soft hover:bg-sand transition-colors"
-                  >
-                    <span>{flag}</span>
-                    <span className="flex-1 text-left">{label}</span>
-                    {locale === code && <Check size={14} className="text-deep-green" />}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+        <div className="flex items-center gap-2">
+          <LanguageSwitcher variant="header" />
 
           <Link
             href="/voyages"

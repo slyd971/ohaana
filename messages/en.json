@@ -144,6 +144,25 @@
     "guide": "Tour Guide",
     "culture": "Cultural Experience"
   },
+  "footer": {
+    "tagline": "Authentic Caribbean experiences,\ncurated with care by locals.",
+    "exploreTitle": "Explore",
+    "islandsTitle": "Islands",
+    "soon": "soon",
+    "copyright": "Private experiences in the Caribbean.",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "links": {
+      "privateChefs": "Private Chefs",
+      "wellness": "Wellness",
+      "dj": "DJ & Parties",
+      "culture": "Creole Culture",
+      "becomeProvider": "Become a provider",
+      "partnerSpace": "Partner space",
+      "concierge": "Concierge",
+      "about": "About"
+    }
+  },
   "common": {
     "loading": "Loading...",
     "error": "Something went wrong",

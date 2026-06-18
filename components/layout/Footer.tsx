@@ -1,6 +1,12 @@
+'use client'
+
+import { useTranslations } from 'next-intl'
 import { Link } from '@/lib/i18n/navigation'
+import { LanguageSwitcher } from './LanguageSwitcher'
 
 export function Footer() {
+  const t = useTranslations('footer')
+
   return (
     <footer className="bg-deep-green text-coconut/80">
       <div className="max-w-7xl mx-auto px-6 py-10 md:py-12">
@@ -8,27 +14,24 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <p className="text-2xl font-display text-coconut mb-2">Ohaana</p>
-            <p className="text-xs leading-relaxed mb-4">
-              Expériences caribéennes authentiques,<br />
-              curatées avec soin par des locaux.
-            </p>
+            <p className="text-xs leading-relaxed mb-4">{t('tagline')}</p>
           </div>
 
           {/* Explorer */}
           <div>
             <h3 className="text-coconut text-xs font-semibold mb-4 uppercase tracking-widest">
-              Explorer
+              {t('exploreTitle')}
             </h3>
             <ul className="space-y-2 text-sm">
-              {[
-                { label: 'Chefs privés',    href: '/search?cat=chef_prive' },
-                { label: 'Bien-être',       href: '/search?cat=massage' },
-                { label: 'DJ & soirées',    href: '/search?cat=musique' },
-                { label: 'Culture créole',  href: '/search?mood=culture' },
-              ].map(({ label, href }) => (
-                <li key={label}>
+              {([
+                { key: 'privateChefs', href: '/search?cat=chef_prive' },
+                { key: 'wellness',     href: '/search?cat=massage' },
+                { key: 'dj',          href: '/search?cat=musique' },
+                { key: 'culture',     href: '/search?mood=culture' },
+              ] as const).map(({ key, href }) => (
+                <li key={key}>
                   <Link href={href} className="hover:text-coconut transition-colors text-xs">
-                    {label}
+                    {t(`links.${key}`)}
                   </Link>
                 </li>
               ))}
@@ -38,18 +41,18 @@ export function Footer() {
           {/* Îles */}
           <div>
             <h3 className="text-coconut text-xs font-semibold mb-4 uppercase tracking-widest">
-              Îles
+              {t('islandsTitle')}
             </h3>
             <ul className="space-y-2 text-xs">
               {[
-                { label: 'Guadeloupe',  active: true },
-                { label: 'Martinique',  active: false },
-                { label: 'Saint-Martin',active: false },
-                { label: 'Saint-Barth', active: false },
+                { label: 'Guadeloupe',   active: true },
+                { label: 'Martinique',   active: false },
+                { label: 'Saint-Martin', active: false },
+                { label: 'Saint-Barth',  active: false },
               ].map(({ label, active }) => (
                 <li key={label} className="flex items-center gap-1.5">
                   <span className={active ? 'text-coconut/80' : 'text-coconut/40'}>{label}</span>
-                  {!active && <span className="text-[9px] text-coconut/30">bientôt</span>}
+                  {!active && <span className="text-[9px] text-coconut/30">{t('soon')}</span>}
                 </li>
               ))}
             </ul>
@@ -61,15 +64,15 @@ export function Footer() {
               Ohaana
             </h3>
             <ul className="space-y-2 text-xs">
-              {[
-                { label: 'Devenir prestataire', href: '/register?role=provider' },
-                { label: 'Espace partenaire',   href: '/partner/dashboard' },
-                { label: 'Concierge',           href: '/concierge' },
-                { label: 'À propos',            href: '/about' },
-              ].map(({ label, href }) => (
-                <li key={label}>
+              {([
+                { key: 'becomeProvider', href: '/register?role=provider' },
+                { key: 'partnerSpace',   href: '/partner/dashboard' },
+                { key: 'concierge',      href: '/concierge' },
+                { key: 'about',          href: '/about' },
+              ] as const).map(({ key, href }) => (
+                <li key={key}>
                   <Link href={href} className="hover:text-coconut transition-colors">
-                    {label}
+                    {t(`links.${key}`)}
                   </Link>
                 </li>
               ))}
@@ -78,10 +81,11 @@ export function Footer() {
         </div>
 
         <div className="mt-8 pt-6 border-t border-coconut/10 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-coconut/40">
-          <p>© {new Date().getFullYear()} Ohaana. Expériences privées dans les Caraïbes.</p>
-          <div className="flex gap-4">
-            <Link href="/privacy" className="hover:text-coconut transition-colors">Confidentialité</Link>
-            <Link href="/terms" className="hover:text-coconut transition-colors">CGU</Link>
+          <p>© {new Date().getFullYear()} Ohaana. {t('copyright')}</p>
+          <div className="flex items-center gap-4">
+            <Link href="/privacy" className="hover:text-coconut transition-colors">{t('privacy')}</Link>
+            <Link href="/terms" className="hover:text-coconut transition-colors">{t('terms')}</Link>
+            <LanguageSwitcher variant="footer" />
           </div>
         </div>
       </div>

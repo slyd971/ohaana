@@ -144,6 +144,25 @@
     "guide": "Guide touristique",
     "culture": "Expérience culturelle"
   },
+  "footer": {
+    "tagline": "Expériences caribéennes authentiques,\ncuratées avec soin par des locaux.",
+    "exploreTitle": "Explorer",
+    "islandsTitle": "Îles",
+    "soon": "bientôt",
+    "copyright": "Expériences privées dans les Caraïbes.",
+    "privacy": "Confidentialité",
+    "terms": "CGU",
+    "links": {
+      "privateChefs": "Chefs privés",
+      "wellness": "Bien-être",
+      "dj": "DJ & soirées",
+      "culture": "Culture créole",
+      "becomeProvider": "Devenir prestataire",
+      "partnerSpace": "Espace partenaire",
+      "concierge": "Concierge",
+      "about": "À propos"
+    }
+  },
   "common": {
     "loading": "Chargement...",
     "error": "Une erreur est survenue",
