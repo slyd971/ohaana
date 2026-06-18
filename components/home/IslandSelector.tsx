@@ -8,13 +8,17 @@ import type { Island } from '@/types/database'
 
 export type IslandFilter = Island | 'all'
 
-const ISLAND_OPTIONS: { value: IslandFilter; label: { fr: string; en: string }; soon?: boolean }[] = [
-  { value: 'all',          label: { fr: 'Toutes les îles', en: 'All islands' } },
-  { value: 'guadeloupe',   label: { fr: 'Guadeloupe', en: 'Guadeloupe' } },
-  { value: 'martinique',   label: { fr: 'Martinique', en: 'Martinique' }, soon: true },
-  { value: 'saint_martin', label: { fr: 'Saint-Martin', en: 'Saint-Martin' }, soon: true },
-  { value: 'saint_barth',  label: { fr: 'Saint-Barth', en: 'Saint-Barth' }, soon: true },
+type Lang = 'fr' | 'en' | 'es'
+
+const ISLAND_OPTIONS: { value: IslandFilter; label: Record<Lang, string>; soon?: boolean }[] = [
+  { value: 'all',          label: { fr: 'Toutes les îles', en: 'All islands', es: 'Todas las islas' } },
+  { value: 'guadeloupe',   label: { fr: 'Guadeloupe', en: 'Guadeloupe', es: 'Guadalupe' } },
+  { value: 'martinique',   label: { fr: 'Martinique', en: 'Martinique', es: 'Martinica' }, soon: true },
+  { value: 'saint_martin', label: { fr: 'Saint-Martin', en: 'Saint-Martin', es: 'Saint-Martin' }, soon: true },
+  { value: 'saint_barth',  label: { fr: 'Saint-Barth', en: 'Saint-Barth', es: 'Saint-Barth' }, soon: true },
 ]
+
+const SOON: Record<Lang, string> = { fr: 'bientôt', en: 'soon', es: 'pronto' }
 
 interface IslandSelectorProps {
   value: IslandFilter
@@ -24,7 +28,7 @@ interface IslandSelectorProps {
 export function IslandSelector({ value, onChange }: IslandSelectorProps) {
   const [open, setOpen] = useState(false)
   const locale = useLocale()
-  const lang = locale === 'en' ? 'en' : 'fr'
+  const lang: Lang = (['fr', 'en', 'es'] as Lang[]).includes(locale as Lang) ? (locale as Lang) : 'fr'
 
   const currentLabel = ISLAND_OPTIONS.find((o) => o.value === value)?.label[lang] ?? ISLAND_OPTIONS[0].label[lang]
 
@@ -58,7 +62,7 @@ export function IslandSelector({ value, onChange }: IslandSelectorProps) {
             >
               {label[lang]}
               {soon && (
-                <span className="text-xs text-stone ml-2">{lang === 'en' ? 'soon' : 'bientôt'}</span>
+                <span className="text-xs text-stone ml-2">{SOON[lang]}</span>
               )}
             </button>
           ))}

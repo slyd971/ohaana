@@ -36,6 +36,16 @@ const COPY = {
     explore: 'Explore',
     concierge: 'Ask our concierge',
   },
+  es: {
+    alt: 'Villa caribeña con laguna turquesa y naturaleza tropical',
+    placeholder: '¿Cuándo?',
+    title: 'El Caribe auténtico,',
+    phrases: ['en tu villa.', 'esta noche.', 'a tu medida.', 'sin complicaciones.'],
+    subtitle: 'Chefs privados, masajes, DJs, sesiones de fotos — reserva las mejores experiencias del Caribe, seleccionadas por locales.',
+    search: '¿Qué quieres vivir durante tu estancia?',
+    explore: 'Explorar',
+    concierge: 'Pedir consejo a nuestro conserje',
+  },
 } as const
 
 interface HeroSectionProps {
@@ -55,7 +65,7 @@ export function HeroSection({
 }: HeroSectionProps) {
   const ref = useRef<HTMLDivElement>(null)
   const locale = useLocale()
-  const copy = COPY[locale === 'en' ? 'en' : 'fr']
+  const copy = COPY[(locale in COPY ? locale : 'fr') as keyof typeof COPY]
   const { scrollY } = useScroll()
   const y = useTransform(scrollY, [0, 500], [0, 140])
   const [phraseIdx, setPhraseIdx] = useState(0)

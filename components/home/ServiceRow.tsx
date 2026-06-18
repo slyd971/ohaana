@@ -27,7 +27,7 @@ export function ServiceRow({
 }: ServiceRowProps) {
   const rowRef = useRef<HTMLDivElement>(null)
   const locale = useLocale()
-  const isEn = locale === 'en'
+  const seeAll = locale === 'en' ? 'See all' : locale === 'es' ? 'Ver todo' : 'Voir tout'
 
   if (!services.length) return null
 
@@ -39,18 +39,16 @@ export function ServiceRow({
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className="space-y-4"
     >
-      {/* Header */}
       <div className="flex items-center justify-between px-5 md:px-0">
         <h2 className="text-lg font-display text-charcoal">{title}</h2>
         <Link
           href={seeAllHref}
           className="flex items-center gap-0.5 text-sm text-deep-green font-medium"
         >
-          {isEn ? 'See all' : 'Voir tout'} <ChevronRight size={15} />
+          {seeAll} <ChevronRight size={15} />
         </Link>
       </div>
 
-      {/* Horizontal scroll */}
       <div
         ref={rowRef}
         className="flex gap-4 overflow-x-auto pb-2 scroll-snap-x px-5 md:grid md:grid-cols-3 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-4 scrollbar-hide"
@@ -73,7 +71,6 @@ export function ServiceRow({
             />
           </motion.div>
         ))}
-        {/* Trailing spacer */}
         <div className="w-1 flex-none md:hidden" />
       </div>
     </motion.section>

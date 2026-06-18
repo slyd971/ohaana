@@ -5,13 +5,15 @@ import { useLocale } from 'next-intl'
 import { LayoutGrid, Leaf, Waves, UtensilsCrossed, Landmark, Heart, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-export const CATEGORIES: { key: string; label: { fr: string; en: string }; Icon: LucideIcon }[] = [
-  { key: 'all',      label: { fr: 'Tout', en: 'All' }, Icon: LayoutGrid },
-  { key: 'wellness', label: { fr: 'Bien-être', en: 'Wellness' }, Icon: Leaf },
-  { key: 'soiree',   label: { fr: 'Soirée', en: 'Evening' }, Icon: Waves },
-  { key: 'food',     label: { fr: 'Gastronomie', en: 'Food' }, Icon: UtensilsCrossed },
-  { key: 'couples',  label: { fr: 'Couples', en: 'Couples' }, Icon: Heart },
-  { key: 'culture',  label: { fr: 'Culture', en: 'Culture' }, Icon: Landmark },
+type Lang = 'fr' | 'en' | 'es'
+
+export const CATEGORIES: { key: string; label: Record<Lang, string>; Icon: LucideIcon }[] = [
+  { key: 'all',      label: { fr: 'Tout', en: 'All', es: 'Todo' }, Icon: LayoutGrid },
+  { key: 'wellness', label: { fr: 'Bien-être', en: 'Wellness', es: 'Bienestar' }, Icon: Leaf },
+  { key: 'soiree',   label: { fr: 'Soirée', en: 'Evening', es: 'Velada' }, Icon: Waves },
+  { key: 'food',     label: { fr: 'Gastronomie', en: 'Food', es: 'Gastronomía' }, Icon: UtensilsCrossed },
+  { key: 'couples',  label: { fr: 'Couples', en: 'Couples', es: 'Parejas' }, Icon: Heart },
+  { key: 'culture',  label: { fr: 'Culture', en: 'Culture', es: 'Cultura' }, Icon: Landmark },
 ]
 
 interface MoodSelectorProps {
@@ -21,7 +23,7 @@ interface MoodSelectorProps {
 
 export function MoodSelector({ value, onChange }: MoodSelectorProps) {
   const locale = useLocale()
-  const lang = locale === 'en' ? 'en' : 'fr'
+  const lang: Lang = (['fr', 'en', 'es'] as Lang[]).includes(locale as Lang) ? (locale as Lang) : 'fr'
 
   return (
     <div

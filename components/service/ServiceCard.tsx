@@ -25,16 +25,16 @@ const ISLAND_LABELS: Record<string, string> = {
   saint_barth:  'Saint-Barth',
 }
 
-const TAG_BADGES: Record<string, { fr: string; en: string }> = {
-  'couple':            { fr: 'Couple', en: 'Couple' },
-  'famille':           { fr: 'Famille', en: 'Family' },
-  'aventure':          { fr: 'Aventure', en: 'Adventure' },
-  'bien-être':         { fr: 'Bien-être', en: 'Wellness' },
-  'coucher de soleil': { fr: 'Sunset', en: 'Sunset' },
-  'gastronomie':       { fr: 'Gastro', en: 'Food' },
-  'culture':           { fr: 'Culture', en: 'Culture' },
-  'nature':            { fr: 'Nature', en: 'Nature' },
-  'beauté':            { fr: 'Beauté', en: 'Beauty' },
+const TAG_BADGES: Record<string, { fr: string; en: string; es: string }> = {
+  'couple':            { fr: 'Couple', en: 'Couple', es: 'Pareja' },
+  'famille':           { fr: 'Famille', en: 'Family', es: 'Familia' },
+  'aventure':          { fr: 'Aventure', en: 'Adventure', es: 'Aventura' },
+  'bien-être':         { fr: 'Bien-être', en: 'Wellness', es: 'Bienestar' },
+  'coucher de soleil': { fr: 'Sunset', en: 'Sunset', es: 'Atardecer' },
+  'gastronomie':       { fr: 'Gastro', en: 'Food', es: 'Gastronomía' },
+  'culture':           { fr: 'Culture', en: 'Culture', es: 'Cultura' },
+  'nature':            { fr: 'Nature', en: 'Nature', es: 'Naturaleza' },
+  'beauté':            { fr: 'Beauté', en: 'Beauty', es: 'Belleza' },
 }
 
 const TAG_PRIORITY = [
@@ -49,11 +49,12 @@ export function ServiceCard({
   className,
 }: ServiceCardProps) {
   const locale = useLocale()
+  const lang = locale === 'en' ? 'en' : locale === 'es' ? 'es' : 'fr'
   const isEn = locale === 'en'
   const cover = service.images.find((img) => img.is_cover) ?? service.images[0]
   const price = formatPrice(service.price_cents)
-  const title = isEn ? service.title_en : service.title_fr
-  const coverAlt = isEn ? cover?.alt_en : cover?.alt_fr
+  const title = isEn || locale === 'es' ? service.title_en : service.title_fr
+  const coverAlt = isEn || locale === 'es' ? cover?.alt_en : cover?.alt_fr
   const providerName = service.provider?.business_name ?? 'Ohaana'
   const providerUserName = service.provider?.user?.full_name ?? providerName
   const providerAvatar = service.provider?.user?.avatar_url
@@ -63,6 +64,11 @@ export function ServiceCard({
 
   const primaryTag = TAG_PRIORITY.find((t) => service.tags.includes(t))
   const islandLabel = ISLAND_LABELS[service.island] ?? service.island
+
+  const perPerson = locale === 'en' ? '/ person' : locale === 'es' ? '/ pers.' : '/ pers.'
+  const addFav = locale === 'en' ? 'Add to favorites' : locale === 'es' ? 'Añadir a favoritos' : 'Ajouter aux favoris'
+  const removeFav = locale === 'en' ? 'Remove from favorites' : locale === 'es' ? 'Quitar de favoritos' : 'Retirer des favoris'
+  const popular = locale === 'en' ? 'Popular' : locale === 'es' ? 'Popular' : 'Populaire'
 
   return (
     <motion.div
@@ -76,7 +82,6 @@ export function ServiceCard({
       )}
     >
       <Link href={`/prestataires/${service.id}`} className="block">
-        {/* Image */}
         <div className={cn('relative overflow-hidden', heights[size])}>
           <Image
             src={cover?.url ?? ''}
@@ -87,13 +92,12 @@ export function ServiceCard({
           />
           <div className="absolute inset-0 bg-gradient-to-t from-deep-green/50 via-transparent to-transparent" />
 
-          {/* Favorite */}
           {onToggleFavorite && (
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); onToggleFavorite(service.id) }}
               className="absolute top-2.5 right-2.5 p-1.5 rounded-full bg-white/25 backdrop-blur-sm hover:bg-white/50 transition-colors"
-              aria-label={isFavorite ? (isEn ? 'Remove from favorites' : 'Retirer des favoris') : (isEn ? 'Add to favorites' : 'Ajouter aux favoris')}
+              aria-label={isFavorite ? removeFav : addFav}
             >
               <Heart
                 size={15}
@@ -102,18 +106,16 @@ export function ServiceCard({
             </button>
           )}
 
-          {/* Badge top-left */}
           {service.is_featured && (
             <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-coral text-coconut text-[10px] font-semibold tracking-wide">
-              {isEn ? 'Popular' : 'Populaire'}
+              {popular}
             </span>
           )}
 
-          {/* Prix + île en bas */}
           <div className="absolute bottom-2.5 left-3 right-3 flex items-end justify-between">
             <div>
               <span className="text-coconut text-sm font-semibold drop-shadow-md">{price}</span>
-              <span className="text-coconut/70 text-xs"> {isEn ? '/ person' : '/ pers.'}</span>
+              <span className="text-coconut/70 text-xs"> {perPerson}</span>
             </div>
             <span className="flex items-center gap-0.5 text-coconut/80 text-[10px] drop-shadow-md">
               <MapPin size={9} />
@@ -122,9 +124,7 @@ export function ServiceCard({
           </div>
         </div>
 
-        {/* Info */}
         <div className="p-3.5 space-y-1.5">
-          {/* Provider */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
               <div className="relative w-5 h-5 rounded-full overflow-hidden flex-none ring-1 ring-mist">
@@ -146,12 +146,10 @@ export function ServiceCard({
             </div>
           </div>
 
-          {/* Title */}
           <h3 className="text-sm font-semibold text-charcoal leading-snug line-clamp-2">
             {title}
           </h3>
 
-          {/* Duration + tag badge */}
           <div className="flex items-center justify-between gap-2">
             {service.duration_min ? (
               <div className="flex items-center gap-1 text-xs text-stone">
@@ -161,7 +159,7 @@ export function ServiceCard({
             ) : <div />}
             {primaryTag && (
               <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-sand text-charcoal-soft font-medium flex-none">
-                {TAG_BADGES[primaryTag][isEn ? 'en' : 'fr']}
+                {TAG_BADGES[primaryTag][lang as 'fr' | 'en' | 'es']}
               </span>
             )}
           </div>
