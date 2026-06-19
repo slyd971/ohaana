@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { useLocale } from 'next-intl'
@@ -152,6 +152,15 @@ export default function HomePage() {
   const [stayEnd, setStayEnd]     = useState<Date | null>(initialHomeState.stayEnd)
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const [showAllExplorer, setShowAllExplorer] = useState(false)
+  const [whyActiveIdx, setWhyActiveIdx] = useState(0)
+  const whyScrollRef = useRef<HTMLDivElement>(null)
+
+  const handleWhyScroll = useCallback(() => {
+    const el = whyScrollRef.current
+    if (!el) return
+    const cardWidth = el.scrollWidth / whyItems.length
+    setWhyActiveIdx(Math.round(el.scrollLeft / cardWidth))
+  }, [whyItems.length])
 
   // Lead capture state
   const [leadEmail, setLeadEmail]   = useState('')
@@ -253,7 +262,9 @@ export default function HomePage() {
           </motion.div>
           <div className="space-y-4 sm:space-y-0">
             <div
-              className="-mx-5 flex gap-4 overflow-x-auto px-5 pb-1 scroll-snap-x sm:mx-0 sm:grid sm:grid-cols-4 sm:gap-8 sm:overflow-visible sm:px-0 sm:pb-0 scrollbar-hide"
+              ref={whyScrollRef}
+              onScroll={handleWhyScroll}
+              className="-mx-5 flex gap-4 overflow-x-auto px-5 pb-1 snap-x snap-mandatory sm:mx-0 sm:grid sm:grid-cols-4 sm:gap-8 sm:overflow-visible sm:px-0 sm:pb-0 scrollbar-hide"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               {whyItems.map(({ icon: Icon, title, text }, i) => (
@@ -263,7 +274,7 @@ export default function HomePage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-40px' }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="w-[calc(100vw-2.5rem)] flex-none rounded-2xl border border-mist/80 bg-white p-5 text-center shadow-card space-y-3 sm:w-auto sm:min-w-0 sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none"
+                  className="w-[calc(100vw-2.5rem)] flex-none snap-center rounded-2xl border border-mist/80 bg-white p-5 text-center shadow-card space-y-3 sm:w-auto sm:min-w-0 sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none"
                 >
                   <div className="mx-auto flex h-12 w-12 items-center justify-center sm:h-11 sm:w-11">
                     <Icon size={34} strokeWidth={1.7} className="text-charcoal sm:size-8" />
@@ -275,8 +286,13 @@ export default function HomePage() {
               <div className="w-1 flex-none sm:hidden" />
             </div>
             <div className="flex justify-center gap-1.5 sm:hidden" aria-hidden="true">
-              {whyItems.map((item) => (
-                <span key={item.title} className="h-1.5 w-1.5 rounded-full bg-charcoal/35" />
+              {whyItems.map((item, i) => (
+                <span
+                  key={item.title}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    i === whyActiveIdx ? 'w-4 bg-charcoal' : 'w-1.5 bg-charcoal/30'
+                  }`}
+                />
               ))}
             </div>
           </div>
