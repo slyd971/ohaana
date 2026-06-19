@@ -245,9 +245,9 @@ export default function HomePage() {
             </h2>
             <p className="mt-2 max-w-2xl text-sm md:text-base text-stone leading-relaxed">
               {L(
-                'La simplicité d\'un concierge, pensée pour les voyageurs en villa, bungalow, Airbnb ou maison de vacances.',
-                'The ease of a concierge, designed for travelers staying in villas, bungalows, Airbnbs, or vacation homes.',
-                'La facilidad de un conserje, pensada para viajeros en villas, bungalows, Airbnb o casas de vacaciones.'
+                'La simplicité pensée pour les voyageurs en villa, bungalow, Airbnb ou maison de vacances.',
+                'The simplicity designed for travelers staying in villas, bungalows, Airbnbs, or vacation homes.',
+                'La facilidad pensada para viajeros en villas, bungalows, Airbnb o casas de vacaciones.'
               )}
             </p>
           </motion.div>

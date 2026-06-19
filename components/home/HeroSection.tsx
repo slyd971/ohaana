@@ -19,11 +19,11 @@ const COPY = {
   fr: {
     alt: 'Villa caribéenne — lagon turquoise et nature tropicale',
     placeholder: 'Quand ?',
-    title: 'Réservez les meilleurs services locaux,',
-    phrases: ['dans votre villa.', 'dans votre Airbnb.', 'sur votre lieu de séjour.'],
-    subtitle: 'Massage à domicile, chef privé, photographe, DJ, coach sportif ou baby-sitter : Ohaana connecte les voyageurs en hébergement privatif à des professionnels vérifiés.',
-    mobileSubtitle: 'Services locaux vérifiés, réservés en quelques minutes sur votre lieu de séjour.',
-    mobileTitle: 'Quel service cherchez-vous ?',
+    title: 'Le meilleur des Antilles,',
+    phrases: ['dans votre villa.', 'sur votre île.', 'là où vous séjournez.'],
+    subtitle: 'Massage en bord de piscine, chef créole, photographe, DJ ou baby-sitter : les meilleurs prestataires de Guadeloupe, Martinique et Saint-Martin, réservés en quelques clics.',
+    mobileSubtitle: 'Les meilleurs prestataires des Antilles, réservés en quelques minutes depuis votre hébergement.',
+    mobileTitle: 'Quel service aux Antilles ?',
     search: 'Massage, chef privé, DJ, photographe...',
     explore: 'Réserver',
     concierge: 'Besoin d\'aide ?',
@@ -37,11 +37,11 @@ const COPY = {
   en: {
     alt: 'Caribbean villa with a turquoise lagoon and tropical nature',
     placeholder: 'When?',
-    title: 'Book the best local services,',
-    phrases: ['at your villa.', 'at your Airbnb.', 'where you are staying.'],
-    subtitle: 'In-home massage, private chefs, photographers, DJs, fitness coaches or babysitters: Ohaana connects private-accommodation travelers with verified local professionals.',
-    mobileSubtitle: 'Verified local services, booked in minutes at your place of stay.',
-    mobileTitle: 'What service do you need?',
+    title: 'The best of the Caribbean,',
+    phrases: ['at your villa.', 'on your island.', 'where you\'re staying.'],
+    subtitle: 'Poolside massage, Creole chef, photographer, DJ or babysitter: the best providers in Guadeloupe, Martinique and Saint-Martin, booked in a few clicks.',
+    mobileSubtitle: 'The best Caribbean providers, booked in minutes from your accommodation.',
+    mobileTitle: 'Which service on the island?',
     search: 'Massage, private chef, DJ, photographer...',
     explore: 'Book',
     concierge: 'Need help?',
@@ -55,11 +55,11 @@ const COPY = {
   es: {
     alt: 'Villa caribeña con laguna turquesa y naturaleza tropical',
     placeholder: '¿Cuándo?',
-    title: 'Reserva los mejores servicios locales,',
-    phrases: ['en tu villa.', 'en tu Airbnb.', 'donde te alojas.'],
-    subtitle: 'Masajes a domicilio, chefs privados, fotógrafos, DJs, entrenadores o canguros: Ohaana conecta viajeros en alojamientos privados con profesionales locales verificados.',
-    mobileSubtitle: 'Servicios locales verificados, reservados en minutos en tu alojamiento.',
-    mobileTitle: '¿Qué servicio buscas?',
+    title: 'Lo mejor del Caribe,',
+    phrases: ['en tu villa.', 'en tu isla.', 'donde te alojas.'],
+    subtitle: 'Masaje junto a la piscina, chef criollo, fotógrafo, DJ o canguro: los mejores prestadores de Guadalupe, Martinica y Saint-Martin, reservados en pocos clics.',
+    mobileSubtitle: 'Los mejores prestadores del Caribe, reservados en minutos desde tu alojamiento.',
+    mobileTitle: '¿Qué servicio en la isla?',
     search: 'Masaje, chef privado, DJ, fotógrafo...',
     explore: 'Reservar',
     concierge: '¿Necesitas ayuda?',
@@ -136,6 +136,19 @@ export function HeroSection({
                 <p className="text-sm leading-snug text-charcoal/75">
                   {copy.mobileSubtitle}
                 </p>
+              </div>
+
+              {/* Island + date selectors — mobile */}
+              <div className="flex items-center gap-2">
+                <IslandSelector value={island} onChange={onIslandChange} />
+                <div className="flex-1 min-w-0">
+                  <DateRangePicker
+                    startDate={stayStart}
+                    endDate={stayEnd}
+                    onChange={onDatesChange}
+                    placeholder={copy.placeholder}
+                  />
+                </div>
               </div>
 
               <Link
