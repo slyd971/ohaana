@@ -24,8 +24,8 @@
     "registerSubtitle": "Join the Ohaana community"
   },
   "onboarding": {
-    "welcome": "Your Caribbean experience starts now.",
-    "welcomeSub": "Discover unique experiences, passionate local providers, and an island waiting for you.",
+    "welcome": "Your stay just got easier.",
+    "welcomeSub": "Find local services matched to your accommodation, dates, and traveler profile.",
     "start": "Get Started",
     "withWho": "You're traveling...",
     "couple": "As a couple",
@@ -46,9 +46,9 @@
     "skip": "Skip"
   },
   "home": {
-    "heroTitle": "Experience authentic Caribbean.",
-    "heroSub": "Private chefs, sunset catamaran, villa massages — curated for you.",
-    "explore": "Explore experiences",
+    "heroTitle": "Book local services where you are staying.",
+    "heroSub": "Massage, private chef, photographer, DJ, fitness coach or babysitter — verified professionals for travelers in private accommodation.",
+    "explore": "Book a service",
     "askConcierge": "Ask the concierge",
     "popular": "Popular Experiences",
     "tonight": "Available Tonight",
@@ -60,7 +60,7 @@
     "sunset": "Sunset"
   },
   "search": {
-    "placeholder": "Chef, massage, boat tour...",
+    "placeholder": "Massage, chef, DJ, photographer...",
     "filters": "Filters",
     "category": "Category",
     "date": "Date",
@@ -71,7 +71,7 @@
     "map": "Map",
     "list": "List",
     "noResults": "No results for your search",
-    "results": "{count} experiences found"
+    "results": "{count} services found"
   },
   "service": {
     "bookNow": "Book Now",
@@ -145,11 +145,11 @@
     "culture": "Cultural Experience"
   },
   "footer": {
-    "tagline": "Authentic Caribbean experiences,\ncurated with care by locals.",
+    "tagline": "The digital concierge for private stays in the Caribbean.",
     "exploreTitle": "Explore",
     "islandsTitle": "Islands",
     "soon": "soon",
-    "copyright": "Private experiences in the Caribbean.",
+    "copyright": "Local services for travelers in private accommodation.",
     "privacy": "Privacy",
     "terms": "Terms",
     "links": {

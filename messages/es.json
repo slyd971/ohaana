@@ -24,8 +24,8 @@
     "registerSubtitle": "Únete a la comunidad Ohaana"
   },
   "onboarding": {
-    "welcome": "Tu experiencia caribeña comienza ahora.",
-    "welcomeSub": "Descubre experiencias únicas, proveedores locales apasionados y una isla que te espera.",
+    "welcome": "Tu estancia será más sencilla.",
+    "welcomeSub": "Encuentra servicios locales adaptados a tu alojamiento, tus fechas y tu perfil de viajero.",
     "start": "Comenzar",
     "withWho": "Viajas...",
     "couple": "En pareja",
@@ -46,9 +46,9 @@
     "skip": "Omitir"
   },
   "home": {
-    "heroTitle": "Vive el Caribe auténtico.",
-    "heroSub": "Chefs privados, veleros al atardecer, masajes en villa — seleccionados para ti.",
-    "explore": "Explorar experiencias",
+    "heroTitle": "Reserva servicios locales en tu alojamiento.",
+    "heroSub": "Masaje, chef privado, fotógrafo, DJ, entrenador o canguro — profesionales verificados para viajeros en alojamientos privados.",
+    "explore": "Reservar un servicio",
     "askConcierge": "Preguntar al conserje",
     "popular": "Experiencias populares",
     "tonight": "Disponible esta noche",
@@ -60,7 +60,7 @@
     "sunset": "Atardecer"
   },
   "search": {
-    "placeholder": "Chef, masaje, barco...",
+    "placeholder": "Masaje, chef, DJ, fotógrafo...",
     "filters": "Filtros",
     "category": "Categoría",
     "date": "Fecha",
@@ -71,7 +71,7 @@
     "map": "Mapa",
     "list": "Lista",
     "noResults": "Sin resultados para tu búsqueda",
-    "results": "{count} experiencias encontradas"
+    "results": "{count} servicios encontrados"
   },
   "service": {
     "bookNow": "Reservar",
@@ -145,11 +145,11 @@
     "culture": "Experiencia cultural"
   },
   "footer": {
-    "tagline": "Experiencias caribeñas auténticas,\nseleccionadas con cuidado por locales.",
+    "tagline": "El conserje digital para alojamientos privados en el Caribe.",
     "exploreTitle": "Explorar",
     "islandsTitle": "Islas",
     "soon": "próximamente",
-    "copyright": "Experiencias privadas en el Caribe.",
+    "copyright": "Servicios locales para viajeros en alojamientos privados.",
     "privacy": "Privacidad",
     "terms": "Términos",
     "links": {

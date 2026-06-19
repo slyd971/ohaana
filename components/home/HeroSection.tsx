@@ -19,32 +19,35 @@ const COPY = {
   fr: {
     alt: 'Villa caribéenne — lagon turquoise et nature tropicale',
     placeholder: 'Quand ?',
-    title: 'La Caraïbe authentique,',
-    phrases: ['chez vous.', 'ce soir.', 'sur mesure.', 'en toute sérénité.'],
-    subtitle: 'Chef.fe à domicile, massages, DJ, shootings photo — réservez les meilleures expériences des Caraïbes, sélectionnées par des locaux.',
-    search: 'Que souhaitez-vous vivre pendant votre séjour ?',
-    explore: 'Explorer',
-    concierge: 'Demander conseil à notre concierge',
+    title: 'Réservez les meilleurs services locaux,',
+    phrases: ['dans votre villa.', 'dans votre Airbnb.', 'sur votre lieu de séjour.'],
+    subtitle: 'Massage à domicile, chef privé, photographe, DJ, coach sportif ou baby-sitter : Ohaana connecte les voyageurs en hébergement privatif à des professionnels vérifiés.',
+    mobileSubtitle: 'Services locaux vérifiés, réservés en quelques minutes sur votre lieu de séjour.',
+    search: 'Massage, chef privé, DJ, photographe...',
+    explore: 'Réserver',
+    concierge: 'Besoin d\'aide ?',
   },
   en: {
     alt: 'Caribbean villa with a turquoise lagoon and tropical nature',
     placeholder: 'When?',
-    title: 'The authentic Caribbean,',
-    phrases: ['at your place.', 'tonight.', 'tailored for you.', 'without the stress.'],
-    subtitle: 'Private chefs, massages, DJs, photo shoots — book the best Caribbean experiences, selected by locals.',
-    search: 'What would you like to experience during your stay?',
-    explore: 'Explore',
-    concierge: 'Ask our concierge',
+    title: 'Book the best local services,',
+    phrases: ['at your villa.', 'at your Airbnb.', 'where you are staying.'],
+    subtitle: 'In-home massage, private chefs, photographers, DJs, fitness coaches or babysitters: Ohaana connects private-accommodation travelers with verified local professionals.',
+    mobileSubtitle: 'Verified local services, booked in minutes at your place of stay.',
+    search: 'Massage, private chef, DJ, photographer...',
+    explore: 'Book',
+    concierge: 'Need help?',
   },
   es: {
     alt: 'Villa caribeña con laguna turquesa y naturaleza tropical',
     placeholder: '¿Cuándo?',
-    title: 'El Caribe auténtico,',
-    phrases: ['en tu villa.', 'esta noche.', 'a tu medida.', 'sin complicaciones.'],
-    subtitle: 'Chefs privados, masajes, DJs, sesiones de fotos — reserva las mejores experiencias del Caribe, seleccionadas por locales.',
-    search: '¿Qué quieres vivir durante tu estancia?',
-    explore: 'Explorar',
-    concierge: 'Pedir consejo a nuestro conserje',
+    title: 'Reserva los mejores servicios locales,',
+    phrases: ['en tu villa.', 'en tu Airbnb.', 'donde te alojas.'],
+    subtitle: 'Masajes a domicilio, chefs privados, fotógrafos, DJs, entrenadores o canguros: Ohaana conecta viajeros en alojamientos privados con profesionales locales verificados.',
+    mobileSubtitle: 'Servicios locales verificados, reservados en minutos en tu alojamiento.',
+    search: 'Masaje, chef privado, DJ, fotógrafo...',
+    explore: 'Reservar',
+    concierge: '¿Necesitas ayuda?',
   },
 } as const
 
@@ -79,7 +82,7 @@ export function HeroSection({
 
   return (
     <>
-      <div ref={ref} className="relative h-[70dvh] min-h-[520px] md:h-[70dvh] md:min-h-[560px] overflow-hidden">
+      <div ref={ref} className="relative h-[62dvh] min-h-[470px] md:h-[70dvh] md:min-h-[560px] overflow-hidden">
         {/* Parallax background — clipped separately */}
         <div className="absolute inset-0 overflow-hidden">
           <motion.div className="absolute inset-0 scale-110" style={{ y }}>
@@ -96,15 +99,15 @@ export function HeroSection({
         </div>
 
         {/* Content */}
-        <div className="relative h-full flex flex-col justify-end pb-5 md:pb-10 md:items-center px-5 md:px-12">
+        <div className="relative h-full flex flex-col justify-end pb-4 md:pb-10 md:items-center px-4 md:px-12">
           <motion.div
             initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
-            className="max-w-sm md:max-w-lg md:w-full"
+            className="max-w-sm md:max-w-xl md:w-full"
           >
             {/* Frosted glass card */}
-            <div className="bg-coconut/88 backdrop-blur-lg rounded-3xl p-4 md:p-6 space-y-3 md:space-y-4 shadow-elevated border border-white/60">
+            <div className="bg-coconut/90 backdrop-blur-lg rounded-2xl md:rounded-3xl p-3 md:p-6 space-y-2.5 md:space-y-4 shadow-elevated border border-white/60">
 
               {/* Island + date selectors — above the title */}
               <div className="flex items-center gap-2">
@@ -119,7 +122,7 @@ export function HeroSection({
                 </div>
               </div>
 
-              <h1 className="text-2xl md:text-4xl font-display text-deep-green leading-tight">
+              <h1 className="text-[1.65rem] md:text-4xl font-display text-deep-green leading-tight">
                 {copy.title}
                 <span className="block relative overflow-hidden">
                   <AnimatePresence mode="wait">
@@ -136,8 +139,11 @@ export function HeroSection({
                   </AnimatePresence>
                 </span>
               </h1>
-              <p className="text-charcoal/75 text-sm leading-relaxed">
+              <p className="text-charcoal/75 text-sm leading-relaxed hidden md:block">
                 {copy.subtitle}
+              </p>
+              <p className="text-charcoal/75 text-sm leading-snug md:hidden">
+                {copy.mobileSubtitle}
               </p>
 
               {/* Search bar */}
@@ -155,7 +161,7 @@ export function HeroSection({
               {/* CTA concierge */}
               <Link
                 href="/concierge"
-                className="flex items-center gap-2.5 bg-deep-green/8 hover:bg-deep-green/14 border border-deep-green/15 text-deep-green rounded-2xl px-4 py-2.5 text-sm font-medium transition-colors"
+                className="hidden md:flex items-center gap-2.5 bg-deep-green/8 hover:bg-deep-green/14 border border-deep-green/15 text-deep-green rounded-2xl px-4 py-2.5 text-sm font-medium transition-colors"
               >
                 {/* Live dot */}
                 <span className="relative flex h-2 w-2 flex-none">

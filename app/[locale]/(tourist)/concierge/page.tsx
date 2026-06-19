@@ -10,18 +10,17 @@ import { SERVICES } from '@/lib/data/seed'
 
 const WHATSAPP_NUMBER = '590690000000'
 const WHATSAPP_DEFAULT_MSG = encodeURIComponent(
-  "Bonjour, je souhaite réserver une expérience sur Ohaana. Pouvez-vous m'aider ?"
+  "Bonjour, je séjourne en hébergement privatif et je souhaite réserver un service local avec Ohaana. Pouvez-vous m'aider ?"
 )
-const CONCIERGE_PHOTO =
-  'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=240&h=240&fit=crop&q=85'
+const CONCIERGE_PHOTO = '/photos/concierge-antillaise.png'
 
 const SUGGESTIONS = [
-  'Je fête notre anniversaire',
-  'Je cherche une soirée romantique',
+  'Je cherche un massage à domicile',
+  'Je veux réserver un chef privé',
   'Je voyage avec deux enfants',
-  'Un massage duo dans notre villa ce soir',
-  'Un DJ pour notre soirée d\'anniversaire en terrasse',
-  'Une décoration romantique de villa pour une demande en mariage',
+  'Un DJ pour notre soirée en terrasse',
+  'Un photographe près de notre villa',
+  'Un service sur mesure pendant le séjour',
 ]
 
 const RECOMMENDED_IDS = ['s-1', 's-8', 's-18', 's-19', 's-17', 's-13']
@@ -73,8 +72,8 @@ export default function ConciergePage() {
           </div>
 
           <div>
-            <h1 className="text-2xl font-display text-charcoal">Assistant séjour Ohaana</h1>
-            <p className="text-stone text-sm mt-1">Recommandations, prestataires et créneaux adaptés à votre séjour.</p>
+            <h1 className="text-2xl font-display text-charcoal">Concierge digital Ohaana</h1>
+            <p className="text-stone text-sm mt-1">Services locaux vérifiés, adaptés à votre hébergement et à vos dates.</p>
           </div>
         </motion.div>
 
@@ -92,8 +91,8 @@ export default function ConciergePage() {
             <MessageCircle size={24} />
           </div>
           <div className="flex-1">
-            <p className="font-semibold">Demander conseil à notre concierge</p>
-            <p className="text-sm text-white/80">Réponse rapide · En français ou anglais</p>
+            <p className="font-semibold">Trouver un service local</p>
+            <p className="text-sm text-white/80">Villa, bungalow, Airbnb ou maison de vacances</p>
           </div>
           <ExternalLink size={18} className="flex-none opacity-70" />
         </motion.a>
@@ -109,12 +108,12 @@ export default function ConciergePage() {
           >
             <div>
               <label className="block text-sm font-medium text-charcoal mb-2">
-                Quelle ambiance souhaitez-vous créer ?
+                Quel service souhaitez-vous réserver ?
               </label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="Ex: je fête notre anniversaire, je cherche une soirée romantique, je voyage avec deux enfants..."
+                placeholder="Ex: massage à domicile demain, chef privé vendredi soir, baby-sitter pour deux enfants..."
                 rows={4}
                 className="w-full rounded-2xl border border-mist bg-surface px-4 py-3 text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green focus:ring-2 focus:ring-deep-green/15 resize-none"
               />
@@ -141,7 +140,7 @@ export default function ConciergePage() {
                 <input
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  placeholder="Ex: villa à Deshaies"
+                  placeholder="Ex: villa à Deshaies, Airbnb au Diamant"
                   className="w-full h-12 rounded-2xl border border-mist bg-surface px-4 text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green focus:ring-2 focus:ring-deep-green/15"
                 />
               </label>
@@ -178,7 +177,7 @@ export default function ConciergePage() {
             <div className="text-4xl">✅</div>
             <h2 className="text-xl font-display text-charcoal">Demande envoyée !</h2>
             <p className="text-sm text-stone max-w-xs mx-auto">
-              Votre concierge prépare une proposition avec les prestataires et créneaux compatibles.
+              Nous préparons une proposition avec les prestataires et créneaux compatibles avec votre lieu de séjour.
             </p>
             <Button
               variant="outline"
@@ -197,7 +196,7 @@ export default function ConciergePage() {
           className="mt-8 space-y-3"
         >
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-sm font-semibold text-charcoal">Recommandations pour votre séjour</h2>
+            <h2 className="text-sm font-semibold text-charcoal">Services disponibles pour votre séjour</h2>
             <span className="inline-flex items-center gap-1 text-[11px] text-stone">
               <Clock size={11} />
               Créneaux filtrés
@@ -242,8 +241,8 @@ export default function ConciergePage() {
           <h3 className="text-sm font-semibold text-charcoal">Comment ça marche</h3>
           {[
             { step: '1', title: 'Décrivez votre envie', desc: 'Plus c\'est précis, mieux c\'est.' },
-            { step: '2', title: 'Votre concierge organise tout', desc: 'Réservation, logistique, surprise…' },
-            { step: '3', title: 'Profitez', desc: 'Il ne reste plus qu\'à vivre l\'expérience.' },
+            { step: '2', title: 'Nous trouvons les bons prestataires', desc: 'Disponibilités, lieu, profil voyageur.' },
+            { step: '3', title: 'Réservez en quelques minutes', desc: 'Le service vient directement à vous.' },
           ].map(({ step, title, desc }) => (
             <div key={step} className="flex items-center gap-4">
               <div className="w-8 h-8 rounded-full bg-deep-green/10 text-deep-green flex items-center justify-center text-sm font-semibold flex-none">

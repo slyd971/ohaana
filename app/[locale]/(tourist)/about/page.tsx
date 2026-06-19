@@ -8,10 +8,10 @@ const TEAM = [
 ]
 
 const VALUES = [
-  { Icon: MapPin, title: 'Ancrage local', text: 'Chaque prestataire est rencontré en personne. On ne référence pas ce qu\'on ne connaît pas.' },
-  { Icon: Heart, title: 'Authenticité d\'abord', text: 'On refuse les expériences formatées. Ohaana, c\'est le meilleur des Antilles, pas un catalogue générique.' },
-  { Icon: Users, title: 'Impact direct', text: 'Chaque réservation rémunère un local. Pas d\'intermédiaire opaque entre le voyageur et le prestataire.' },
-  { Icon: Sparkles, title: 'Exigence premium', text: 'Service 5 étoiles ne veut pas dire inaccessible. Ça veut dire irréprochable sur les détails qui comptent.' },
+  { Icon: MapPin, title: 'Ancrage local', text: 'Nous sélectionnons des professionnels qui connaissent leur territoire et se déplacent sur les lieux de séjour.' },
+  { Icon: Heart, title: 'Confiance d\'abord', text: 'Ohaana remplace les recommandations dispersées par une sélection vérifiée, lisible et réservable.' },
+  { Icon: Users, title: 'Pensé pour les voyageurs', text: 'Villa, bungalow, Airbnb ou maison de vacances : le service vient au voyageur, pas l\'inverse.' },
+  { Icon: Sparkles, title: 'Service sans friction', text: 'Comparer, choisir et réserver doit prendre quelques minutes, pas une série de messages WhatsApp.' },
 ]
 
 export default function AboutPage() {
@@ -26,13 +26,16 @@ export default function AboutPage() {
         <div className="mb-12">
           <p className="text-xs text-deep-green font-semibold uppercase tracking-widest mb-3">Notre histoire</p>
           <h1 className="text-3xl md:text-4xl font-display text-charcoal leading-snug mb-5">
-            Les Antilles méritaient mieux<br />qu'un simple moteur de recherche.
+            Le concierge digital<br />des hébergements privatifs.
           </h1>
           <p className="text-base text-stone leading-relaxed max-w-2xl">
-            Ohaana est né d'un constat simple : des centaines de prestataires d'exception — chefs créoles, masseurs, photographes, DJs — sont invisibles en ligne et inaccessibles aux voyageurs qui les cherchent. En face, des touristes qui passent à côté des meilleures expériences, coincés sur TripAdvisor ou dans les excursions standardisées de leur hôtel.
+            Ohaana permet aux voyageurs en hébergement privatif de réserver facilement les meilleurs services locaux directement sur leur lieu de séjour : massage à domicile, chef privé, photographe, DJ, coach sportif, baby-sitter ou expériences sur mesure.
           </p>
           <p className="text-base text-stone leading-relaxed max-w-2xl mt-4">
-            On a décidé de construire le pont. Une concierge humaine, une plateforme de réservation, et une curation sérieuse. Pas une marketplace de plus — un service de confiance, ancré dans les îles.
+            Contrairement aux hôtels qui disposent déjà d&apos;un concierge, les voyageurs en villa, bungalow, Airbnb ou maison de vacances doivent souvent s&apos;appuyer sur le bouche-à-oreille, WhatsApp ou des recommandations dispersées. Notre rôle est de centraliser ces services dans une seule application, avec des professionnels vérifiés et disponibles pendant les vacances.
+          </p>
+          <p className="text-base text-stone leading-relaxed max-w-2xl mt-4">
+            Notre ambition est simple : devenir le concierge digital des hébergements privatifs dans les Caraïbes, puis dans les destinations touristiques où l&apos;accès aux services reste fragmenté.
           </p>
         </div>
 
@@ -56,7 +59,7 @@ export default function AboutPage() {
 
         {/* Team */}
         <div className="mb-14">
-          <h2 className="text-xl font-display text-charcoal mb-6">L'équipe</h2>
+          <h2 className="text-xl font-display text-charcoal mb-6">L&apos;équipe</h2>
           <div className="grid sm:grid-cols-3 gap-5">
             {TEAM.map(({ name, role, island, photo }) => (
               <div key={name} className="text-center space-y-3">
@@ -78,10 +81,10 @@ export default function AboutPage() {
 
         {/* CTA */}
         <div className="rounded-2xl bg-deep-green px-7 py-8 text-center space-y-4">
-          <p className="text-xs text-coconut/50 uppercase tracking-widest">Rejoignez l'aventure</p>
+          <p className="text-xs text-coconut/50 uppercase tracking-widest">Rejoignez l&apos;aventure</p>
           <h2 className="text-xl font-display text-coconut">Vous êtes prestataire aux Antilles ?</h2>
           <p className="text-sm text-coconut/60 leading-relaxed max-w-sm mx-auto">
-            On cherche des chefs, masseurs, photographes, DJs et coaches qui veulent accéder à une clientèle premium sans gérer le marketing.
+            Ohaana connecte les professionnels locaux à des voyageurs déjà sur place, qui cherchent un service fiable pendant leur séjour.
           </p>
           <Link
             href="/register?role=provider"

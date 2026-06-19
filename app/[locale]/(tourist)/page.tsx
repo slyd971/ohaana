@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { useLocale } from 'next-intl'
 import { Link } from '@/lib/i18n/navigation'
@@ -20,22 +21,22 @@ const WHY_ITEMS = [
   {
     icon: Leaf,
     title: 'Sélection locale',
-    text: 'On évite les expériences touristiques sans âme. Chaque prestataire est rencontré en personne.',
+    text: 'Nos prestataires sont sélectionnés pour la qualité de leur service et leur connaissance du territoire.',
   },
   {
     icon: Clock,
     title: 'Gain de temps',
-    text: 'Un concierge organise tout pour vous — itinéraire, réservations, horaires, surprises.',
+    text: 'Réservez en quelques minutes, nous nous occupons du reste.',
   },
   {
     icon: Sparkles,
     title: 'Expériences premium',
-    text: 'Chefs créoles, DJ, massages à domicile, décorations romantiques — chez vous, au niveau.',
+    text: 'Des prestations soigneusement sélectionnées pour rendre votre séjour inoubliable.',
   },
   {
     icon: MessageCircle,
     title: 'Support local',
-    text: 'Une équipe locale vous accompagne avant et pendant votre séjour.',
+    text: 'Besoin d\'un conseil, d\'une modification ou d\'une réservation ? Notre équipe locale est disponible pendant votre séjour.',
   },
 ]
 
@@ -43,22 +44,22 @@ const WHY_ITEMS_EN = [
   {
     icon: Leaf,
     title: 'Locally selected',
-    text: 'We avoid soulless tourist traps. Every provider is met and reviewed in person.',
+    text: 'Our providers are selected for the quality of their service and their knowledge of the territory.',
   },
   {
     icon: Clock,
     title: 'Time saved',
-    text: 'A concierge organizes everything for you: itinerary, bookings, timing, and surprises.',
+    text: 'Book in just a few minutes, and we take care of the rest.',
   },
   {
     icon: Sparkles,
     title: 'Premium experiences',
-    text: 'Creole chefs, DJs, in-villa massages, romantic decorations — at your place, done properly.',
+    text: 'Carefully selected services designed to make your stay unforgettable.',
   },
   {
     icon: MessageCircle,
     title: 'Local support',
-    text: 'A local team helps before and during your stay.',
+    text: 'Need advice, a change, or a booking? Our local team is available during your stay.',
   },
 ]
 
@@ -76,22 +77,22 @@ const WHY_ITEMS_ES = [
   {
     icon: Leaf,
     title: 'Selección local',
-    text: 'Evitamos las experiencias turísticas sin alma. Cada proveedor es conocido personalmente.',
+    text: 'Nuestros proveedores son seleccionados por la calidad de su servicio y su conocimiento del territorio.',
   },
   {
     icon: Clock,
     title: 'Tiempo ganado',
-    text: 'Un conserje organiza todo por ti — itinerario, reservas, horarios y sorpresas.',
+    text: 'Reserva en pocos minutos y nosotros nos encargamos del resto.',
   },
   {
     icon: Sparkles,
     title: 'Experiencias premium',
-    text: 'Chefs criollos, DJs, masajes en villa, decoraciones románticas — en tu alojamiento, al más alto nivel.',
+    text: 'Servicios cuidadosamente seleccionados para que tu estancia sea inolvidable.',
   },
   {
     icon: MessageCircle,
     title: 'Soporte local',
-    text: 'Un equipo local te acompaña antes y durante tu estancia.',
+    text: '¿Necesitas consejo, una modificación o una reserva? Nuestro equipo local está disponible durante tu estancia.',
   },
 ]
 
@@ -243,7 +244,11 @@ export default function HomePage() {
               {L('Pourquoi réserver avec Ohaana ?', 'Why book with Ohaana?', '¿Por qué reservar con Ohaana?')}
             </h2>
             <p className="mt-2 max-w-2xl text-sm md:text-base text-stone leading-relaxed">
-              {L('Des expériences locales sélectionnées avec soin, loin des activités touristiques standardisées.', 'Carefully selected local experiences, far from standardized tourist activities.', 'Experiencias locales cuidadosamente seleccionadas, lejos de las actividades turísticas estandarizadas.')}
+              {L(
+                'La simplicité d\'un concierge, pensée pour les voyageurs en villa, bungalow, Airbnb ou maison de vacances.',
+                'The ease of a concierge, designed for travelers staying in villas, bungalows, Airbnbs, or vacation homes.',
+                'La facilidad de un conserje, pensada para viajeros en villas, bungalows, Airbnb o casas de vacaciones.'
+              )}
             </p>
           </motion.div>
           <div className="space-y-4 sm:space-y-0">
@@ -351,7 +356,11 @@ export default function HomePage() {
           </span>
           <p className="text-sm text-deep-green flex-1 leading-snug">
             <span className="font-semibold">{L('Vous ne savez pas quoi choisir ?', 'Not sure what to choose?', '¿No sabes qué elegir?')}</span>{' '}
-            {L('Notre concierge compose votre programme en moins de 2h.', 'Our concierge builds your program in under 2 hours.', 'Nuestro conserje crea tu programa en menos de 2 horas.')}
+            {L(
+              'Décrivez votre séjour, nous vous orientons vers les bons prestataires locaux.',
+              'Tell us about your stay, and we will point you to the right local providers.',
+              'Cuéntanos tu estancia y te orientamos hacia los proveedores locales adecuados.'
+            )}
           </p>
           <Link
             href="/concierge"
@@ -383,9 +392,9 @@ export default function HomePage() {
           </h2>
           <p className="mt-1.5 text-sm text-stone">
             {L(
-              'Les expériences les plus appréciées par les voyageurs.',
-              'The experiences travelers love most.',
-              'Las experiencias más apreciadas por los viajeros.'
+              'Les services les plus réservés par les voyageurs en hébergement privatif.',
+              'The services most booked by travelers in private accommodation.',
+              'Los servicios más reservados por viajeros en alojamientos privados.'
             )}
           </p>
         </div>
@@ -434,42 +443,60 @@ export default function HomePage() {
         <div className="absolute inset-0 opacity-10" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23FDFAF4' fill-opacity='0.4' fill-rule='evenodd'%3E%3Ccircle cx='7' cy='7' r='1'/%3E%3Ccircle cx='37' cy='37' r='1'/%3E%3C/g%3E%3C/svg%3E")`
         }} />
-        <div className="relative px-6 py-10 md:py-14 max-w-2xl mx-auto text-center space-y-5">
-          <span className="inline-flex items-center gap-2 bg-coconut/10 border border-coconut/15 text-coconut/80 text-xs px-3 py-1 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-turquoise animate-pulse" />
-            {L('Réponse en moins de 2h · 7j/7', 'Reply in under 2 hours · 7 days a week', 'Respuesta en menos de 2h · 7 días a la semana')}
-          </span>
-          <h2 className="text-2xl md:text-3xl font-display text-coconut leading-snug">
-            {locale === 'en'
-              ? <>Still unsure or did not<br />find what you need?</>
-              : locale === 'es'
-              ? <>¿Dudas o no encontraste<br />lo que buscas?</>
-              : <>Vous hésitez ou vous n&apos;avez<br />pas trouvé ce que vous cherchez&nbsp;?</>}
-          </h2>
-          <p className="text-coconut/70 text-sm md:text-base leading-relaxed max-w-sm mx-auto">
-            {L(
-              'Décrivez ce que vous souhaitez vivre  - dîner privé, soirée sur mesure, demande en mariage, programme complet. Camille, notre concierge locale, s\'occupe de tout.',
-              'Tell us what you want to experience: a private dinner, a tailored evening, a proposal, a full itinerary. Camille, our local concierge, handles everything.',
-              'Cuéntanos qué quieres vivir: una cena privada, una velada especial, una pedida de mano, un itinerario completo. Camille, nuestra conserje local, lo gestiona todo.'
-            )}
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <a
-              href="https://wa.me/0000000000"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-coral text-coconut px-6 py-3 rounded-full font-medium text-sm hover:bg-coral-light transition-colors shadow-sm"
-            >
-              <MessageCircle size={16} />
-              {L('Parler à Camille', 'Talk to Camille', 'Hablar con Camille')}
-            </a>
-            <Link
-              href="/concierge"
-              className="inline-flex items-center gap-2 bg-coconut/10 text-coconut border border-coconut/20 px-6 py-3 rounded-full font-medium text-sm hover:bg-coconut/20 transition-colors"
-            >
-              {L('Créer mon programme', 'Create my program', 'Crear mi programa')}
-              <ChevronRight size={14} />
-            </Link>
+        <div className="relative grid min-h-[34rem] md:min-h-[28rem] md:grid-cols-[minmax(0,1fr)_minmax(20rem,0.95fr)]">
+          <div className="flex flex-col justify-center px-6 py-10 text-center md:px-10 md:py-14 md:text-left lg:px-14">
+            <div className="mx-auto max-w-xl space-y-5 md:mx-0">
+              <span className="inline-flex items-center gap-2 bg-coconut/10 border border-coconut/15 text-coconut/80 text-xs px-3 py-1 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-turquoise animate-pulse" />
+                {L('Réponse en moins de 2h · 7j/7', 'Reply in under 2 hours · 7 days a week', 'Respuesta en menos de 2h · 7 días a la semana')}
+              </span>
+              <h2 className="text-2xl md:text-3xl font-display text-coconut leading-snug">
+                {locale === 'en'
+                  ? <>Still unsure or did not<br />find what you need?</>
+                  : locale === 'es'
+                  ? <>¿Dudas o no encontraste<br />lo que buscas?</>
+                  : <>Vous hésitez ou vous n&apos;avez<br />pas trouvé ce que vous cherchez&nbsp;?</>}
+              </h2>
+              <p className="text-coconut/70 text-sm md:text-base leading-relaxed max-w-sm mx-auto md:mx-0">
+                {L(
+                  'Dîner privé, massage, baby-sitter, photographe, DJ ou programme complet : Camille vous aide à trouver les bons services autour de votre lieu de séjour.',
+                  'Private dinner, massage, babysitter, photographer, DJ, or a full itinerary: Camille helps you find the right services near your place of stay.',
+                  'Cena privada, masaje, canguro, fotógrafo, DJ o programa completo: Camille te ayuda a encontrar los servicios adecuados cerca de tu alojamiento.'
+                )}
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:justify-start">
+                <a
+                  href="https://wa.me/0000000000"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-coral text-coconut px-6 py-3 rounded-full font-medium text-sm hover:bg-coral-light transition-colors shadow-sm"
+                >
+                  <MessageCircle size={16} />
+                  {L('Parler à Camille', 'Talk to Camille', 'Hablar con Camille')}
+                </a>
+                <Link
+                  href="/concierge"
+                  className="inline-flex items-center gap-2 bg-coconut/10 text-coconut border border-coconut/20 px-6 py-3 rounded-full font-medium text-sm hover:bg-coconut/20 transition-colors"
+                >
+                  {L('Créer mon programme', 'Create my program', 'Crear mi programa')}
+                  <ChevronRight size={14} />
+                </Link>
+              </div>
+            </div>
+          </div>
+          <div className="relative min-h-[20rem] md:min-h-full">
+            <Image
+              src="/photos/concierge-antillaise.png"
+              alt={L(
+                'Concierge antillaise accueillant des voyageurs dans une villa',
+                'Antillean concierge welcoming travelers in a villa',
+                'Conserje antillana recibiendo viajeros en una villa'
+              )}
+              fill
+              className="object-cover object-center"
+              sizes="(max-width: 768px) 100vw, 45vw"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-deep-green/55 via-transparent to-transparent md:bg-gradient-to-r md:from-deep-green/25 md:via-transparent md:to-transparent" />
           </div>
         </div>
       </section>
@@ -490,9 +517,9 @@ export default function HomePage() {
             </h2>
             <p className="text-sm text-stone leading-relaxed">
               {L(
-                'Recevez des demandes de voyageurs en séjour dans les Caraïbes et proposez vos prestations à domicile, sans infrastructure à gérer.',
-                'Receive requests from travelers staying in the Caribbean and offer your services at their place, without managing any infrastructure.',
-                'Recibe solicitudes de viajeros en el Caribe y ofrece tus servicios a domicilio, sin infraestructura que gestionar.'
+                'Recevez des demandes de voyageurs en villa, bungalow, Airbnb ou maison de vacances, et proposez vos prestations directement sur leur lieu de séjour.',
+                'Receive requests from travelers in villas, bungalows, Airbnbs, or vacation homes, and offer your services directly at their place of stay.',
+                'Recibe solicitudes de viajeros en villas, bungalows, Airbnb o casas de vacaciones, y ofrece tus servicios directamente en su alojamiento.'
               )}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start pt-1">
@@ -527,9 +554,9 @@ export default function HomePage() {
             </h2>
             <p className="text-sm text-coconut/60 leading-relaxed">
               {L(
-                'On vous envoie les plus belles expériences de la saison, les nouvelles destinations et les offres en avant-première.',
-                'We will send you the season\'s best experiences, new destinations, and early offers.',
-                'Te enviamos las mejores experiencias de la temporada, nuevos destinos y ofertas anticipadas.'
+                'Recevez les nouveaux services disponibles près de votre hébergement et les destinations ouvertes en avant-première.',
+                'Get the newest services available near your accommodation and early access to new destinations.',
+                'Recibe los nuevos servicios disponibles cerca de tu alojamiento y acceso anticipado a nuevos destinos.'
               )}
             </p>
           </div>

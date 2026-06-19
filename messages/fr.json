@@ -24,8 +24,8 @@
     "registerSubtitle": "Rejoignez la communauté Ohaana"
   },
   "onboarding": {
-    "welcome": "Votre expérience caribéenne commence maintenant.",
-    "welcomeSub": "Découvrez des expériences uniques, des prestataires passionnés et une île qui vous attend.",
+    "welcome": "Votre séjour devient plus simple.",
+    "welcomeSub": "Trouvez les services locaux adaptés à votre hébergement, à vos dates et à votre profil de voyageur.",
     "start": "Commencer",
     "withWho": "Vous voyagez...",
     "couple": "En couple",
@@ -46,9 +46,9 @@
     "skip": "Passer"
   },
   "home": {
-    "heroTitle": "Vivez l'authentique Caraïbe.",
-    "heroSub": "Chefs privés, bateaux au coucher du soleil, massages en villa — curatés pour vous.",
-    "explore": "Explorer les expériences",
+    "heroTitle": "Réservez des services locaux sur votre lieu de séjour.",
+    "heroSub": "Massage, chef privé, photographe, DJ, coach sportif ou baby-sitter — des professionnels vérifiés pour les voyageurs en hébergement privatif.",
+    "explore": "Réserver un service",
     "askConcierge": "Demander au concierge",
     "popular": "Expériences populaires",
     "tonight": "Disponible ce soir",
@@ -60,7 +60,7 @@
     "sunset": "Coucher de soleil"
   },
   "search": {
-    "placeholder": "Chef, massage, bateau...",
+    "placeholder": "Massage, chef, DJ, photographe...",
     "filters": "Filtres",
     "category": "Catégorie",
     "date": "Date",
@@ -71,7 +71,7 @@
     "map": "Carte",
     "list": "Liste",
     "noResults": "Aucun résultat pour votre recherche",
-    "results": "{count} expériences trouvées"
+    "results": "{count} services trouvés"
   },
   "service": {
     "bookNow": "Réserver",
@@ -145,11 +145,11 @@
     "culture": "Expérience culturelle"
   },
   "footer": {
-    "tagline": "Expériences caribéennes authentiques,\ncuratées avec soin par des locaux.",
+    "tagline": "Le concierge digital des hébergements privatifs dans les Caraïbes.",
     "exploreTitle": "Explorer",
     "islandsTitle": "Îles",
     "soon": "bientôt",
-    "copyright": "Expériences privées dans les Caraïbes.",
+    "copyright": "Services locaux pour voyageurs en hébergement privatif.",
     "privacy": "Confidentialité",
     "terms": "CGU",
     "links": {

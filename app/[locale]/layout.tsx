@@ -11,12 +11,12 @@ const OG_IMAGE = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w
 export const metadata: Metadata = {
   metadataBase: new URL(BASE),
   title: {
-    default: 'Ohaana — Expériences caribéennes premium',
+    default: 'Ohaana — Services locaux pour hébergements privatifs',
     template: '%s | Ohaana',
   },
   description:
-    'Réservez des services à domicile en Guadeloupe et Martinique : chef privé, massage à domicile, DJ, décoration, soins beauté — livrés chez vous.',
-  keywords: ['guadeloupe', 'martinique', 'caraïbes', 'expériences', 'chef privé', 'massage', 'spa', 'villa', 'luxe'],
+    'Réservez en quelques minutes des services locaux vérifiés directement sur votre lieu de séjour : massage à domicile, chef privé, photographe, DJ, coach sportif ou baby-sitter.',
+  keywords: ['guadeloupe', 'martinique', 'caraïbes', 'concierge digital', 'hébergement privatif', 'airbnb', 'villa', 'chef privé', 'massage à domicile', 'services locaux'],
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'fr_FR',
     alternateLocale: ['en_US', 'es_ES'],
-    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: 'Ohaana — Expériences caribéennes premium' }],
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: 'Ohaana — Services locaux pour hébergements privatifs' }],
   },
   twitter: {
     card: 'summary_large_image',
@@ -64,7 +64,7 @@ const organizationJsonLd = {
   url: BASE,
   logo: `${BASE}/icon-512.png`,
   sameAs: [],
-  description: 'Plateforme de réservation de services et expériences premium à domicile dans les Caraïbes françaises.',
+  description: 'Plateforme de réservation de services locaux vérifiés pour voyageurs en villa, bungalow, Airbnb et maison de vacances.',
   areaServed: ['Guadeloupe', 'Martinique', 'Saint-Martin', 'Saint-Barthélemy'],
 }
 
