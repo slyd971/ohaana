@@ -1,6 +1,7 @@
 'use client'
 
 import { use, useState, useEffect, useRef, useMemo } from 'react'
+import { useLocale } from 'next-intl'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
@@ -202,8 +203,16 @@ function LocationAutocomplete({ value, onChange }: { value: string; onChange: (v
 
 export default function ProviderPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
+  const locale = useLocale()
   const service = getServiceById(id)
   if (!service) notFound()
+
+  const svcTitle = locale === 'es'
+    ? ((service as any).title_es ?? service.title_en)
+    : locale === 'en' ? service.title_en : service.title_fr
+  const svcDesc = locale === 'es'
+    ? ((service as any).description_es ?? service.description_en)
+    : locale === 'en' ? service.description_en : service.description_fr
 
   const [imgIndex, setImgIndex] = useState(0)
   const [isFav, setIsFav] = useState(false)
@@ -267,7 +276,7 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
       >
         <div className="max-w-2xl mx-auto px-4 min-h-16 py-2 flex items-center gap-3">
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-charcoal line-clamp-2 leading-tight">{service.title_fr}</p>
+            <p className="text-sm font-semibold text-charcoal line-clamp-2 leading-tight">{svcTitle}</p>
             <p className="text-xs text-stone mt-0.5">{formatPrice(selected?.price ?? service.price_cents)} · pers.</p>
           </div>
           <Link href={`/reserver/${service.id}?offer=${selected?.id ?? 'classic'}`}>
@@ -309,7 +318,7 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
             <Image src={provider.user.avatar_url} alt={provider.user.full_name} fill className="object-cover" sizes="64px" />
           </div>
           <div className="flex-1 min-w-0 pb-0.5">
-            <h1 className="text-2xl font-display text-white leading-tight drop-shadow-sm line-clamp-3">{service.title_fr}</h1>
+            <h1 className="text-2xl font-display text-white leading-tight drop-shadow-sm line-clamp-3">{svcTitle}</h1>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-sm font-medium text-white/90 truncate">{provider.business_name}</span>
               <span className="text-white/40">·</span>
@@ -353,7 +362,7 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
               {isFav ? 'Retiré des favoris' : 'Ajouter aux favoris'}
             </button>
           </div>
-          <h1 className="text-3xl font-display text-charcoal leading-tight mb-3">{service.title_fr}</h1>
+          <h1 className="text-3xl font-display text-charcoal leading-tight mb-3">{svcTitle}</h1>
           <div className="flex items-center gap-5 text-sm text-stone">
             {service.duration_min && (
               <span className="flex items-center gap-1.5">
@@ -630,7 +639,7 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
         {/* Description */}
         <section className="mb-6">
           <h3 className="text-sm font-semibold text-charcoal uppercase tracking-wider mb-2">À propos</h3>
-          <p className="text-sm text-charcoal-soft leading-relaxed">{service.description_fr}</p>
+          <p className="text-sm text-charcoal-soft leading-relaxed">{svcDesc}</p>
         </section>
 
         {/* Galerie — mobile uniquement (desktop : grille au-dessus) */}

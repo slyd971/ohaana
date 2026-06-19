@@ -23,9 +23,16 @@ const COPY = {
     phrases: ['dans votre villa.', 'dans votre Airbnb.', 'sur votre lieu de séjour.'],
     subtitle: 'Massage à domicile, chef privé, photographe, DJ, coach sportif ou baby-sitter : Ohaana connecte les voyageurs en hébergement privatif à des professionnels vérifiés.',
     mobileSubtitle: 'Services locaux vérifiés, réservés en quelques minutes sur votre lieu de séjour.',
+    mobileTitle: 'Quel service cherchez-vous ?',
     search: 'Massage, chef privé, DJ, photographe...',
     explore: 'Réserver',
     concierge: 'Besoin d\'aide ?',
+    chips: [
+      { label: 'Massage', href: '/search?cat=massage' },
+      { label: 'Chef privé', href: '/search?cat=chef_prive' },
+      { label: 'DJ', href: '/search?cat=musique' },
+      { label: 'Baby-sitter', href: '/search?cat=babysitter' },
+    ],
   },
   en: {
     alt: 'Caribbean villa with a turquoise lagoon and tropical nature',
@@ -34,9 +41,16 @@ const COPY = {
     phrases: ['at your villa.', 'at your Airbnb.', 'where you are staying.'],
     subtitle: 'In-home massage, private chefs, photographers, DJs, fitness coaches or babysitters: Ohaana connects private-accommodation travelers with verified local professionals.',
     mobileSubtitle: 'Verified local services, booked in minutes at your place of stay.',
+    mobileTitle: 'What service do you need?',
     search: 'Massage, private chef, DJ, photographer...',
     explore: 'Book',
     concierge: 'Need help?',
+    chips: [
+      { label: 'Massage', href: '/search?cat=massage' },
+      { label: 'Private chef', href: '/search?cat=chef_prive' },
+      { label: 'DJ', href: '/search?cat=musique' },
+      { label: 'Babysitter', href: '/search?cat=babysitter' },
+    ],
   },
   es: {
     alt: 'Villa caribeña con laguna turquesa y naturaleza tropical',
@@ -45,9 +59,16 @@ const COPY = {
     phrases: ['en tu villa.', 'en tu Airbnb.', 'donde te alojas.'],
     subtitle: 'Masajes a domicilio, chefs privados, fotógrafos, DJs, entrenadores o canguros: Ohaana conecta viajeros en alojamientos privados con profesionales locales verificados.',
     mobileSubtitle: 'Servicios locales verificados, reservados en minutos en tu alojamiento.',
+    mobileTitle: '¿Qué servicio buscas?',
     search: 'Masaje, chef privado, DJ, fotógrafo...',
     explore: 'Reservar',
     concierge: '¿Necesitas ayuda?',
+    chips: [
+      { label: 'Masaje', href: '/search?cat=massage' },
+      { label: 'Chef privado', href: '/search?cat=chef_prive' },
+      { label: 'DJ', href: '/search?cat=musique' },
+      { label: 'Canguro', href: '/search?cat=babysitter' },
+    ],
   },
 } as const
 
@@ -82,7 +103,7 @@ export function HeroSection({
 
   return (
     <>
-      <div ref={ref} className="relative h-[62dvh] min-h-[470px] md:h-[70dvh] md:min-h-[560px] overflow-hidden">
+      <div ref={ref} className="relative h-[54dvh] min-h-[390px] md:h-[70dvh] md:min-h-[560px] overflow-hidden">
         {/* Parallax background — clipped separately */}
         <div className="absolute inset-0 overflow-hidden">
           <motion.div className="absolute inset-0 scale-110" style={{ y }}>
@@ -106,8 +127,43 @@ export function HeroSection({
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
             className="max-w-sm md:max-w-xl md:w-full"
           >
-            {/* Frosted glass card */}
-            <div className="bg-coconut/90 backdrop-blur-lg rounded-2xl md:rounded-3xl p-3 md:p-6 space-y-2.5 md:space-y-4 shadow-elevated border border-white/60">
+            {/* Mobile search-first card */}
+            <div className="space-y-3 rounded-2xl border border-white/60 bg-coconut/92 p-3.5 shadow-elevated backdrop-blur-lg md:hidden">
+              <div className="space-y-1.5">
+                <h1 className="text-2xl font-display leading-tight text-deep-green">
+                  {copy.mobileTitle}
+                </h1>
+                <p className="text-sm leading-snug text-charcoal/75">
+                  {copy.mobileSubtitle}
+                </p>
+              </div>
+
+              <Link
+                href="/search"
+                className="flex h-12 items-center gap-3 rounded-2xl border border-mist bg-white px-4 transition-all hover:border-deep-green/40 hover:shadow-sm"
+              >
+                <Search size={16} className="flex-none text-deep-green" />
+                <span className="min-w-0 flex-1 truncate text-sm text-stone">{copy.search}</span>
+                <span className="rounded-full bg-deep-green px-2.5 py-1 text-xs font-medium text-coconut">
+                  {copy.explore}
+                </span>
+              </Link>
+
+              <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                {copy.chips.map((chip) => (
+                  <Link
+                    key={chip.href}
+                    href={chip.href}
+                    className="flex-none rounded-full border border-deep-green/15 bg-deep-green/[0.07] px-3 py-1.5 text-xs font-medium text-deep-green"
+                  >
+                    {chip.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Desktop frosted glass card */}
+            <div className="hidden bg-coconut/90 backdrop-blur-lg rounded-2xl md:rounded-3xl p-3 md:p-6 space-y-2.5 md:space-y-4 shadow-elevated border border-white/60 md:block">
 
               {/* Island + date selectors — above the title */}
               <div className="flex items-center gap-2">
@@ -139,11 +195,8 @@ export function HeroSection({
                   </AnimatePresence>
                 </span>
               </h1>
-              <p className="text-charcoal/75 text-sm leading-relaxed hidden md:block">
+              <p className="text-charcoal/75 text-sm leading-relaxed">
                 {copy.subtitle}
-              </p>
-              <p className="text-charcoal/75 text-sm leading-snug md:hidden">
-                {copy.mobileSubtitle}
               </p>
 
               {/* Search bar */}
@@ -161,7 +214,7 @@ export function HeroSection({
               {/* CTA concierge */}
               <Link
                 href="/concierge"
-                className="hidden md:flex items-center gap-2.5 bg-deep-green/8 hover:bg-deep-green/14 border border-deep-green/15 text-deep-green rounded-2xl px-4 py-2.5 text-sm font-medium transition-colors"
+                className="flex items-center gap-2.5 bg-deep-green/8 hover:bg-deep-green/14 border border-deep-green/15 text-deep-green rounded-2xl px-4 py-2.5 text-sm font-medium transition-colors"
               >
                 {/* Live dot */}
                 <span className="relative flex h-2 w-2 flex-none">

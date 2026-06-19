@@ -53,7 +53,9 @@ export function ServiceCard({
   const isEn = locale === 'en'
   const cover = service.images.find((img) => img.is_cover) ?? service.images[0]
   const price = formatPrice(service.price_cents)
-  const title = isEn || locale === 'es' ? service.title_en : service.title_fr
+  const title = locale === 'es'
+    ? ((service as any).title_es ?? service.title_en)
+    : isEn ? service.title_en : service.title_fr
   const coverAlt = isEn || locale === 'es' ? cover?.alt_en : cover?.alt_fr
   const providerName = service.provider?.business_name ?? 'Ohaana'
   const providerUserName = service.provider?.user?.full_name ?? providerName

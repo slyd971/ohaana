@@ -1,6 +1,7 @@
 'use client'
 
 import { use, useState, useEffect } from 'react'
+import { useLocale } from 'next-intl'
 import { notFound } from 'next/navigation'
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
@@ -114,6 +115,7 @@ function formatDateLong(d: Date) {
 
 function ConfirmationScreen({
   service,
+  title,
   selectedDate,
   selectedTime,
   guests,
@@ -121,6 +123,7 @@ function ConfirmationScreen({
   platformFee,
 }: {
   service: NonNullable<ReturnType<typeof getServiceById>>
+  title: string
   selectedDate: Date
   selectedTime: string
   guests: number
@@ -128,6 +131,7 @@ function ConfirmationScreen({
   platformFee: number
 }) {
   const cover = service.images.find((i) => i.is_cover) ?? service.images[0]
+  const svcTitle = title
 
   return (
     <motion.div
@@ -151,10 +155,10 @@ function ConfirmationScreen({
 
       <div className="w-full max-w-sm bg-surface rounded-3xl border border-mist overflow-hidden mb-6">
         <div className="relative h-32">
-          <Image src={cover?.url ?? ''} alt={service.title_fr} fill className="object-cover" sizes="400px" />
+          <Image src={cover?.url ?? ''} alt={svcTitle} fill className="object-cover" sizes="400px" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           <p className="absolute bottom-3 left-4 right-4 text-white text-sm font-semibold line-clamp-2">
-            {service.title_fr}
+            {svcTitle}
           </p>
         </div>
         <div className="p-4 space-y-2.5 text-sm">
@@ -193,8 +197,13 @@ function ConfirmationScreen({
 
 export default function ReservationPage({ params }: { params: Promise<{ serviceId: string }> }) {
   const { serviceId } = use(params)
+  const locale = useLocale()
   const service = getServiceById(serviceId)
   if (!service) notFound()
+
+  const svcTitle = locale === 'es'
+    ? ((service as any).title_es ?? service.title_en)
+    : locale === 'en' ? service.title_en : service.title_fr
 
   const searchParams = useSearchParams()
 
@@ -237,6 +246,7 @@ export default function ReservationPage({ params }: { params: Promise<{ serviceI
     return (
       <ConfirmationScreen
         service={service}
+        title={svcTitle}
         selectedDate={selectedDate!}
         selectedTime={selectedTime!}
         guests={guests}
@@ -254,7 +264,7 @@ export default function ReservationPage({ params }: { params: Promise<{ serviceI
           <Link href={`/prestataires/${service.id}`} className="p-1.5 -ml-1 text-charcoal flex-none">
             <ChevronLeft size={22} />
           </Link>
-          <p className="flex-1 text-sm font-semibold text-charcoal line-clamp-2 leading-tight">{service.title_fr}</p>
+          <p className="flex-1 text-sm font-semibold text-charcoal line-clamp-2 leading-tight">{svcTitle}</p>
           <button
             type="button"
             onClick={() => setIsFav(v => !v)}
@@ -278,7 +288,7 @@ export default function ReservationPage({ params }: { params: Promise<{ serviceI
             <div className="relative w-20 h-20 rounded-2xl overflow-hidden flex-none">
               <Image
                 src={cover?.url ?? ''}
-                alt={service.title_fr}
+                alt={svcTitle}
                 fill
                 className="object-cover"
                 sizes="80px"
@@ -286,7 +296,7 @@ export default function ReservationPage({ params }: { params: Promise<{ serviceI
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-charcoal line-clamp-2 leading-tight">
-                {service.title_fr}
+                {svcTitle}
               </p>
               <p className="text-xs text-stone mt-0.5">{service.provider.business_name}</p>
                   {/* Key info */}

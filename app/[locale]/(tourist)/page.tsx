@@ -263,9 +263,9 @@ export default function HomePage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-40px' }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="w-[calc(100vw-2.5rem)] flex-none rounded-2xl border border-mist/80 bg-white p-5 shadow-card space-y-3 sm:w-auto sm:min-w-0 sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none"
+                  className="w-[calc(100vw-2.5rem)] flex-none rounded-2xl border border-mist/80 bg-white p-5 text-center shadow-card space-y-3 sm:w-auto sm:min-w-0 sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none"
                 >
-                  <div className="flex h-12 w-12 items-center justify-center sm:h-11 sm:w-11">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center sm:h-11 sm:w-11">
                     <Icon size={34} strokeWidth={1.7} className="text-charcoal sm:size-8" />
                   </div>
                   <h3 className="font-semibold text-charcoal text-base sm:text-sm">{title}</h3>
