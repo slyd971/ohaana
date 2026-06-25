@@ -11,11 +11,11 @@ const OG_IMAGE = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w
 export const metadata: Metadata = {
   metadataBase: new URL(BASE),
   title: {
-    default: 'Ohaana — Services locaux pour hébergements privatifs',
+    default: 'Ohaana — Massage, chef privé, DJ à domicile · Guadeloupe, Martinique, Saint-Martin',
     template: '%s | Ohaana',
   },
   description:
-    'Réservez en quelques minutes des services locaux vérifiés directement sur votre lieu de séjour : massage à domicile, chef privé, photographe, DJ, coach sportif ou baby-sitter.',
+    'Chef créole, massage en bord de piscine, DJ pour votre terrasse — les meilleurs prestataires des Antilles, réservés en quelques clics depuis votre villa.',
   keywords: ['guadeloupe', 'martinique', 'caraïbes', 'concierge digital', 'hébergement privatif', 'airbnb', 'villa', 'chef privé', 'massage à domicile', 'services locaux'],
   icons: {
     icon: [
