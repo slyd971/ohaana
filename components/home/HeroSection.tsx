@@ -15,7 +15,7 @@ const COPY = {
   fr: {
     alt: 'Villa caribéenne — lagon turquoise et nature tropicale',
     placeholder: 'Quand ?',
-    title: 'Le meilleur des Antilles, dans votre villa.',
+    title: 'Ce soir, le chef vient chez vous.',
     subtitle: 'Massage en bord de piscine, chef créole, photographe ou DJ : les meilleurs prestataires de Guadeloupe, Martinique et Saint-Martin, réservés en quelques clics.',
     mobileSubtitle: 'Massage, chef créole, DJ — les meilleurs prestataires des Antilles, à deux clics de chez vous.',
     search: 'Massage, chef privé, DJ, photographe...',
@@ -25,7 +25,7 @@ const COPY = {
   en: {
     alt: 'Caribbean villa with a turquoise lagoon and tropical nature',
     placeholder: 'When?',
-    title: 'The best of the Caribbean, at your villa.',
+    title: 'Tonight, the chef comes to you.',
     subtitle: 'Poolside massage, Creole chef, photographer or DJ: the best providers in Guadeloupe, Martinique and Saint-Martin, booked in a few clicks.',
     mobileSubtitle: 'Massage, Creole chef, DJ — the best Caribbean providers, two clicks from home.',
     search: 'Massage, private chef, DJ, photographer...',
@@ -35,7 +35,7 @@ const COPY = {
   es: {
     alt: 'Villa caribeña con laguna turquesa y naturaleza tropical',
     placeholder: '¿Cuándo?',
-    title: 'Lo mejor del Caribe, en tu villa.',
+    title: 'Esta noche, el chef viene a ti.',
     subtitle: 'Masaje junto a la piscina, chef criollo, fotógrafo o DJ: los mejores prestadores de Guadalupe, Martinica y Saint-Martin, reservados en pocos clics.',
     mobileSubtitle: 'Masaje, chef criollo, DJ — los mejores prestadores del Caribe, a dos clics de donde estás.',
     search: 'Masaje, chef privado, DJ, fotógrafo...',
