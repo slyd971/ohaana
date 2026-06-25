@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useLocale } from 'next-intl'
 import { Link } from '@/lib/i18n/navigation'
-import { Search, MessageCircle, ChevronRight } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { IslandSelector, type IslandFilter } from '@/components/home/IslandSelector'
 import { DateRangePicker } from '@/components/ui/DateRangePicker'
 
@@ -20,7 +20,6 @@ const COPY = {
     mobileSubtitle: 'Massage, chef créole, DJ — les meilleurs prestataires des Antilles, à deux clics de chez vous.',
     search: 'Massage, chef privé, DJ, photographe...',
     explore: 'Réserver',
-    concierge: "Besoin d'aide ?",
   },
   en: {
     alt: 'Caribbean villa with a turquoise lagoon and tropical nature',
@@ -30,7 +29,6 @@ const COPY = {
     mobileSubtitle: 'Massage, Creole chef, DJ — the best Caribbean providers, two clicks from home.',
     search: 'Massage, private chef, DJ, photographer...',
     explore: 'Book',
-    concierge: 'Need help?',
   },
   es: {
     alt: 'Villa caribeña con laguna turquesa y naturaleza tropical',
@@ -40,7 +38,6 @@ const COPY = {
     mobileSubtitle: 'Masaje, chef criollo, DJ — los mejores prestadores del Caribe, a dos clics de donde estás.',
     search: 'Masaje, chef privado, DJ, fotógrafo...',
     explore: 'Reservar',
-    concierge: '¿Necesitas ayuda?',
   },
 } as const
 
@@ -114,7 +111,7 @@ export function HeroSection({
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <Link
                 href="/search"
                 className="flex flex-1 items-center gap-2 rounded-xl border border-mist bg-white px-3 py-2.5 transition-colors hover:border-deep-green/40"
@@ -124,24 +121,12 @@ export function HeroSection({
               </Link>
               <Link
                 href="/search"
-                className="flex-none rounded-xl bg-deep-green px-4 py-2.5 text-sm font-medium text-coconut transition-colors hover:bg-coral"
+                className="flex items-center justify-center rounded-xl bg-deep-green px-4 py-2.5 text-sm font-medium text-coconut transition-colors hover:bg-coral sm:flex-none"
               >
                 {copy.explore}
               </Link>
             </div>
 
-            <Link
-              href="/concierge"
-              className="flex items-center gap-2.5 rounded-xl border border-deep-green/15 bg-deep-green/[0.07] px-4 py-2.5 text-sm font-medium text-deep-green transition-colors hover:bg-deep-green/[0.12]"
-            >
-              <span className="relative flex h-2 w-2 flex-none">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-turquoise opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-turquoise" />
-              </span>
-              <MessageCircle size={14} className="flex-none" />
-              {copy.concierge}
-              <ChevronRight size={13} className="ml-auto flex-none opacity-50" />
-            </Link>
           </div>
         </motion.div>
       </div>
