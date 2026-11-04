@@ -1,102 +1,95 @@
-import { CalendarDays, TrendingUp, Wallet, Briefcase, Clock, CheckCircle, AlertCircle } from 'lucide-react'
+import { CalendarDays, TrendingUp, Briefcase, Star, Clock, AlertCircle, CheckCircle } from 'lucide-react'
+import { Link } from '@/lib/i18n/navigation'
+import { getProviderContext } from '@/lib/provider/context'
+import { getDashboardStats } from '@/lib/provider/queries'
+import { nowDate } from '@/lib/data/dates'
+import { ApprovalBanner, PageHeader, SignInRequired, eur, formatDateTimeFr } from '@/components/provider/ui'
+import { DemoDashboard } from '../_demo/DemoDashboard'
 
-const KPI = [
-  { label: 'Réservations ce mois', value: '12', delta: '+3 vs mois dernier', Icon: CalendarDays, color: 'bg-turquoise/10 text-turquoise' },
-  { label: 'Revenus nets', value: '4 320 €', delta: '+18%', Icon: TrendingUp, color: 'bg-coral/10 text-coral' },
-  { label: 'Panier moyen', value: '360 €', delta: '+12%', Icon: Wallet, color: 'bg-sand text-deep-green' },
-  { label: 'Services actifs', value: '3', delta: '', Icon: Briefcase, color: 'bg-deep-green/10 text-deep-green' },
-]
+export default async function ProviderDashboard() {
+  const ctx = await getProviderContext()
+  if (ctx.kind === 'demo') return <DemoDashboard />
+  if (ctx.kind !== 'provider') return <SignInRequired kind={ctx.kind} />
 
-const UPCOMING = [
-  { id: 1, client: 'Sophie Laurent', service: 'Chef à domicile — 4 pers.', date: 'Ven 14 juin · 19 h 00', status: 'confirmed' },
-  { id: 2, client: 'Marcus Williams', service: 'Cours de plongée débutant', date: 'Sam 15 juin · 09 h 00', status: 'confirmed' },
-  { id: 3, client: 'Isabelle Moreau', service: 'Chef à domicile — 6 pers.', date: 'Dim 16 juin · 20 h 00', status: 'pending' },
-]
+  const stats = await getDashboardStats(ctx.supabase, nowDate())
+  const { provider } = ctx
 
-const REQUESTS = [
-  { id: 1, client: 'Jean-Paul Rivière', service: 'Dégustation rhum arrangé', date: 'Mer 18 juin', budget: '180 €' },
-  { id: 2, client: 'Emma Dubois',      service: 'Chef fusion créole · 8 pers.', date: 'Sam 21 juin', budget: '420 €' },
-]
+  const kpis = [
+    { label: 'Réservations ce mois', value: String(stats.bookingsThisMonth), Icon: CalendarDays, color: 'bg-turquoise/10 text-turquoise' },
+    { label: 'Revenu net ce mois', value: eur(stats.netRevenueThisMonthCents), Icon: TrendingUp, color: 'bg-coral/10 text-coral' },
+    { label: 'Services publiés', value: String(stats.publishedServices), hint: stats.pendingServices ? `${stats.pendingServices} en relecture` : '', Icon: Briefcase, color: 'bg-deep-green/10 text-deep-green' },
+    { label: 'Note moyenne', value: provider.review_count > 0 ? provider.avg_rating.toFixed(1) : '—', hint: `${provider.review_count} avis`, Icon: Star, color: 'bg-sand text-deep-green' },
+  ]
 
-export default function ProviderDashboard() {
   return (
     <div className="p-5 md:p-8 space-y-8 max-w-5xl">
-      <div>
-        <h1 className="text-2xl font-display text-deep-green">Bonjour, Jean-Marc 👋</h1>
-        <p className="text-stone text-sm mt-0.5">Voici un résumé de votre activité ce mois-ci.</p>
-      </div>
+      <PageHeader title={`Bonjour, ${provider.business_name}`} subtitle="Voici un résumé réel de votre activité." />
+      <ApprovalBanner provider={provider} />
 
-      {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {KPI.map(({ label, value, delta, Icon, color }) => (
+        {kpis.map(({ label, value, hint, Icon, color }) => (
           <div key={label} className="bg-coconut rounded-2xl p-4 border border-mist shadow-sm">
             <div className={`inline-flex items-center justify-center w-9 h-9 rounded-xl mb-3 ${color}`}>
               <Icon size={18} />
             </div>
             <p className="text-2xl font-display text-charcoal">{value}</p>
             <p className="text-xs text-stone mt-0.5">{label}</p>
-            {delta && <p className="text-xs text-turquoise font-medium mt-1">{delta}</p>}
+            {hint ? <p className="text-xs text-stone/70 mt-1">{hint}</p> : null}
           </div>
         ))}
       </div>
 
+      <p className="text-xs text-stone -mt-4">
+        Revenu net : montant qui vous revient après paiement du voyageur, hors frais de service Ohaana. Total cumulé : {eur(stats.netRevenueTotalCents)}.
+        {stats.honouredRate !== null && ` Prestations honorées : ${Math.round(stats.honouredRate * 100)} %.`}
+      </p>
+
       <div className="grid md:grid-cols-2 gap-6">
-        {/* Upcoming */}
-        <div className="bg-coconut rounded-2xl border border-mist shadow-sm overflow-hidden">
+        <section className="bg-coconut rounded-2xl border border-mist shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-mist flex items-center gap-2">
             <Clock size={15} className="text-deep-green" />
             <h2 className="text-sm font-semibold text-charcoal">Prochaines prestations</h2>
           </div>
-          <ul className="divide-y divide-mist">
-            {UPCOMING.map(({ id, client, service, date, status }) => (
-              <li key={id} className="px-5 py-3.5 flex items-start gap-3">
-                <div className="mt-0.5">
-                  {status === 'confirmed'
-                    ? <CheckCircle size={15} className="text-turquoise" />
-                    : <AlertCircle size={15} className="text-[#F5A623]" />}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-charcoal truncate">{client}</p>
-                  <p className="text-xs text-stone truncate">{service}</p>
-                  <p className="text-xs text-deep-green/70 mt-0.5">{date}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
+          {stats.upcoming.length === 0 ? (
+            <p className="px-5 py-6 text-sm text-stone">Aucune prestation confirmée à venir.</p>
+          ) : (
+            <ul className="divide-y divide-mist">
+              {stats.upcoming.map((b) => (
+                <li key={b.id} className="px-5 py-3.5 flex items-start gap-3">
+                  <CheckCircle size={15} className="text-turquoise mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-charcoal truncate">{b.tourist_first_name || 'Voyageur'} · {b.guests_count} pers.</p>
+                    <p className="text-xs text-stone truncate">{b.title_fr}</p>
+                    <p className="text-xs text-deep-green/70 mt-0.5">{formatDateTimeFr(b.starts_at)}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
 
-        {/* Pending requests */}
-        <div className="bg-coconut rounded-2xl border border-mist shadow-sm overflow-hidden">
+        <section className="bg-coconut rounded-2xl border border-mist shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-mist flex items-center justify-between">
             <div className="flex items-center gap-2">
               <AlertCircle size={15} className="text-coral" />
-              <h2 className="text-sm font-semibold text-charcoal">Demandes en attente</h2>
+              <h2 className="text-sm font-semibold text-charcoal">Paiements en attente</h2>
             </div>
-            <span className="text-xs bg-coral/10 text-coral rounded-full px-2 py-0.5 font-medium">{REQUESTS.length} nouvelles</span>
+            <Link href="/provider/reservations" className="text-xs text-deep-green hover:underline">Tout voir</Link>
           </div>
-          <ul className="divide-y divide-mist">
-            {REQUESTS.map(({ id, client, service, date, budget }) => (
-              <li key={id} className="px-5 py-3.5 flex items-start gap-3">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-charcoal truncate">{client}</p>
-                  <p className="text-xs text-stone truncate">{service}</p>
-                  <p className="text-xs text-stone/60 mt-0.5">{date}</p>
-                </div>
-                <div className="text-right shrink-0">
-                  <p className="text-sm font-semibold text-deep-green">{budget}</p>
-                  <div className="flex gap-1.5 mt-1.5">
-                    <button className="text-xs bg-deep-green text-coconut px-2.5 py-1 rounded-lg hover:bg-deep-green/90 transition-colors">
-                      Accepter
-                    </button>
-                    <button className="text-xs border border-mist text-stone px-2.5 py-1 rounded-lg hover:bg-sand transition-colors">
-                      Refuser
-                    </button>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
+          {stats.awaitingPayment.length === 0 ? (
+            <p className="px-5 py-6 text-sm text-stone">Aucune réservation en attente de paiement.</p>
+          ) : (
+            <ul className="divide-y divide-mist">
+              {stats.awaitingPayment.map((b) => (
+                <li key={b.id} className="px-5 py-3.5">
+                  <p className="text-sm font-medium text-charcoal truncate">{b.tourist_first_name || 'Voyageur'} · {b.guests_count} pers.</p>
+                  <p className="text-xs text-stone truncate">{b.title_fr}</p>
+                  <p className="text-xs text-stone/70 mt-0.5">{formatDateTimeFr(b.starts_at)} · {eur(b.total_cents)}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       </div>
     </div>
   )

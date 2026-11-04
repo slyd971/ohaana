@@ -1,92 +1,75 @@
-import { Plus, Star, Clock, Users } from 'lucide-react'
+import { Plus, Star, Clock, Users, CalendarClock } from 'lucide-react'
+import { Link } from '@/lib/i18n/navigation'
+import { getProviderContext } from '@/lib/provider/context'
+import { listProviderServices } from '@/lib/provider/queries'
+import { ApprovalBanner, EmptyState, PageHeader, SignInRequired, StatusBadge, eur } from '@/components/provider/ui'
+import { ServiceActions } from '@/components/provider/RowActions'
+import { formatDuration } from '@/lib/utils'
+import { DemoServices } from '../_demo/DemoServices'
 
-const SERVICES = [
-  {
-    title: 'Dîner de chef à domicile — Menu Créole Prestige',
-    category: 'Chef privé',
-    price: '180 €/pers.',
-    duration: '3h',
-    capacity: '2–8 pers.',
-    rating: 4.9,
-    reviews: 47,
-    bookings: 89,
-    status: 'actif',
-  },
-  {
-    title: 'Brunch créole à domicile — Saveurs des îles',
-    category: 'Chef privé',
-    price: '95 €/pers.',
-    duration: '2h',
-    capacity: '2–10 pers.',
-    rating: 4.8,
-    reviews: 23,
-    bookings: 34,
-    status: 'actif',
-  },
-  {
-    title: 'Cours de cuisine créole — Recettes traditionnelles',
-    category: 'Atelier culinaire',
-    price: '75 €/pers.',
-    duration: '2h30',
-    capacity: '2–6 pers.',
-    rating: 0,
-    reviews: 0,
-    bookings: 0,
-    status: 'brouillon',
-  },
-]
+export default async function ProviderServicesPage() {
+  const ctx = await getProviderContext()
+  if (ctx.kind === 'demo') return <DemoServices />
+  if (ctx.kind !== 'provider') return <SignInRequired kind={ctx.kind} />
 
-const STATUS_STYLE: Record<string, string> = {
-  actif:      'bg-turquoise/10 text-turquoise',
-  brouillon:  'bg-sand text-stone',
-  inactif:    'bg-mist text-stone',
-}
+  const services = await listProviderServices(ctx.supabase)
 
-export default function ProviderServicesPage() {
   return (
     <div className="p-5 md:p-8 space-y-6 max-w-4xl">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-display text-deep-green">Mes services</h1>
-          <p className="text-stone text-sm mt-0.5">{SERVICES.length} services enregistrés</p>
-        </div>
-        <button
-          type="button"
-          className="flex items-center gap-2 bg-deep-green text-coconut px-4 py-2.5 rounded-full text-sm font-medium hover:bg-deep-green/90 transition-colors"
-        >
-          <Plus size={15} />
-          Ajouter un service
-        </button>
-      </div>
+      <PageHeader
+        title="Mes services"
+        subtitle={`${services.length} service${services.length > 1 ? 's' : ''} enregistré${services.length > 1 ? 's' : ''}`}
+        action={
+          <Link
+            href="/provider/services/new"
+            className="flex items-center gap-2 bg-deep-green text-coconut px-4 py-2.5 rounded-full text-sm font-medium hover:bg-deep-green/90 transition-colors flex-none"
+          >
+            <Plus size={15} /> Ajouter
+          </Link>
+        }
+      />
+      <ApprovalBanner provider={ctx.provider} />
 
-      <div className="space-y-3">
-        {SERVICES.map((s) => (
-          <div key={s.title} className="bg-coconut rounded-2xl border border-mist p-5 space-y-3">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap mb-1">
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_STYLE[s.status]}`}>
-                    {s.status}
-                  </span>
-                  <span className="text-[10px] text-stone">{s.category}</span>
+      {services.length === 0 ? (
+        <EmptyState title="Vous n’avez pas encore de service">
+          Créez votre première fiche, ajoutez vos disponibilités puis soumettez-la à la relecture.
+        </EmptyState>
+      ) : (
+        <div className="space-y-3">
+          {services.map((s) => (
+            <article key={s.id} className="bg-coconut rounded-2xl border border-mist p-5 space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="mb-1"><StatusBadge status={s.status} /></div>
+                  <h2 className="text-sm font-semibold text-charcoal leading-snug">{s.title_fr}</h2>
                 </div>
-                <h2 className="text-sm font-semibold text-charcoal leading-snug">{s.title}</h2>
+                <div className="flex flex-none gap-3 text-xs">
+                  <Link href={`/provider/disponibilites?service=${s.id}`} className="text-deep-green hover:underline inline-flex items-center gap-1">
+                    <CalendarClock size={12} /> Disponibilités
+                  </Link>
+                  <Link href={`/provider/services/${s.id}`} className="text-deep-green hover:underline">Modifier</Link>
+                </div>
               </div>
-              <button type="button" className="text-xs text-deep-green hover:underline flex-none">Modifier</button>
-            </div>
 
-            <div className="flex flex-wrap gap-4 text-xs text-stone">
-              <span className="font-semibold text-charcoal">{s.price}</span>
-              <span className="flex items-center gap-1"><Clock size={11} />{s.duration}</span>
-              <span className="flex items-center gap-1"><Users size={11} />{s.capacity}</span>
-              {s.rating > 0 && (
-                <span className="flex items-center gap-1"><Star size={11} className="text-amber-400" />{s.rating} ({s.reviews} avis)</span>
+              {s.status === 'rejected' && s.rejection_reason && (
+                <p className="text-xs bg-coral/10 text-coral rounded-lg px-3 py-2">Refusée : {s.rejection_reason}</p>
               )}
-              {s.bookings > 0 && <span>{s.bookings} réservations</span>}
-            </div>
-          </div>
-        ))}
-      </div>
+
+              <div className="flex flex-wrap gap-4 text-xs text-stone">
+                <span className="font-semibold text-charcoal">{eur(s.price_cents)}{s.price_unit === 'per_person' ? ' / pers.' : ' (groupe)'}</span>
+                {s.duration_min ? <span className="flex items-center gap-1"><Clock size={11} />{formatDuration(s.duration_min)}</span> : null}
+                <span className="flex items-center gap-1"><Users size={11} />{s.capacity_min}–{s.capacity_max} pers.</span>
+                {s.review_count > 0 && (
+                  <span className="flex items-center gap-1"><Star size={11} className="text-amber-400" />{s.avg_rating.toFixed(1)} ({s.review_count} avis)</span>
+                )}
+                {s.booking_count > 0 && <span>{s.booking_count} réservations</span>}
+              </div>
+
+              <ServiceActions id={s.id} status={s.status} />
+            </article>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

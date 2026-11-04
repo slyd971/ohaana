@@ -8,12 +8,13 @@ import { OhaanaLogo } from '@/components/layout/OhaanaLogo'
 import { cn } from '@/lib/utils'
 import {
   LayoutDashboard, Briefcase, CalendarDays,
-  CreditCard, Settings, LogOut, ArrowLeft, Menu, PlusCircle,
+  CreditCard, Settings, LogOut, ArrowLeft, Menu, PlusCircle, CalendarClock,
 } from 'lucide-react'
 
 const NAV = [
   { href: '/provider/dashboard',   label: 'Tableau de bord', Icon: LayoutDashboard },
   { href: '/provider/services',    label: 'Mes services',    Icon: Briefcase },
+  { href: '/provider/disponibilites', label: 'Disponibilités', Icon: CalendarClock },
   { href: '/provider/reservations',label: 'Réservations',    Icon: CalendarDays },
   { href: '/provider/paiements',   label: 'Paiements',       Icon: CreditCard },
   { href: '/provider/onboarding',  label: 'Mon dossier',     Icon: PlusCircle },
