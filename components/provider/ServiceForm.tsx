@@ -1,8 +1,9 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useState } from 'react'
 import { saveServiceAction } from '@/app/actions/provider'
-import { Field, inputClass } from './ui'
+import { Field, eur, inputClass } from './ui'
+import { DEFAULT_COMMISSION_PCT, computeCommission } from '@/lib/utils'
 import { ISLAND_LABELS, PROVIDER_ISLANDS, type ActionState } from '@/lib/provider/schemas'
 import type { ProviderService } from '@/lib/provider/queries'
 
@@ -18,6 +19,7 @@ export function ServiceForm({
   defaultIsland,
   action: formAction = saveServiceAction,
   providerId,
+  commissionPct = DEFAULT_COMMISSION_PCT,
 }: {
   locale: string
   categories: CategoryOption[]
@@ -27,9 +29,15 @@ export function ServiceForm({
   action?: (prev: ActionState, formData: FormData) => Promise<ActionState>
   /** Set by the admin space: the provider the service belongs to. */
   providerId?: string
+  /** Commission d'Ohaana en % (platform_settings), pour afficher ce que le prestataire reçoit. */
+  commissionPct?: number
 }) {
   const [state, action, pending] = useActionState<ActionState, FormData>(formAction, {})
   const err = state.fieldErrors ?? {}
+  const [price, setPrice] = useState(service ? String(service.price_cents / 100) : '')
+  const [unit, setUnit] = useState<'per_person' | 'flat'>(service?.price_unit ?? 'per_person')
+  const priceCents = Math.round(Number(price.replace(',', '.')) * 100)
+  const net = Number.isFinite(priceCents) && priceCents >= 100 ? computeCommission(priceCents, commissionPct) : null
   const editingPublished = service?.status === 'published'
 
   return (
@@ -101,10 +109,10 @@ export function ServiceForm({
         <h2 className="text-sm font-semibold text-deep-green">Tarif et capacité</h2>
         <div className="grid sm:grid-cols-2 gap-4">
           <Field label="Prix (€)" htmlFor="price_euros" error={err.price_euros}>
-            <input id="price_euros" name="price_euros" type="number" inputMode="decimal" min={1} step="0.5" defaultValue={service ? service.price_cents / 100 : ''} required className={inputClass} />
+            <input id="price_euros" name="price_euros" type="number" inputMode="decimal" min={1} step="0.5" value={price} onChange={(e) => setPrice(e.target.value)} required className={inputClass} />
           </Field>
           <Field label="Le prix s’applique…" htmlFor="price_unit" error={err.price_unit}>
-            <select id="price_unit" name="price_unit" defaultValue={service?.price_unit ?? 'per_person'} className={inputClass}>
+            <select id="price_unit" name="price_unit" value={unit} onChange={(e) => setUnit(e.target.value as 'per_person' | 'flat')} className={inputClass}>
               <option value="per_person">par personne</option>
               <option value="flat">pour l’ensemble du groupe</option>
             </select>
@@ -123,7 +131,16 @@ export function ServiceForm({
           </Field>
         </div>
         <p className="text-[11px] text-stone">
-          Des frais de service de 20 % sont ajoutés au prix affiché au voyageur. Vous recevez le prix que vous fixez ici.
+          Le voyageur paie exactement ce prix. Ohaana prélève {commissionPct} % de commission sur chaque réservation.
+          {net && (
+            <>
+              {' '}
+              <strong className="text-charcoal">
+                Vous recevez {eur(net.providerAmount)} {unit === 'per_person' ? 'par personne' : 'par réservation'}
+              </strong>{' '}
+              (commission : {eur(net.platformFee)}).
+            </>
+          )}
         </p>
       </section>
 

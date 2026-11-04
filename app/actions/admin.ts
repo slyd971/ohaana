@@ -9,6 +9,7 @@ import { fieldErrors, formObject, isUuid, parseServiceForm } from '@/lib/provide
 import { planSlots } from '@/lib/provider/slots'
 import { slugify } from '@/lib/utils'
 import { applyImageOp, type ImageOp } from '@/lib/provider/images'
+import { SETTINGS_TAG } from '@/lib/commission'
 import { LEAD_STATUSES, USER_ROLES, categorySchema, type AssignableRole } from '@/lib/admin/schemas'
 
 // Mutations de l'espace admin. Chaque action : (1) relit le rôle admin côté serveur, (2) s'exécute avec la
@@ -415,4 +416,28 @@ export async function setLeadStatusAction(leadId: string, status: (typeof LEAD_S
   await log(a.ctx, 'lead.set_status', 'lead', leadId, { status })
   revalidatePath('/admin/leads')
   return { ok: true }
+}
+
+// ─── Paramètres ──────────────────────────────────────────────────────────────
+
+/**
+ * Taux de commission d'Ohaana, en % du prix payé par le voyageur (prélevé sur la part du prestataire).
+ * Il s'applique aux NOUVELLES réservations : chaque paiement conserve la répartition calculée à sa création.
+ */
+export async function setCommissionPctAction(pct: number): Promise<ActionState> {
+  const a = await admin()
+  if ('error' in a) return { error: a.error }
+  if (typeof pct !== 'number' || !Number.isFinite(pct) || pct < 0 || pct > 50) return { error: 'Le taux doit être compris entre 0 et 50 %.' }
+  const value = Math.round(pct * 10) / 10
+
+  const { data: before } = await a.ctx.supabase.from('platform_settings').select('value').eq('key', 'commission_pct').maybeSingle()
+  const { error } = await a.ctx.supabase
+    .from('platform_settings')
+    .upsert({ key: 'commission_pct', value, updated_by: a.ctx.userId, updated_at: new Date().toISOString() })
+  if (error) return { error: error.code === '23514' ? 'Le taux doit être compris entre 0 et 50 %.' : error.message }
+
+  await log(a.ctx, 'settings.commission_pct', 'setting', a.ctx.userId, { from: before?.value ?? null, to: value })
+  revalidateTag(SETTINGS_TAG, 'max')
+  revalidatePath('/admin/parametres')
+  return { ok: true, message: `Commission réglée à ${value} % pour les nouvelles réservations.` }
 }
