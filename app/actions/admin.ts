@@ -8,6 +8,7 @@ import { profileSchema, type ActionState } from '@/lib/provider/schemas'
 import { fieldErrors, formObject, isUuid, parseServiceForm } from '@/lib/provider/service-input'
 import { planSlots } from '@/lib/provider/slots'
 import { slugify } from '@/lib/utils'
+import { applyImageOp, type ImageOp } from '@/lib/provider/images'
 
 // Mutations de l'espace admin. Chaque action : (1) relit le rôle admin côté serveur, (2) s'exécute avec la
 // session de l'admin (RLS is_admin() + triggers), (3) écrit une ligne dans admin_logs, (4) invalide le cache public.
@@ -236,7 +237,7 @@ export async function saveServiceAsAdminAction(_prev: ActionState, formData: For
 
   await log(a.ctx, id ? 'service.update' : 'service.create', 'service', String(serviceId), { provider_id: providerId })
   invalidate()
-  redirect({ href: `/admin/providers/${providerId}`, locale })
+  redirect({ href: id ? `/admin/providers/${providerId}` : `/admin/providers/${providerId}/services/${serviceId}`, locale })
   return { ok: true }
 }
 
@@ -306,4 +307,21 @@ export async function setDayBlockedAsAdminAction(serviceId: string, date: string
   await log(a.ctx, blocked ? 'slots.block_day' : 'slots.unblock_day', 'service', serviceId, { date })
   revalidateTag(CACHE_TAGS.availability, 'max')
   return { ok: true }
+}
+
+/** Photos d'un service pour n'importe quel prestataire (l'admin passe par ses propres règles Storage). */
+export async function manageServiceImageAsAdminAction(input: ImageOp): Promise<ActionState> {
+  const a = await admin()
+  if ('error' in a) return { error: a.error }
+  if (!input || !isUuid(input.serviceId)) return { error: 'Service invalide.' }
+
+  const { data: service } = await a.ctx.supabase.from('services').select('id, provider_id').eq('id', input.serviceId).maybeSingle()
+  if (!service) return { error: 'Service introuvable.' }
+
+  const result = await applyImageOp(a.ctx.supabase, { id: service.id as string, provider_id: service.provider_id as string }, input)
+  if (result.ok) {
+    await log(a.ctx, `image.${input.op}`, 'service', service.id as string)
+    invalidate()
+  }
+  return result
 }

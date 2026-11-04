@@ -4,6 +4,9 @@ import { getProviderContext } from '@/lib/provider/context'
 import { getProviderService } from '@/lib/provider/queries'
 import { PageHeader, SignInRequired, StatusBadge } from '@/components/provider/ui'
 import { ServiceForm } from '@/components/provider/ServiceForm'
+import { ServiceImagesManager } from '@/components/provider/ServiceImagesManager'
+import { listServiceImages } from '@/lib/provider/images'
+import { manageServiceImageAction } from '@/app/actions/provider'
 import { DemoServices } from '../../_demo/DemoServices'
 
 export default async function EditServicePage({ params }: { params: Promise<{ locale: string; id: string }> }) {
@@ -15,6 +18,7 @@ export default async function EditServicePage({ params }: { params: Promise<{ lo
   const service = await getProviderService(ctx.supabase, ctx.provider.id, id)
   if (!service) notFound()
   const categories = await getCategories().catch(() => [])
+  const images = await listServiceImages(ctx.supabase, service.id)
 
   return (
     <div className="p-5 md:p-8 space-y-6 max-w-3xl">
@@ -25,6 +29,7 @@ export default async function EditServicePage({ params }: { params: Promise<{ lo
         service={service}
         defaultIsland={ctx.provider.island}
       />
+      <ServiceImagesManager serviceId={service.id} providerId={ctx.provider.id} images={images} act={manageServiceImageAction} />
     </div>
   )
 }

@@ -1,10 +1,12 @@
 import { Link } from '@/lib/i18n/navigation'
 import { notFound } from 'next/navigation'
 import { getAdminContext } from '@/lib/admin/context'
-import { saveServiceAsAdminAction } from '@/app/actions/admin'
+import { saveServiceAsAdminAction, manageServiceImageAsAdminAction } from '@/app/actions/admin'
 import { getCategories } from '@/lib/data/services'
 import { getProviderService } from '@/lib/provider/queries'
 import { ServiceForm } from '@/components/provider/ServiceForm'
+import { ServiceImagesManager } from '@/components/provider/ServiceImagesManager'
+import { listServiceImages } from '@/lib/provider/images'
 import { isUuid } from '@/lib/provider/service-input'
 
 export default async function AdminEditServicePage({ params }: { params: Promise<{ locale: string; id: string; serviceId: string }> }) {
@@ -18,6 +20,7 @@ export default async function AdminEditServicePage({ params }: { params: Promise
   const service = provider ? await getProviderService(ctx.supabase, id, serviceId) : null
   if (!provider || !service) notFound()
   const categories = await getCategories().catch(() => [])
+  const images = await listServiceImages(ctx.supabase, service.id)
 
   return (
     <div className="p-5 md:p-8 space-y-6 max-w-3xl">
@@ -35,6 +38,9 @@ export default async function AdminEditServicePage({ params }: { params: Promise
           action={saveServiceAsAdminAction}
           providerId={id}
         />
+      </div>
+      <div className="bg-sand rounded-2xl p-3 md:p-4">
+        <ServiceImagesManager serviceId={service.id} providerId={id} images={images} act={manageServiceImageAsAdminAction} />
       </div>
     </div>
   )
