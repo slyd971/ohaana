@@ -34,7 +34,7 @@ export function ShellAccount({ space }: { space: 'admin' | 'provider' }) {
 
   return (
     <div className="mx-3 mb-3 rounded-xl bg-white/5 px-3 py-3">
-      <div className="flex items-center gap-3">
+      <Link href={space === 'admin' ? '/admin/settings' : '/provider/settings'} className="flex items-center gap-3" title="Gérer mon compte">
         <span
           aria-hidden
           className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/15 text-sm font-semibold text-white"
@@ -48,7 +48,7 @@ export function ShellAccount({ space }: { space: 'admin' | 'provider' }) {
             {ROLE_LABELS[role ?? ''] ?? role}
           </p>
         </div>
-      </div>
+      </Link>
       {role === 'admin' && (
         <Link
           href={otherSpace.href}
