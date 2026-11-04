@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Photo à venir">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F5EDD8"/>
+      <stop offset="1" stop-color="#E4D9BC"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#g)"/>
+  <g fill="none" stroke="#1A3D2B" stroke-opacity=".28" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M470 470c40-60 100-90 130-90s90 30 130 90"/>
+    <path d="M600 380v-90"/>
+    <circle cx="600" cy="250" r="40"/>
+    <path d="M430 540h340"/>
+  </g>
+</svg>
