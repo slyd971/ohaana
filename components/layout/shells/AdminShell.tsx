@@ -9,7 +9,7 @@ import { ShellAccount } from '@/components/layout/ShellAccount'
 import { cn } from '@/lib/utils'
 import {
   LayoutDashboard, Users2, Briefcase,
-  CreditCard, ShieldCheck, LogOut, ArrowLeft, Menu, BarChart3, ClipboardCheck, UserCog } from 'lucide-react'
+  CreditCard, ShieldCheck, LogOut, ArrowLeft, Menu, BarChart3, ClipboardCheck, UserCog, Tags, Inbox } from 'lucide-react'
 
 const NAV = [
   { href: '/admin/dashboard',    label: 'Vue globale',         Icon: LayoutDashboard },
@@ -17,6 +17,8 @@ const NAV = [
   { href: '/admin/providers',    label: 'Prestataires',        Icon: Briefcase },
   { href: '/admin/moderation',   label: 'Modération',          Icon: ClipboardCheck },
   { href: '/admin/users',        label: 'Utilisateurs',        Icon: Users2 },
+  { href: '/admin/categories',   label: 'Catégories',          Icon: Tags },
+  { href: '/admin/leads',        label: 'Leads',               Icon: Inbox },
   { href: '/admin/transactions', label: 'Transactions',        Icon: CreditCard },
   { href: '/admin/compliance',   label: 'Conformité',          Icon: ShieldCheck },
   { href: '/admin/settings',     label: 'Mon compte',          Icon: UserCog },
