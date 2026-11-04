@@ -28,7 +28,7 @@ const fail = (error: string, status: number) => NextResponse.json({ error }, { s
 export async function POST(request: Request) {
   const secret = process.env.STRIPE_SECRET_KEY
   if (!secret) return fail('payments_not_configured', 503)
-  if (DEMO_MODE && !secret.startsWith('sk_test_')) return fail('payments_not_configured', 503) // never charge for real in demo
+  if (DEMO_MODE && !/^(sk|rk)_test_/.test(secret)) return fail('payments_not_configured', 503) // never charge for real in demo
 
   const parsed = bodySchema.safeParse(await request.json().catch(() => null))
   if (!parsed.success) return fail('invalid_request', 400)

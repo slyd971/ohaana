@@ -192,5 +192,5 @@ Le paiement utilise le **Payment Element** de Stripe : cartes bancaires (3-D Sec
 5. **Apple Pay** : Dashboard → *Settings → Payment methods → Apple Pay → Add new domain* (le domaine doit être servi en HTTPS ; visible uniquement dans Safari / appareils Apple avec une carte dans Wallet). **Google Pay** : visible dans Chrome avec une carte enregistrée.
 
 `POST /api/checkout` calcule toujours le montant côté serveur (prix du service × participants + frais de service) ; le navigateur n'envoie que des identifiants.
-- **Démo** (`NEXT_PUBLIC_DEMO_MODE=true`) : aucun compte ni réservation en base, uniquement des clés `sk_test_` acceptées.
+- **Démo** (`NEXT_PUBLIC_DEMO_MODE=true`) : aucun compte ni réservation en base, uniquement des clés de test (`sk_test_` ou `rk_test_`) acceptées.
 - **Réel** : exige un utilisateur connecté, appelle `create_booking` (verrou de créneau, prix serveur) puis crée le PaymentIntent lié à la réservation ; le webhook `payment_intent.succeeded` confirme la réservation. Requiert `SUPABASE_SERVICE_ROLE_KEY` et `STRIPE_WEBHOOK_SECRET`. Reste à faire (Prompt 6) : Stripe Connect (virement au prestataire), remboursements, idempotence des webhooks.
