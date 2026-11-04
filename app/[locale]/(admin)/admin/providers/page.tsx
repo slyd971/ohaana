@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { setProviderApprovalAction } from '@/app/actions/admin'
 import { CheckCircle, Clock, Star, Search, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -53,12 +54,10 @@ export default function AdminProvidersPage() {
     return () => { active = false }
   }, [version])
 
-  async function approve(id: string) {
-    const supabase = createClient()
-    const { error: err } = await supabase.from('provider_profiles').update({ is_approved: true }).eq('id', id)
-    if (err) { window.alert('Approbation impossible.'); return }
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) await supabase.from('admin_logs').insert({ admin_id: user.id, action: 'provider.approve', target_type: 'provider_profile', target_id: id })
+  async function setApproval(id: string, approved: boolean) {
+    if (!approved && !window.confirm('Suspendre ce prestataire ? Ses fiches publiées repasseront en relecture.')) return
+    const result = await setProviderApprovalAction(id, approved)
+    if (result.error) { window.alert(result.error); return }
     setVersion((v) => v + 1)
   }
 
@@ -160,14 +159,24 @@ export default function AdminProvidersPage() {
                       <span className="inline-flex items-center gap-1 text-xs text-[#F5A623] bg-[#F5A623]/10 rounded-full px-2 py-0.5">
                         <AlertTriangle size={10} /> En attente
                       </span>
-                      <button type="button" onClick={() => void approve(p.id)} className="p-1.5 bg-green-500/15 text-green-400 rounded-lg hover:bg-green-500/25 transition-colors" title="Approuver" aria-label="Approuver">
+                      <button type="button" onClick={() => void setApproval(p.id, true)} aria-label={`Approuver ${p.business_name}`} className="p-1.5 bg-green-500/15 text-green-400 rounded-lg hover:bg-green-500/25 transition-colors" title="Approuver">
                         <CheckCircle size={13} />
                       </button>
                     </div>
                   ) : (
-                    <span className="inline-flex items-center gap-1 text-xs text-green-400 bg-green-400/10 rounded-full px-2 py-0.5">
-                      <CheckCircle size={10} /> Validé
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="inline-flex items-center gap-1 text-xs text-green-400 bg-green-400/10 rounded-full px-2 py-0.5">
+                        <CheckCircle size={10} /> Validé
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => void setApproval(p.id, false)}
+                        aria-label={`Suspendre ${p.business_name}`}
+                        className="text-[11px] text-white/50 border border-white/10 rounded-lg px-2 py-1 hover:text-white/80 hover:bg-white/5"
+                      >
+                        Suspendre
+                      </button>
+                    </div>
                   )}
                 </div>
               </li>

@@ -193,6 +193,25 @@ begin
   perform t.scalar(format($q$update public.services set status = 'published' where id = %L returning id::text$q$, v_sid));
   perform t.eq('admin can approve provider and publish',
     t.scalar(format($q$select status::text from public.services where id = %L$q$, v_sid)), 'published');
+
+  -- modération : refus avec motif, journal d'audit, suspension qui dépublie
+  perform t.scalar(format($q$update public.services set status = 'pending_review' where id = %L returning id::text$q$, v_sid));
+  perform t.scalar(format($q$update public.services set status = 'rejected', rejection_reason = 'Photos manquantes' where id = %L returning id::text$q$, v_sid));
+  perform t.eq('admin can reject with a reason',
+    t.scalar(format($q$select rejection_reason from public.services where id = %L$q$, v_sid)), 'Photos manquantes');
+  perform t.scalar($q$insert into public.admin_logs (admin_id, action, target_type) values (auth.uid(), 'service.reject', 'service') returning id::text$q$);
+  perform t.fails('admin cannot log as another admin',
+    $q$insert into public.admin_logs (admin_id, action) values ('aaaaaaaa-0000-4000-8000-000000000001', 'x')$q$, '42501');
+  perform t.reset();
+
+  -- le prestataire voit le motif de refus mais ne peut ni le modifier ni lire le journal admin
+  perform t.as_user(P);
+  perform t.eq('provider sees the rejection reason',
+    t.scalar(format($q$select rejection_reason from public.services where id = %L$q$, v_sid)), 'Photos manquantes');
+  perform t.fails('provider cannot edit the rejection reason',
+    format($q$update public.services set rejection_reason = null where id = %L$q$, v_sid), '42501');
+  perform t.eq('provider cannot read admin logs',
+    t.scalar('select count(*)::text from public.admin_logs'), '0');
   perform t.reset();
 end $$;
 
