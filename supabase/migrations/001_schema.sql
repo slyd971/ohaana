@@ -7,12 +7,12 @@ create extension if not exists "pg_trgm";
 
 -- Enum types
 create type public.user_role as enum (
-  'tourist', 'provider', 'concierge', 'admin'
+  'tourist', 'provider', 'concierge', 'partner', 'admin'
 );
 
 create type public.booking_status as enum (
   'pending', 'confirmed', 'cancelled_tourist', 'cancelled_provider',
-  'completed', 'disputed'
+  'completed', 'disputed', 'expired'
 );
 
 create type public.payment_status as enum (

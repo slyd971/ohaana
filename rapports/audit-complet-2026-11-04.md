@@ -65,7 +65,7 @@ Le formulaire de capture (home) fait `console.log` + `localStorage`. Aucun email
 10. `keywords` meta : inutile (ignoré par Google), mais mélange "airbnb" ; à retirer.
 
 ### Fonctionnel / produit
-- **Tout est en données statiques** : `lib/data/seed.ts` (618 lignes, 53 occurrences de services) alimente home, recherche, fiche et sitemap. Dashboards prestataire, admin, partenaire, concierge, `voyages`, `notifications`, `profile` : données codées en dur.
+- **Tout est en données statiques** : `lib/data/seed.ts` (618 lignes, 17 services et 14 prestataires fictifs) alimente home, recherche, fiche et sitemap. Dashboards prestataire, admin, partenaire, concierge, `voyages`, `notifications`, `profile` : données codées en dur.
 - Back-office prestataire : `provider/services` n'a que des boutons "Ajouter"/"Modifier" sans action ; l'onboarding (416 lignes) n'enregistre rien.
 - Pas de gestion des **disponibilités** : le calendrier de réservation propose des créneaux fixes (`TIMES`) identiques pour tous, sans lien avec `availability_slots`.
 - Pas de **messagerie**, pas de flux d'**acceptation par le prestataire** (confirmation manuelle vs instantanée), pas de règles d'**annulation/remboursement**.
@@ -174,7 +174,7 @@ C. Fonctionnalités manquantes : tables `leads` (email, destination, whatsapp, s
 D. Trigger handle_new_user : lit raw_user_meta_data.role (limité à tourist|provider, jamais admin) et crée la ligne tourist_profiles ou provider_profiles correspondante.
 E. Storage : buckets `service-images` (lecture publique, écriture limitée au dossier {provider_id}/) et `provider-docs` (privé) avec policies.
 F. Index manquants (bookings.provider via service, availability par date, GIN sur tags, trigram sur title).
-G. Un fichier supabase/seed.sql qui reprend les données de lib/data/seed.ts (catégories, 5+ prestataires, 53 services) avec UUID stables, marqué clairement `is_demo=true` (ajoute la colonne) pour pouvoir les purger avant la vraie mise en ligne.
+G. Un fichier supabase/seed.sql qui reprend les données de lib/data/seed.ts (catégories, prestataires, services) avec UUID stables, marqué clairement `is_demo=true` (ajoute la colonne) pour pouvoir les purger avant la vraie mise en ligne.
 H. Régénère types/database.ts (supabase gen types) et corrige les erreurs TypeScript.
 
 Fournis aussi un script SQL de tests (pgTAP ou simple) qui prouve : un touriste ne peut pas se promouvoir admin, ne peut pas insérer une réservation à 0 €, ne peut pas lire les réservations d'un autre ; un prestataire ne peut pas s'auto-approuver. Critère de fin : `supabase db reset` passe sans erreur et les tests de sécurité passent.

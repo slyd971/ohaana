@@ -42,17 +42,34 @@ Créer un compte sur [stripe.com](https://stripe.com) et récupérer :
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET` (depuis la CLI Stripe)
 
-### 3. Migrations Supabase
+### 3. Base de données (Supabase)
 
 ```bash
-# Via Supabase CLI
+# Via Supabase CLI (premier usage : `supabase init` crée supabase/config.toml)
 supabase login
 supabase link --project-ref <your-project-ref>
-supabase db push
+supabase db push            # applique supabase/migrations/001 → 006
+# Données de démo (local uniquement) :
+supabase db reset           # rejoue les migrations puis supabase/seed.sql
+```
 
-# Ou manuellement dans le SQL editor Supabase :
-# 1. supabase/migrations/001_schema.sql
-# 2. supabase/migrations/002_rls.sql
+| Migration | Contenu |
+|---|---|
+| `001_schema.sql` | Tables, enums, triggers `updated_at` |
+| `002_rls.sql` | RLS valide (une commande par policy), helpers de rôle |
+| `003_marketplace_extensions.sql` | Statuts de service, slugs, i18n ES, politiques d'annulation, leads, candidatures, `webhook_events`, index anti double-réservation |
+| `004_security_and_rpc.sql` | Triggers de protection de colonnes, RPC `create_booking` / `cancel_booking` / `provider_set_booking_status` / `create_review`, vues publiques, `purge_demo_data()` |
+| `005_storage.sql` | Buckets `service-images` (public) et `provider-docs` (privé) + policies |
+| `006_reference_data.sql` | Catégories et politiques d'annulation (données réelles) |
+
+Règle d'or : **aucune écriture client directe** sur `bookings`, `payments`, `reviews`, `notifications`. Tout passe par les RPC ou par la clé `service_role` côté serveur (webhooks).
+
+Données de démo : `npm run db:seed` régénère `supabase/seed.sql` depuis `lib/data/seed.ts` (toutes les lignes sont `is_demo = true`). Avant le lancement réel : `select public.purge_demo_data();`.
+
+Tests de sécurité de la base (Postgres en mémoire via PGlite, sans Docker) :
+
+```bash
+npm run db:test   # migrations + seed + supabase/tests/security.sql
 ```
 
 ### 4. Lancer en développement
@@ -96,8 +113,9 @@ lib/
 ├── i18n/               # routing, navigation, request config
 └── utils.ts            # cn(), formatPrice(), computeFees()
 supabase/migrations/
-├── 001_schema.sql      # Toutes les tables + triggers
-└── 002_rls.sql         # Row Level Security
+├── 001_schema.sql … 006_reference_data.sql   # voir tableau ci-dessus
+supabase/seed.sql       # généré (npm run db:seed)
+supabase/tests/         # tests de sécurité SQL (npm run db:test)
 messages/
 ├── fr.json
 ├── en.json
