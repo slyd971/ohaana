@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { routing } from '@/lib/i18n/routing'
 import { SITE_URL } from '@/lib/site'
+import { DEMO_MODE } from '@/lib/demo-mode'
 import { AuthProvider } from '@/lib/auth/AuthProvider'
 import '../globals.css'
 
@@ -48,7 +49,8 @@ export const metadata: Metadata = {
     site: '@ohaana_caraibe',
     images: [OG_IMAGE],
   },
-  robots: { index: true, follow: true },
+  // La démo ne doit jamais être indexée (robots.txt la bloque déjà : on double côté balise).
+  robots: DEMO_MODE ? { index: false, follow: false } : { index: true, follow: true },
 }
 
 interface LocaleLayoutProps {
