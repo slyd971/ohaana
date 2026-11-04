@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { setProviderApprovalAction } from '@/app/actions/admin'
+import { Link } from '@/lib/i18n/navigation'
 import { CheckCircle, Clock, Star, Search, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -73,9 +74,17 @@ export default function AdminProvidersPage() {
 
   return (
     <div className="p-5 md:p-8 space-y-6 max-w-6xl">
-      <div>
-        <h1 className="text-2xl font-display text-white">Prestataires</h1>
-        <p className="text-white/40 text-sm mt-0.5">{loading ? '…' : `${providers.length} prestataires enregistrés`}</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-display text-white">Prestataires</h1>
+          <p className="text-white/40 text-sm mt-0.5">{loading ? '…' : `${providers.length} prestataires enregistrés`}</p>
+        </div>
+        <Link
+          href="/admin/providers/new"
+          className="flex-none text-xs bg-turquoise/20 text-turquoise border border-turquoise/30 px-4 py-2 rounded-xl hover:bg-turquoise/30"
+        >
+          + Nouveau prestataire
+        </Link>
       </div>
 
       {/* Filters */}
@@ -131,7 +140,9 @@ export default function AdminProvidersPage() {
                     {p.business_name.charAt(0)}
                   </span>
                   <div>
-                    <p className="text-sm font-medium text-white">{p.users?.full_name ?? p.business_name}</p>
+                    <Link href={`/admin/providers/${p.id}`} className="text-sm font-medium text-white hover:text-turquoise">
+                      {p.users?.full_name ?? p.business_name}
+                    </Link>
                     <p className="text-xs text-white/40">{p.business_name}</p>
                   </div>
                 </div>

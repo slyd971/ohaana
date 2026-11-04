@@ -216,6 +216,41 @@ begin
 end $$;
 
 -- ─────────────────────────────────────────────────────────────
+-- 2b. Prestataire « géré » créé par l'admin (sans compte)
+-- ─────────────────────────────────────────────────────────────
+do $$
+declare
+  v_pid uuid;
+  v_sid uuid;
+begin
+  perform t.as_user('aaaaaaaa-0000-4000-8000-000000000004');
+  v_pid := t.scalar($q$insert into public.provider_profiles (user_id, business_name, island, is_approved, claimed, created_by_admin_id)
+    values (null, 'Géré test', 'guadeloupe', true, false, auth.uid()) returning id::text$q$)::uuid;
+  v_sid := t.scalar(format($q$insert into public.services (provider_id, category_id, title_fr, price_cents, duration_min, capacity_min, capacity_max, status, created_by_admin_id)
+    values (%L, '00000000-0000-4000-8000-000000000c01', 'Service géré test', 8000, 90, 1, 4, 'draft', auth.uid()) returning id::text$q$, v_pid))::uuid;
+  perform t.scalar(format($q$update public.services set status = 'published' where id = %L returning id::text$q$, v_sid));
+  perform t.eq('admin-created provider has no account',
+    t.scalar(format($q$select (user_id is null)::text from public.provider_profiles where id = %L$q$, v_pid)), 'true');
+  perform t.reset();
+
+  perform t.as_anon();
+  perform t.eq('managed provider is visible in the public view',
+    t.scalar(format($q$select count(*)::text from public.public_provider_profiles where id = %L$q$, v_pid)), '1');
+  perform t.eq('managed provider service is publicly readable once published',
+    t.scalar(format($q$select count(*)::text from public.services where id = %L$q$, v_sid)), '1');
+  perform t.reset();
+
+  -- un prestataire ordinaire ne peut pas se fabriquer une fiche approuvée sans compte
+  perform t.as_user('aaaaaaaa-0000-4000-8000-000000000003');
+  perform t.eq('provider cannot even see a managed profile row',
+    t.scalar(format($q$select count(*)::text from public.provider_profiles where id = %L$q$, v_pid)), '0');
+  perform t.scalar(format($q$with u as (update public.provider_profiles set user_id = auth.uid() where id = %L returning 1) select count(*)::text from u$q$, v_pid));
+  perform t.reset();
+  perform t.eq('managed profile is still unclaimed after a takeover attempt',
+    t.scalar(format($q$select (user_id is null)::text from public.provider_profiles where id = %L$q$, v_pid)), 'true');
+end $$;
+
+-- ─────────────────────────────────────────────────────────────
 -- 3. Lecture publique : pas de fuite de données de contact
 -- ─────────────────────────────────────────────────────────────
 do $$

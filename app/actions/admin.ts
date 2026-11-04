@@ -2,13 +2,15 @@
 
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { getAdminContext } from '@/lib/admin/context'
+import { redirect } from '@/lib/i18n/navigation'
 import { CACHE_TAGS } from '@/lib/data/services'
-import type { ActionState } from '@/lib/provider/schemas'
+import { profileSchema, type ActionState } from '@/lib/provider/schemas'
+import { fieldErrors, formObject, isUuid, parseServiceForm } from '@/lib/provider/service-input'
+import { planSlots } from '@/lib/provider/slots'
+import { slugify } from '@/lib/utils'
 
 // Mutations de l'espace admin. Chaque action : (1) relit le rôle admin côté serveur, (2) s'exécute avec la
 // session de l'admin (RLS is_admin() + triggers), (3) écrit une ligne dans admin_logs, (4) invalide le cache public.
-
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 async function admin() {
   const ctx = await getAdminContext()
@@ -41,7 +43,7 @@ function invalidate() {
 export async function publishServiceAction(serviceId: string): Promise<ActionState> {
   const a = await admin()
   if ('error' in a) return { error: a.error }
-  if (!UUID_RE.test(serviceId)) return { error: 'Service invalide.' }
+  if (!isUuid(serviceId)) return { error: 'Service invalide.' }
 
   const { data, error } = await a.ctx.supabase
     .from('services')
@@ -66,7 +68,7 @@ export async function publishServiceAction(serviceId: string): Promise<ActionSta
 export async function rejectServiceAction(serviceId: string, reason: string): Promise<ActionState> {
   const a = await admin()
   if ('error' in a) return { error: a.error }
-  if (!UUID_RE.test(serviceId)) return { error: 'Service invalide.' }
+  if (!isUuid(serviceId)) return { error: 'Service invalide.' }
   const clean = reason.trim()
   if (clean.length < 5) return { error: 'Indiquez un motif (5 caractères minimum).' }
   if (clean.length > 500) return { error: 'Motif trop long (500 caractères maximum).' }
@@ -90,7 +92,7 @@ export async function rejectServiceAction(serviceId: string, reason: string): Pr
 export async function setProviderApprovalAction(providerId: string, approved: boolean): Promise<ActionState> {
   const a = await admin()
   if ('error' in a) return { error: a.error }
-  if (!UUID_RE.test(providerId)) return { error: 'Prestataire invalide.' }
+  if (!isUuid(providerId)) return { error: 'Prestataire invalide.' }
 
   const { data, error } = await a.ctx.supabase
     .from('provider_profiles')
@@ -124,12 +126,184 @@ export async function setProviderApprovalAction(providerId: string, approved: bo
 export async function setServiceFeaturedAction(serviceId: string, featured: boolean): Promise<ActionState> {
   const a = await admin()
   if ('error' in a) return { error: a.error }
-  if (!UUID_RE.test(serviceId)) return { error: 'Service invalide.' }
+  if (!isUuid(serviceId)) return { error: 'Service invalide.' }
 
   const { error } = await a.ctx.supabase.from('services').update({ is_featured: featured }).eq('id', serviceId)
   if (error) return { error: error.message }
 
   await log(a.ctx, featured ? 'service.feature' : 'service.unfeature', 'service', serviceId)
   invalidate()
+  return { ok: true }
+}
+
+// ─── Prestataires « gérés » (créés par l'admin, sans compte) ─────────────────
+
+function localeOf(formData: FormData): string {
+  const v = formData.get('locale')
+  return typeof v === 'string' && /^(fr|en|es)$/.test(v) ? v : 'fr'
+}
+
+/** Crée un prestataire sans compte (approuvé, non revendiqué). Une invitation pourra le rattacher plus tard. */
+export async function createManagedProviderAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const a = await admin()
+  if ('error' in a) return { error: a.error }
+
+  const parsed = profileSchema.safeParse(formObject(formData))
+  if (!parsed.success) return { error: 'Corrigez les champs signalés.', fieldErrors: fieldErrors(parsed.error.issues) }
+
+  const { data, error } = await a.ctx.supabase
+    .from('provider_profiles')
+    .insert({
+      ...parsed.data,
+      user_id: null,
+      is_approved: true,
+      claimed: false,
+      created_by_admin_id: a.ctx.userId,
+    })
+    .select('id')
+    .single()
+  if (error || !data) return { error: `Création impossible : ${error?.message ?? 'erreur inconnue'}` }
+
+  await log(a.ctx, 'provider.create_managed', 'provider_profile', data.id, { business_name: parsed.data.business_name })
+  invalidate()
+  redirect({ href: `/admin/providers/${data.id}`, locale: localeOf(formData) })
+  return { ok: true }
+}
+
+/** Modifie la fiche d'un prestataire (géré ou non). */
+export async function saveProviderAsAdminAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const a = await admin()
+  if ('error' in a) return { error: a.error }
+  const id = formData.get('provider_id')
+  if (!isUuid(id)) return { error: 'Prestataire invalide.' }
+
+  const parsed = profileSchema.safeParse(formObject(formData))
+  if (!parsed.success) return { error: 'Corrigez les champs signalés.', fieldErrors: fieldErrors(parsed.error.issues) }
+
+  const { data, error } = await a.ctx.supabase
+    .from('provider_profiles')
+    .update(parsed.data)
+    .eq('id', id)
+    .select('id')
+    .maybeSingle()
+  if (error) return { error: `Enregistrement impossible : ${error.message}` }
+  if (!data) return { error: 'Prestataire introuvable.' }
+
+  await log(a.ctx, 'provider.update', 'provider_profile', id)
+  invalidate()
+  revalidatePath(`/admin/providers/${id}`)
+  return { ok: true, message: 'Profil enregistré.' }
+}
+
+/** Crée ou modifie un service pour n'importe quel prestataire. Les nouvelles fiches démarrent en brouillon. */
+export async function saveServiceAsAdminAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const a = await admin()
+  if ('error' in a) return { error: a.error }
+  const providerId = formData.get('provider_id')
+  if (!isUuid(providerId)) return { error: 'Prestataire invalide.' }
+
+  const parsed = parseServiceForm(formData)
+  if (!parsed.ok) return { error: parsed.error, fieldErrors: parsed.fieldErrors }
+  const { id, locale, row, title_fr } = parsed
+
+  const { data: owner } = await a.ctx.supabase.from('provider_profiles').select('id').eq('id', providerId).maybeSingle()
+  if (!owner) return { error: 'Prestataire introuvable.' }
+
+  let serviceId = id
+  if (id) {
+    const { data, error } = await a.ctx.supabase
+      .from('services')
+      .update(row)
+      .eq('id', id)
+      .eq('provider_id', providerId)
+      .select('id')
+      .maybeSingle()
+    if (error) return { error: `Enregistrement impossible : ${error.message}` }
+    if (!data) return { error: 'Service introuvable.' }
+  } else {
+    const { data, error } = await a.ctx.supabase
+      .from('services')
+      .insert({ ...row, provider_id: providerId, status: 'draft', created_by_admin_id: a.ctx.userId })
+      .select('id')
+      .single()
+    if (error || !data) return { error: `Création impossible : ${error?.message ?? 'erreur inconnue'}` }
+    serviceId = data.id
+    await a.ctx.supabase
+      .from('services')
+      .update({ slug_fr: `${slugify(title_fr)}-${String(data.id).slice(0, 6)}` })
+      .eq('id', data.id)
+  }
+
+  await log(a.ctx, id ? 'service.update' : 'service.create', 'service', String(serviceId), { provider_id: providerId })
+  invalidate()
+  redirect({ href: `/admin/providers/${providerId}`, locale })
+  return { ok: true }
+}
+
+/** Fait passer un service par l'admin : brouillon, publié ou archivé. */
+export async function setServiceStatusAsAdminAction(
+  serviceId: string,
+  status: 'draft' | 'published' | 'archived',
+): Promise<ActionState> {
+  const a = await admin()
+  if ('error' in a) return { error: a.error }
+  if (!isUuid(serviceId)) return { error: 'Service invalide.' }
+  if (!['draft', 'published', 'archived'].includes(status)) return { error: 'Statut invalide.' }
+
+  const { data, error } = await a.ctx.supabase
+    .from('services')
+    .update({ status, ...(status === 'published' ? { rejection_reason: null } : {}) })
+    .eq('id', serviceId)
+    .select('id')
+    .maybeSingle()
+  if (error) {
+    return { error: error.code === '23514' ? 'Le prestataire doit d’abord être approuvé.' : `Mise à jour impossible : ${error.message}` }
+  }
+  if (!data) return { error: 'Service introuvable.' }
+
+  await log(a.ctx, `service.set_${status}`, 'service', serviceId)
+  invalidate()
+  return { ok: true, message: status === 'published' ? 'Fiche publiée.' : status === 'archived' ? 'Fiche archivée.' : 'Fiche remise en brouillon.' }
+}
+
+export async function generateSlotsAsAdminAction(input: {
+  service_id: string
+  weekdays: number[]
+  times: string[]
+  horizon_days: number
+}): Promise<ActionState> {
+  const a = await admin()
+  if ('error' in a) return { error: a.error }
+  if (!isUuid(input.service_id)) return { error: 'Service invalide.' }
+
+  const { data: service } = await a.ctx.supabase.from('services').select('duration_min').eq('id', input.service_id).maybeSingle()
+  if (!service) return { error: 'Service introuvable.' }
+  const plan = planSlots(input, service.duration_min as number | null, new Date())
+  if (!plan.ok) return { error: plan.error }
+
+  const { error } = await a.ctx.supabase
+    .from('availability_slots')
+    .upsert(plan.rows, { onConflict: 'service_id,date,start_time', ignoreDuplicates: true })
+  if (error) return { error: error.message }
+
+  await log(a.ctx, 'slots.generate', 'service', input.service_id, { count: plan.rows.length })
+  revalidateTag(CACHE_TAGS.availability, 'max')
+  return { ok: true, message: `${plan.rows.length} créneaux ajoutés (les créneaux existants sont conservés).` }
+}
+
+export async function setDayBlockedAsAdminAction(serviceId: string, date: string, blocked: boolean): Promise<ActionState> {
+  const a = await admin()
+  if ('error' in a) return { error: a.error }
+  if (!isUuid(serviceId) || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return { error: 'Paramètres invalides.' }
+
+  const { error } = await a.ctx.supabase
+    .from('availability_slots')
+    .update({ is_available: !blocked })
+    .eq('service_id', serviceId)
+    .eq('date', date)
+  if (error) return { error: error.message }
+
+  await log(a.ctx, blocked ? 'slots.block_day' : 'slots.unblock_day', 'service', serviceId, { date })
+  revalidateTag(CACHE_TAGS.availability, 'max')
   return { ok: true }
 }

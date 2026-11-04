@@ -16,19 +16,26 @@ export function ServiceForm({
   categories,
   service,
   defaultIsland,
+  action: formAction = saveServiceAction,
+  providerId,
 }: {
   locale: string
   categories: CategoryOption[]
   service?: ProviderService
   defaultIsland: string
+  /** Server action called on submit (provider space by default, admin variant in /admin). */
+  action?: (prev: ActionState, formData: FormData) => Promise<ActionState>
+  /** Set by the admin space: the provider the service belongs to. */
+  providerId?: string
 }) {
-  const [state, action, pending] = useActionState<ActionState, FormData>(saveServiceAction, {})
+  const [state, action, pending] = useActionState<ActionState, FormData>(formAction, {})
   const err = state.fieldErrors ?? {}
   const editingPublished = service?.status === 'published'
 
   return (
     <form action={action} className="space-y-6">
       <input type="hidden" name="locale" value={locale} />
+      {providerId && <input type="hidden" name="provider_id" value={providerId} />}
       {service && <input type="hidden" name="id" value={service.id} />}
 
       {service?.status === 'rejected' && service.rejection_reason && (

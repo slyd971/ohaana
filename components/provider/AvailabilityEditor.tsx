@@ -23,7 +23,19 @@ function formatDay(date: string): string {
   )
 }
 
-export function AvailabilityEditor({ serviceId, days }: { serviceId: string; days: SlotDay[] }) {
+type GenerateInput = { service_id: string; weekdays: number[]; times: string[]; horizon_days: number }
+
+export function AvailabilityEditor({
+  serviceId,
+  days,
+  generate = generateSlotsAction,
+  block = setDayBlockedAction,
+}: {
+  serviceId: string
+  days: SlotDay[]
+  generate?: (input: GenerateInput) => Promise<ActionState>
+  block?: (serviceId: string, date: string, blocked: boolean) => Promise<ActionState>
+}) {
   const [weekdays, setWeekdays] = useState<number[]>([1, 2, 3, 4, 5, 6])
   const [times, setTimes] = useState<string[]>(DEFAULT_TIMES)
   const [newTime, setNewTime] = useState('')
@@ -110,7 +122,7 @@ export function AvailabilityEditor({ serviceId, days }: { serviceId: string; day
           <button
             type="button"
             disabled={pending}
-            onClick={() => run(() => generateSlotsAction({ service_id: serviceId, weekdays, times, horizon_days: horizon }))}
+            onClick={() => run(() => generate({ service_id: serviceId, weekdays, times, horizon_days: horizon }))}
             className="bg-deep-green text-coconut px-5 py-2.5 rounded-full text-sm font-medium hover:bg-deep-green/90 disabled:opacity-60 transition-colors"
           >
             {pending ? 'Génération…' : 'Générer les créneaux'}
@@ -143,7 +155,7 @@ export function AvailabilityEditor({ serviceId, days }: { serviceId: string; day
                   <button
                     type="button"
                     disabled={pending}
-                    onClick={() => run(() => setDayBlockedAction(serviceId, d.date, !allBlocked))}
+                    onClick={() => run(() => block(serviceId, d.date, !allBlocked))}
                     className="text-xs border border-mist text-stone px-3 py-1.5 rounded-lg hover:bg-sand disabled:opacity-60"
                   >
                     {allBlocked ? 'Rouvrir le jour' : 'Bloquer le jour'}
