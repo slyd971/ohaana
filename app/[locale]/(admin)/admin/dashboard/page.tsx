@@ -1,109 +1,107 @@
-import { Users2, Briefcase, CreditCard, TrendingUp, CheckCircle, XCircle, Clock, AlertTriangle } from 'lucide-react'
+import { Briefcase, CalendarCheck, CreditCard, Inbox, Users2 } from 'lucide-react'
+import { Link } from '@/lib/i18n/navigation'
+import { getAdminContext } from '@/lib/admin/context'
+import { eur } from '@/components/provider/ui'
+import { DemoAdminDashboard } from '../_demo/DemoAdminDashboard'
 
-const KPI = [
-  { label: 'Utilisateurs total', value: '1 247', delta: '+48 ce mois', Icon: Users2, color: 'text-blue-400' },
-  { label: 'Prestataires actifs', value: '63', delta: '5 en attente', Icon: Briefcase, color: 'text-turquoise' },
-  { label: 'Volume transactions', value: '87 400 €', delta: 'Juin 2026', Icon: CreditCard, color: 'text-[#F5A623]' },
-  { label: 'Croissance GMV', value: '+34%', delta: 'vs mai 2026', Icon: TrendingUp, color: 'text-green-400' },
-]
+export default async function AdminDashboard() {
+  const ctx = await getAdminContext()
+  if (ctx.kind === 'demo') return <DemoAdminDashboard />
+  if (ctx.kind !== 'admin') return null
+  const { supabase } = ctx
 
-const PENDING_PROVIDERS = [
-  { id: 1, name: 'Christophe Belmar', category: 'Chef cuisinier', location: 'Martinique', submitted: 'Il y a 2 jours', docs: true },
-  { id: 2, name: 'Sandrine Dubé', category: 'Massage & bien-être', location: 'Guadeloupe', submitted: 'Il y a 3 jours', docs: true },
-  { id: 3, name: 'Yves Montrose', category: 'Guide nautique', location: 'Saint-Martin', submitted: 'Il y a 4 jours', docs: false },
-  { id: 4, name: 'Lucie Cézaire', category: 'Coiffure & beauté', location: 'Martinique', submitted: 'Il y a 5 jours', docs: true },
-  { id: 5, name: 'Patrick Léger', category: 'Photographie', location: 'Guadeloupe', submitted: 'Il y a 7 jours', docs: false },
-]
+  // Les comptes et fiches de démonstration (is_demo) ne comptent pas dans les chiffres.
+  const [users, providersOk, providersPending, servicesPub, servicesReview, bookingsDone, leadsNew, payments, pendingList, lastPayments] =
+    await Promise.all([
+      supabase.from('users').select('id', { count: 'exact', head: true }).not('is_demo', 'is', true),
+      supabase.from('provider_profiles').select('id', { count: 'exact', head: true }).eq('is_approved', true).not('is_demo', 'is', true),
+      supabase.from('provider_profiles').select('id', { count: 'exact', head: true }).eq('is_approved', false).not('is_demo', 'is', true),
+      supabase.from('services').select('id', { count: 'exact', head: true }).eq('status', 'published').not('is_demo', 'is', true),
+      supabase.from('services').select('id', { count: 'exact', head: true }).eq('status', 'pending_review'),
+      supabase.from('bookings').select('id', { count: 'exact', head: true }).in('status', ['confirmed', 'completed']),
+      supabase.from('leads').select('id', { count: 'exact', head: true }).eq('status', 'new'),
+      supabase.from('payments').select('total_cents, platform_fee_cents').eq('status', 'succeeded').limit(5000),
+      supabase.from('provider_profiles').select('id, business_name, island, created_at').eq('is_approved', false).not('is_demo', 'is', true).order('created_at', { ascending: false }).limit(5),
+      supabase.from('payments').select('id, total_cents, status, created_at').order('created_at', { ascending: false }).limit(5),
+    ])
 
-const TRANSACTIONS = [
-  { id: 1, from: 'Sophie Laurent', to: 'Jean-Marc Chef', amount: '380 €', commission: '38 €', date: '13 juin 2026', status: 'completed' },
-  { id: 2, from: 'Marcus Williams', to: 'Dive Martinique', amount: '180 €', commission: '18 €', date: '12 juin 2026', status: 'completed' },
-  { id: 3, from: 'Isabelle Moreau', to: 'Bella Coiffure', amount: '95 €', commission: '9.50 €', date: '12 juin 2026', status: 'pending' },
-  { id: 4, from: 'Thomas Renaud', to: 'Sail Caribe', amount: '520 €', commission: '52 €', date: '11 juin 2026', status: 'completed' },
-]
+  const paid = (payments.data ?? []) as { total_cents: number; platform_fee_cents: number }[]
+  const gmv = paid.reduce((s, p) => s + p.total_cents, 0)
+  const fees = paid.reduce((s, p) => s + p.platform_fee_cents, 0)
+  const pending = (pendingList.data ?? []) as { id: string; business_name: string; island: string; created_at: string }[]
+  const recent = (lastPayments.data ?? []) as { id: string; total_cents: number; status: string; created_at: string }[]
 
-export default function AdminDashboard() {
+  const kpis = [
+    { label: 'Utilisateurs', value: String(users.count ?? 0), hint: '', Icon: Users2, color: 'text-blue-400' },
+    { label: 'Prestataires approuvés', value: String(providersOk.count ?? 0), hint: `${providersPending.count ?? 0} en attente`, Icon: Briefcase, color: 'text-turquoise' },
+    { label: 'Services publiés', value: String(servicesPub.count ?? 0), hint: `${servicesReview.count ?? 0} en relecture`, Icon: Briefcase, color: 'text-green-400' },
+    { label: 'Réservations confirmées', value: String(bookingsDone.count ?? 0), hint: '', Icon: CalendarCheck, color: 'text-[#F5A623]' },
+    { label: 'Volume encaissé (GMV)', value: eur(gmv), hint: `dont ${eur(fees)} de frais de service`, Icon: CreditCard, color: 'text-[#F5A623]' },
+    { label: 'Leads à traiter', value: String(leadsNew.count ?? 0), hint: '', Icon: Inbox, color: 'text-coral' },
+  ]
+
   return (
     <div className="p-5 md:p-8 space-y-8 max-w-6xl">
       <div>
         <h1 className="text-2xl font-display text-white">Administration Ohaana</h1>
-        <p className="text-white/40 text-sm mt-0.5">Vue globale plateforme · Juin 2026</p>
+        <p className="text-white/40 text-sm mt-0.5">Vue globale de la plateforme, chiffres réels (hors comptes de démonstration).</p>
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {KPI.map(({ label, value, delta, Icon, color }) => (
-          <div key={label} className="bg-white/5 rounded-2xl p-4 border border-white/8 backdrop-blur-sm">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+        {kpis.map(({ label, value, hint, Icon, color }) => (
+          <div key={label} className="bg-white/5 rounded-2xl p-4 border border-white/8">
             <Icon size={18} className={`mb-3 ${color}`} />
             <p className="text-2xl font-display text-white">{value}</p>
             <p className="text-xs text-white/40 mt-0.5">{label}</p>
-            {delta && <p className="text-xs text-green-400/80 font-medium mt-1">{delta}</p>}
+            {hint && <p className="text-xs text-white/50 mt-1">{hint}</p>}
           </div>
         ))}
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
-        {/* Pending provider approvals */}
-        <div className="bg-white/5 rounded-2xl border border-white/8 overflow-hidden">
+        <section aria-labelledby="todo-title" className="bg-white/5 rounded-2xl border border-white/8 overflow-hidden">
           <div className="px-5 py-4 border-b border-white/8 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <AlertTriangle size={15} className="text-[#F5A623]" />
-              <h2 className="text-sm font-semibold text-white">Prestataires à valider</h2>
-            </div>
-            <span className="text-xs bg-[#F5A623]/15 text-[#F5A623] rounded-full px-2 py-0.5 font-medium">5 en attente</span>
+            <h2 id="todo-title" className="text-sm font-semibold text-white">Prestataires à valider</h2>
+            <Link href="/admin/providers" className="text-xs text-turquoise hover:underline">Tout voir</Link>
           </div>
-          <ul className="divide-y divide-white/5">
-            {PENDING_PROVIDERS.map(({ id, name, category, location, submitted, docs }) => (
-              <li key={id} className="px-5 py-3.5 flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center shrink-0 text-white/60 text-xs font-semibold">
-                  {name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <p className="text-sm font-medium text-white truncate">{name}</p>
-                    {!docs && <AlertTriangle size={11} className="text-coral shrink-0" />}
+          {pending.length === 0 ? (
+            <p className="px-5 py-6 text-sm text-white/40">Aucun prestataire en attente.</p>
+          ) : (
+            <ul className="divide-y divide-white/5">
+              {pending.map((p) => (
+                <li key={p.id} className="px-5 py-3.5 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <Link href={`/admin/providers/${p.id}`} className="text-sm text-white hover:text-turquoise truncate block">{p.business_name}</Link>
+                    <p className="text-xs text-white/40">{p.island} · inscrit le {new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium' }).format(new Date(p.created_at))}</p>
                   </div>
-                  <p className="text-xs text-white/40">{category} · {location}</p>
-                  <p className="text-xs text-white/25 flex items-center gap-1 mt-0.5">
-                    <Clock size={10} /> {submitted}
-                  </p>
-                </div>
-                <div className="flex gap-1.5 shrink-0 mt-0.5">
-                  <button className="p-1.5 bg-green-500/15 text-green-400 rounded-lg hover:bg-green-500/25 transition-colors" title="Approuver">
-                    <CheckCircle size={14} />
-                  </button>
-                  <button className="p-1.5 bg-coral/15 text-coral rounded-lg hover:bg-coral/25 transition-colors" title="Rejeter">
-                    <XCircle size={14} />
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
+                </li>
+              ))}
+            </ul>
+          )}
+          {(servicesReview.count ?? 0) > 0 && (
+            <div className="px-5 py-3 border-t border-white/8 text-xs text-white/60">
+              {servicesReview.count} fiche(s) en relecture : <Link href="/admin/moderation" className="text-turquoise hover:underline">ouvrir la modération</Link>
+            </div>
+          )}
+        </section>
 
-        {/* Recent transactions */}
-        <div className="bg-white/5 rounded-2xl border border-white/8 overflow-hidden">
-          <div className="px-5 py-4 border-b border-white/8 flex items-center gap-2">
-            <CreditCard size={15} className="text-[#F5A623]" />
-            <h2 className="text-sm font-semibold text-white">Transactions récentes</h2>
+        <section aria-labelledby="pay-title" className="bg-white/5 rounded-2xl border border-white/8 overflow-hidden">
+          <div className="px-5 py-4 border-b border-white/8">
+            <h2 id="pay-title" className="text-sm font-semibold text-white">Derniers paiements</h2>
           </div>
-          <ul className="divide-y divide-white/5">
-            {TRANSACTIONS.map(({ id, from, to, amount, commission, date, status }) => (
-              <li key={id} className="px-5 py-3.5">
-                <div className="flex items-center justify-between mb-0.5">
-                  <p className="text-sm font-medium text-white truncate flex-1">{from} → {to}</p>
-                  <p className="text-sm font-semibold text-white ml-2">{amount}</p>
-                </div>
-                <div className="flex items-center justify-between">
-                  <p className="text-xs text-white/35">{date} · Commission: {commission}</p>
-                  <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${status === 'completed' ? 'bg-green-500/15 text-green-400' : 'bg-[#F5A623]/15 text-[#F5A623]'}`}>
-                    {status === 'completed' ? 'Complété' : 'En attente'}
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
+          {recent.length === 0 ? (
+            <p className="px-5 py-6 text-sm text-white/40">Aucun paiement enregistré. Les paiements du mode démo ne sont pas stockés.</p>
+          ) : (
+            <ul className="divide-y divide-white/5">
+              {recent.map((p) => (
+                <li key={p.id} className="px-5 py-3.5 flex items-center justify-between text-sm">
+                  <span className="text-white/70">{new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium' }).format(new Date(p.created_at))} · {p.status}</span>
+                  <span className="font-medium text-white">{eur(p.total_cents)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       </div>
     </div>
   )

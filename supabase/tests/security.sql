@@ -251,6 +251,47 @@ begin
 end $$;
 
 -- ─────────────────────────────────────────────────────────────
+-- 2c. Administration : utilisateurs, catégories, leads
+-- ─────────────────────────────────────────────────────────────
+do $$
+declare
+  v_cat uuid;
+  v_lead uuid;
+begin
+  -- un admin change un rôle et désactive un compte ; un voyageur ne peut ni l'un ni l'autre
+  perform t.as_user('aaaaaaaa-0000-4000-8000-000000000004');
+  perform t.scalar($q$update public.users set role = 'concierge' where id = 'aaaaaaaa-0000-4000-8000-000000000002' returning id::text$q$);
+  perform t.eq('admin can change a user role',
+    t.scalar($q$select role::text from public.users where id = 'aaaaaaaa-0000-4000-8000-000000000002'$q$), 'concierge');
+  perform t.scalar($q$update public.users set is_active = false where id = 'aaaaaaaa-0000-4000-8000-000000000002' returning id::text$q$);
+  perform t.eq('admin can deactivate a user',
+    t.scalar($q$select is_active::text from public.users where id = 'aaaaaaaa-0000-4000-8000-000000000002'$q$), 'false');
+  perform t.scalar($q$update public.users set role = 'tourist', is_active = true where id = 'aaaaaaaa-0000-4000-8000-000000000002' returning id::text$q$);
+
+  -- catégories : l'admin écrit, personne d'autre
+  v_cat := t.scalar($q$insert into public.service_categories (slug, name_fr, name_en, name_es, sort_order)
+    values ('e2e_test_cat', 'Test', 'Test', 'Prueba', 99) returning id::text$q$)::uuid;
+  perform t.scalar(format($q$update public.service_categories set name_fr = 'Test 2' where id = %L returning id::text$q$, v_cat));
+  perform t.eq('admin can create and edit a category',
+    t.scalar(format($q$select name_fr from public.service_categories where id = %L$q$, v_cat)), 'Test 2');
+
+  -- leads : l'admin les lit et change leur statut
+  v_lead := t.scalar($q$insert into public.leads (email, consent) values ('admin-lead@test.local', true) returning id::text$q$)::uuid;
+  perform t.scalar(format($q$update public.leads set status = 'contacted' where id = %L returning id::text$q$, v_lead));
+  perform t.eq('admin can read leads and change their status',
+    t.scalar(format($q$select status::text from public.leads where id = %L$q$, v_lead)), 'contacted');
+  perform t.scalar(format($q$delete from public.leads where id = %L returning id::text$q$, v_lead));  -- ne pas fausser les comptes plus bas
+  perform t.reset();
+
+  perform t.as_user('aaaaaaaa-0000-4000-8000-000000000003');
+  perform t.scalar(format($q$with u as (update public.service_categories set name_fr = 'Piraté' where id = %L returning 1) select count(*)::text from u$q$, v_cat));
+  perform t.eq('provider cannot edit a category',
+    t.scalar(format($q$select name_fr from public.service_categories where id = %L$q$, v_cat)), 'Test 2');
+  perform t.eq('provider cannot read leads', t.scalar('select count(*)::text from public.leads'), '0');
+  perform t.reset();
+end $$;
+
+-- ─────────────────────────────────────────────────────────────
 -- 3. Lecture publique : pas de fuite de données de contact
 -- ─────────────────────────────────────────────────────────────
 do $$

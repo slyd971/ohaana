@@ -9,6 +9,7 @@ import { fieldErrors, formObject, isUuid, parseServiceForm } from '@/lib/provide
 import { planSlots } from '@/lib/provider/slots'
 import { slugify } from '@/lib/utils'
 import { applyImageOp, type ImageOp } from '@/lib/provider/images'
+import { LEAD_STATUSES, USER_ROLES, categorySchema, type AssignableRole } from '@/lib/admin/schemas'
 
 // Mutations de l'espace admin. Chaque action : (1) relit le rôle admin côté serveur, (2) s'exécute avec la
 // session de l'admin (RLS is_admin() + triggers), (3) écrit une ligne dans admin_logs, (4) invalide le cache public.
@@ -324,4 +325,94 @@ export async function manageServiceImageAsAdminAction(input: ImageOp): Promise<A
     invalidate()
   }
   return result
+}
+
+// ─── Utilisateurs ────────────────────────────────────────────────────────────
+
+/** Active ou désactive un compte. Un admin ne peut pas se désactiver lui-même. */
+export async function setUserActiveAction(userId: string, active: boolean): Promise<ActionState> {
+  const a = await admin()
+  if ('error' in a) return { error: a.error }
+  if (!isUuid(userId)) return { error: 'Utilisateur invalide.' }
+  if (userId === a.ctx.userId) return { error: 'Vous ne pouvez pas désactiver votre propre compte.' }
+
+  const { data, error } = await a.ctx.supabase.from('users').update({ is_active: active }).eq('id', userId).select('id').maybeSingle()
+  if (error) return { error: error.message }
+  if (!data) return { error: 'Utilisateur introuvable.' }
+
+  await log(a.ctx, active ? 'user.activate' : 'user.deactivate', 'user', userId)
+  revalidatePath('/admin/users')
+  return { ok: true }
+}
+
+/** Change le rôle d'un compte (admin uniquement, journalisé). Jamais le sien : on ne perd pas l'accès par erreur. */
+export async function setUserRoleAction(userId: string, role: AssignableRole): Promise<ActionState> {
+  const a = await admin()
+  if ('error' in a) return { error: a.error }
+  if (!isUuid(userId)) return { error: 'Utilisateur invalide.' }
+  if (!USER_ROLES.includes(role)) return { error: 'Rôle invalide.' }
+  if (userId === a.ctx.userId) return { error: 'Vous ne pouvez pas changer votre propre rôle.' }
+
+  const { data: before } = await a.ctx.supabase.from('users').select('role').eq('id', userId).maybeSingle()
+  if (!before) return { error: 'Utilisateur introuvable.' }
+  if (before.role === role) return { ok: true }
+
+  const { error } = await a.ctx.supabase.from('users').update({ role }).eq('id', userId)
+  if (error) return { error: error.message }
+
+  await log(a.ctx, 'user.set_role', 'user', userId, { from: before.role, to: role })
+  revalidatePath('/admin/users')
+  return { ok: true }
+}
+
+// ─── Catégories ──────────────────────────────────────────────────────────────
+
+/** Crée ou modifie une catégorie. Le slug est fixé à la création : il sert aux liens et aux filtres. */
+export async function saveCategoryAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const a = await admin()
+  if ('error' in a) return { error: a.error }
+
+  const raw = formObject(formData)
+  const parsed = categorySchema.safeParse(raw)
+  if (!parsed.success) return { error: 'Corrigez les champs signalés.', fieldErrors: fieldErrors(parsed.error.issues) }
+  const row = { ...parsed.data, is_active: raw.is_active === 'on' }
+  const id = isUuid(raw.id) ? raw.id : null
+
+  if (id) {
+    const { data, error } = await a.ctx.supabase.from('service_categories').update(row).eq('id', id).select('id').maybeSingle()
+    if (error) return { error: error.message }
+    if (!data) return { error: 'Catégorie introuvable.' }
+    await log(a.ctx, 'category.update', 'category', id)
+  } else {
+    const base = slugify(row.name_fr).replace(/-/g, '_') || 'categorie'
+    let slug = base
+    for (let i = 2; i < 10; i++) {
+      const { data: taken } = await a.ctx.supabase.from('service_categories').select('id').eq('slug', slug).maybeSingle()
+      if (!taken) break
+      slug = `${base}_${i}`
+    }
+    const { data, error } = await a.ctx.supabase.from('service_categories').insert({ ...row, slug }).select('id').single()
+    if (error || !data) return { error: error?.message ?? 'Création impossible.' }
+    await log(a.ctx, 'category.create', 'category', data.id as string, { slug })
+  }
+
+  invalidate()
+  revalidatePath('/admin/categories')
+  return { ok: true, message: 'Catégorie enregistrée.' }
+}
+
+// ─── Leads ───────────────────────────────────────────────────────────────────
+
+export async function setLeadStatusAction(leadId: string, status: (typeof LEAD_STATUSES)[number]): Promise<ActionState> {
+  const a = await admin()
+  if ('error' in a) return { error: a.error }
+  if (!isUuid(leadId) || !LEAD_STATUSES.includes(status)) return { error: 'Paramètres invalides.' }
+
+  const { data, error } = await a.ctx.supabase.from('leads').update({ status }).eq('id', leadId).select('id').maybeSingle()
+  if (error) return { error: error.message }
+  if (!data) return { error: 'Lead introuvable.' }
+
+  await log(a.ctx, 'lead.set_status', 'lead', leadId, { status })
+  revalidatePath('/admin/leads')
+  return { ok: true }
 }
