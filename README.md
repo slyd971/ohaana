@@ -101,6 +101,13 @@ npm run make-admin -- toi@exemple.com --yes
 
 Tests de bout en bout (Chrome local) : `npm run test:e2e` (gardes de routes, validation, callback). Le parcours complet avec boîte mail : `E2E_FULL=1 E2E_TEST_EMAIL=… E2E_TEST_PASSWORD=… npm run test:e2e`.
 
+**Back-office (prestataire → admin → public).** `tests/e2e/backoffice-guards.spec.ts` (sans compte) vérifie que chaque page de l'espace pro renvoie vers `/login`. `tests/e2e/backoffice.spec.ts` déroule tout le parcours : création d'un service, refus de la soumission sans 3 photos, envoi de 3 photos, soumission, refus par l'admin avec motif, nouvelle soumission, publication, ouverture par un visiteur anonyme, puis archivage du service de test.
+
+1. Copiez `.env.e2e.example` en `.env.e2e` (ignoré par git) et renseignez deux comptes de **test** : un admin et un prestataire approuvé, tous deux e-mail + mot de passe (un compte Google peut définir un mot de passe depuis *Paramètres → Mon compte*).
+2. Lancez : `PW_BASE_URL=http://localhost:3000 npm run test:e2e` (réutilise votre `npm run dev`, car Next n'autorise qu'un seul serveur de dev par dossier), ou sans `PW_BASE_URL` pour que Playwright démarre son propre serveur sur le port 3200.
+
+⚠️ Ces tests écrivent de vraies lignes dans le projet Supabase de `.env.local` (le service de test finit archivé, jamais supprimé). Utilisez un projet de test dès que vous en avez un.
+
 Sans CLI : `npm run db:bundle` génère `supabase/.generated/schema.sql` (ou `npm run db:bundle -- --with-seed` pour inclure les données de démo), à coller dans le SQL editor.
 
 ### 4. Lancer en développement
