@@ -1,7 +1,8 @@
 import type { MetadataRoute } from 'next'
 import { SERVICES } from '@/lib/data/seed'
+import { SITE_URL } from '@/lib/site'
 
-const BASE = 'https://ohaana.com'
+const BASE = SITE_URL
 
 function u(path: string, locale: 'fr' | 'en' | 'es') {
   if (locale === 'fr') return `${BASE}${path}`
@@ -9,6 +10,9 @@ function u(path: string, locale: 'fr' | 'en' | 'es') {
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  // Demo deployments must not advertise any URL.
+  if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') return []
+
   const now = new Date()
   const locales = ['fr', 'en', 'es'] as const
   const entries: MetadataRoute.Sitemap = []

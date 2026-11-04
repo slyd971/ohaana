@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Link } from '@/lib/i18n/navigation'
-import { CalendarDays, Clock, Heart, Plus, Users } from 'lucide-react'
+import { CalendarDays, Clock, Plus, Users } from 'lucide-react'
 import { useDemoAuth } from '@/hooks/useDemoAuth'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -253,7 +253,8 @@ export default function VoyagesPage() {
   function toggleFav(id: string) {
     setFavorites(prev => {
       const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
       return next
     })
   }

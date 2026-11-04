@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { getServiceById, SERVICES } from '@/lib/data/seed'
+import { SITE_URL } from '@/lib/site'
 
-const BASE = 'https://ohaana.com'
+const BASE = SITE_URL
 
 interface Props {
   children: React.ReactNode

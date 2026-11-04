@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { Link } from '@/lib/i18n/navigation'
-import { Button } from '@/components/ui/Button'
 import { ChevronLeft, ChevronRight, Globe, Lock, Trash2, LogOut } from 'lucide-react'
 import { setDemoRole } from '@/lib/demo-auth'
 import { useRouter } from 'next/navigation'
@@ -38,7 +37,7 @@ export default function SettingsPage() {
         {/* Language */}
         <section className="space-y-3">
           <div className="flex items-center gap-2 text-sm font-semibold text-charcoal">
-            <Globe size={16} className="text-deep-green" /> Langue de l'interface
+            <Globe size={16} className="text-deep-green" /> Langue de l&apos;interface
           </div>
           <div className="flex gap-2">
             {LANGS.map(({ id, label, flag }) => (

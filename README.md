@@ -1,17 +1,17 @@
 # Ohaana — Marketplace lifestyle caribéenne premium
 
-MVP démo-investisseur. Next.js 15 · TypeScript strict · Supabase · Stripe Connect · Tailwind v4 · Framer Motion · next-intl
+MVP démo-investisseur. Next.js 16 · TypeScript strict · Supabase · Stripe Connect · Tailwind v4 · Framer Motion · next-intl
 
 ## Stack
 
 | Couche | Technologie |
 |--------|------------|
-| Framework | Next.js 15 App Router |
+| Framework | Next.js 16 App Router |
 | Auth & BDD | Supabase (PostgreSQL + RLS + Auth + Storage) |
 | Paiement | Stripe Connect Express (20% plateforme / 80% prestataire) |
 | Styles | Tailwind CSS v4 + CSS variables design tokens |
 | Animations | Framer Motion |
-| i18n | next-intl (fr défaut / en) |
+| i18n | next-intl (fr défaut / en / es) |
 | Validation | Zod |
 | Déploiement | Vercel + Supabase Cloud |
 
@@ -29,7 +29,7 @@ npm install
 
 ```bash
 cp .env.local.example .env.local
-# Remplir toutes les valeurs
+# Remplir toutes les valeurs (voir .env.local.example)
 ```
 
 Créer un projet sur [supabase.com](https://supabase.com) et récupérer :
@@ -79,7 +79,7 @@ stripe listen --forward-to localhost:3000/api/webhooks/stripe
 
 ```
 app/
-├── [locale]/           # Routes localisées (fr/en)
+├── [locale]/           # Routes localisées (fr/en/es)
 │   ├── (tourist)/      # Homepage, recherche, profil, réservations
 │   ├── (auth)/         # Login, register
 │   ├── (provider)/     # Dashboard prestataire
@@ -100,7 +100,8 @@ supabase/migrations/
 └── 002_rls.sql         # Row Level Security
 messages/
 ├── fr.json
-└── en.json
+├── en.json
+└── es.json
 types/
 └── database.ts         # Types TypeScript des tables Supabase
 ```
@@ -108,10 +109,16 @@ types/
 ## Roadmap MVP
 
 - [x] **Phase 1** — Fondations : Next.js, Supabase schema+RLS, Auth, Design tokens, Layout
+- [~] **Phase 2** (UI maquettée sur données statiques ; backend, paiement et persistance à faire)
+- [ ] **Phase 2 bis — Backend réel** : RLS v2, auth Supabase, couche données, Stripe Connect, back-offices prestataire/admin (voir `rapports/audit-complet-2026-11-04.md`)
 - [ ] **Phase 2** — Expérience touriste : Onboarding, Homepage Netflix, Recherche, Fiches prestataires, Tunnel réservation, Paiement Stripe, Mes voyages, Favoris, Recommandations, Mode Concierge
 - [ ] **Phase 3** — Dashboards : Prestataire, Concierge, Admin
 - [ ] **Phase 4** — Finitions : Seed data Guadeloupe, Analytics, README production
 
 ## Variables d'environnement requises
 
-Voir `.env.local.example` pour la liste complète.
+Voir `.env.local.example` pour la liste complète. Points d'attention :
+
+- `NEXT_PUBLIC_SITE_URL` : domaine public (canonical, sitemap, OG). Défaut : `https://ohaana.vercel.app`.
+- `NEXT_PUBLIC_DEMO_MODE=true` désactive **toute** l'authentification (démo investisseur uniquement, déploiement marqué `noindex`). Désactivé par défaut.
+- `NEXT_PUBLIC_WHATSAPP_NUMBER` : si vide, les boutons WhatsApp sont masqués.

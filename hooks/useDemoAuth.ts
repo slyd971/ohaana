@@ -1,19 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { getDemoRole, type DemoRole } from '@/lib/demo-auth'
+import { useSyncExternalStore } from 'react'
+import { getDemoRole, subscribeDemoRole } from '@/lib/demo-auth'
+
+export function useDemoRole() {
+  return useSyncExternalStore(subscribeDemoRole, getDemoRole, () => null)
+}
 
 export function useDemoAuth() {
-  const [role, setRole] = useState<DemoRole>(null)
-
-  useEffect(() => {
-    setRole(getDemoRole())
-    function onStorage(e: StorageEvent) {
-      if (e.key === 'ohaana_demo_role') setRole(getDemoRole())
-    }
-    window.addEventListener('storage', onStorage)
-    return () => window.removeEventListener('storage', onStorage)
-  }, [])
+  const role = useDemoRole()
 
   return {
     role,

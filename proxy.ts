@@ -5,32 +5,43 @@ import { routing } from '@/lib/i18n/routing'
 
 const intlMiddleware = createMiddleware(routing)
 
-const protectedRoutes = ['/voyages', '/trips', '/profile', '/bookings', '/onboarding']
+const LOCALE_RE = /^\/(fr|en|es)(?=\/|$)/
+
+const protectedRoutes = ['/voyages', '/trips', '/profile', '/bookings', '/onboarding', '/paiement', '/notifications']
 const authRoutes = ['/login', '/register']
 const providerRoutes = ['/provider']
 const adminRoutes = ['/admin']
+const partnerRoutes = ['/partner']
 const conciergeRoutes = ['/concierge/dashboard']
 
-// Demo mode: all routes accessible without auth.
-// Active by default for investor/demo deployments. Set NEXT_PUBLIC_DEMO_MODE=false
-// to enforce Supabase auth when production credentials are ready.
+// Demo mode bypasses ALL authentication. It is opt-in only:
+// it is active exclusively when NEXT_PUBLIC_DEMO_MODE === 'true'.
 function isDemoMode(): boolean {
-  if (process.env.NEXT_PUBLIC_DEMO_MODE === 'false') return false
-  if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') return true
+  return process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
+}
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
-  const hasUrl = url.length > 0 && !url.includes('placeholder')
-  const hasKey = key.length > 0 && !key.includes('placeholder')
-  return process.env.NODE_ENV === 'production' || !(hasUrl && hasKey)
+function matches(path: string, routes: string[]) {
+  return routes.some((r) => path === r || path.startsWith(`${r}/`))
+}
+
+function localeOf(pathname: string) {
+  return pathname.match(LOCALE_RE)?.[0] ?? ''
+}
+
+function withDemoHeaders(response: NextResponse) {
+  // A demo deployment must never be indexed.
+  if (process.env.NODE_ENV === 'production') {
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow')
+  }
+  return response
 }
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const prefix = localeOf(pathname)
+  const path = pathname.replace(LOCALE_RE, '') || '/'
 
-  const pathnameWithoutLocale = pathname.replace(/^\/(fr|en|es)/, '') || '/'
-
-  if (pathnameWithoutLocale === '/register') {
+  if (path === '/register') {
     const role = request.nextUrl.searchParams.get('role')
     if (role && !['tourist', 'provider'].includes(role)) {
       const url = request.nextUrl.clone()
@@ -39,89 +50,85 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  const isProtected = protectedRoutes.some((r) => pathnameWithoutLocale.startsWith(r))
-  const isAuthRoute = authRoutes.some((r) => pathnameWithoutLocale.startsWith(r))
-  const isProvider = providerRoutes.some((r) => pathnameWithoutLocale.startsWith(r))
-  const isAdmin = adminRoutes.some((r) => pathnameWithoutLocale.startsWith(r))
-  const isConcierge = conciergeRoutes.some((r) => pathnameWithoutLocale.startsWith(r))
+  const isProtected = matches(path, protectedRoutes)
+  const isAuthRoute = matches(path, authRoutes)
+  const isProvider = matches(path, providerRoutes)
+  const isAdmin = matches(path, adminRoutes)
+  const isPartner = matches(path, partnerRoutes)
+  const isConcierge = matches(path, conciergeRoutes)
 
   let response = intlMiddleware(request)
 
-  if (isDemoMode()) return response
+  if (isDemoMode()) return withDemoHeaders(response)
 
-  if (isProtected || isProvider || isAdmin || isConcierge) {
-    try {
-      const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-          cookies: {
-            getAll() { return request.cookies.getAll() },
-            setAll(cookiesToSet) {
-              cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-              response = NextResponse.next({ request })
-              cookiesToSet.forEach(({ name, value, options }) =>
-                response.cookies.set(name, value, options)
-              )
-            },
-          },
-        }
-      )
+  const needsAuth = isProtected || isProvider || isAdmin || isPartner || isConcierge
 
-      const { data: { user } } = await supabase.auth.getUser()
+  if (!needsAuth && !isAuthRoute) return response
 
-      if (!user) {
-        const localeMatch = pathname.match(/^\/(fr|en|es)(?=\/|$)/)
-        const localePrefix = localeMatch?.[0] ?? ''
-        const loginUrl = new URL(`${localePrefix}/login`, request.url)
-        loginUrl.searchParams.set('redirectTo', `${pathname}${request.nextUrl.search}`)
-        return NextResponse.redirect(loginUrl)
-      }
-
-      const { data: profile } = await supabase
-        .from('users').select('role').eq('id', user.id).single()
-      const role = profile?.role ?? ''
-
-      if (isAdmin && role !== 'admin')
-        return NextResponse.redirect(new URL('/', request.url))
-      if (isProvider && !['provider', 'admin'].includes(role))
-        return NextResponse.redirect(new URL('/', request.url))
-      if (isConcierge && !['concierge', 'admin'].includes(role))
-        return NextResponse.redirect(new URL('/', request.url))
-    } catch {
-      // Supabase unreachable → fail open for demo resilience
-      return response
-    }
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const redirectToLogin = () => {
+    const loginUrl = new URL(`${prefix}/login`, request.url)
+    loginUrl.searchParams.set('redirectTo', `${pathname}${request.nextUrl.search}`)
+    return NextResponse.redirect(loginUrl)
   }
 
-  if (isAuthRoute) {
+  if (!url || !key) {
+    // Misconfigured environment: never expose private areas.
+    if (needsAuth) return redirectToLogin()
+    return response
+  }
+
+  const supabase = createServerClient(url, key, {
+    cookies: {
+      getAll() { return request.cookies.getAll() },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+        response = NextResponse.next({ request })
+        cookiesToSet.forEach(({ name, value, options }) =>
+          response.cookies.set(name, value, options)
+        )
+      },
+    },
+  })
+
+  if (needsAuth) {
     try {
-      const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-          cookies: {
-            getAll() { return request.cookies.getAll() },
-            setAll(cookiesToSet) {
-              cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-              response = NextResponse.next({ request })
-              cookiesToSet.forEach(({ name, value, options }) =>
-                response.cookies.set(name, value, options)
-              )
-            },
-          },
-        }
-      )
       const { data: { user } } = await supabase.auth.getUser()
-      if (user) return NextResponse.redirect(new URL('/', request.url))
+      if (!user) return redirectToLogin()
+
+      const needsRole = isAdmin || isProvider || isPartner || isConcierge
+      if (needsRole) {
+        const { data: profile } = await supabase
+          .from('users').select('role').eq('id', user.id).single()
+        const role = (profile?.role ?? '') as string
+
+        const allowed =
+          (isAdmin && role === 'admin') ||
+          (isProvider && ['provider', 'admin'].includes(role)) ||
+          (isPartner && ['partner', 'concierge', 'admin'].includes(role)) ||
+          (isConcierge && ['concierge', 'admin'].includes(role))
+
+        if (!allowed) return redirectToLogin()
+      }
     } catch {
-      // ignore — show the auth page anyway
+      // Fail CLOSED: if auth cannot be verified, private areas stay private.
+      return redirectToLogin()
     }
+    return response
+  }
+
+  // Auth pages: bounce signed-in users away.
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) return NextResponse.redirect(new URL(`${prefix}/`, request.url))
+  } catch {
+    // ignore — show the auth page anyway
   }
 
   return response
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
 }

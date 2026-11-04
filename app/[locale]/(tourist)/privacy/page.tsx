@@ -18,7 +18,7 @@ export default function PrivacyPage() {
             <h2 className="text-lg font-semibold text-charcoal mb-3">1. Données collectées</h2>
             <p>Ohaana collecte les données suivantes lors de votre utilisation de la plateforme :</p>
             <ul className="mt-2 space-y-1 list-disc list-inside text-sm">
-              <li>Informations d'identification : nom, adresse email, numéro de téléphone</li>
+              <li>Informations d&apos;identification : nom, adresse email, numéro de téléphone</li>
               <li>Données de réservation : dates, services choisis, préférences</li>
               <li>Données de paiement (traitées par Stripe — nous ne stockons pas vos coordonnées bancaires)</li>
               <li>Données de navigation : pages visitées, durée de session, appareil utilisé</li>
@@ -50,11 +50,11 @@ export default function PrivacyPage() {
             <h2 className="text-lg font-semibold text-charcoal mb-3">4. Vos droits</h2>
             <p className="text-sm">Conformément au RGPD, vous disposez des droits suivants :</p>
             <ul className="mt-2 space-y-1 list-disc list-inside text-sm">
-              <li>Droit d'accès à vos données personnelles</li>
-              <li>Droit de rectification en cas d'informations incorrectes</li>
-              <li>Droit à l'effacement ("droit à l'oubli")</li>
+              <li>Droit d&apos;accès à vos données personnelles</li>
+              <li>Droit de rectification en cas d&apos;informations incorrectes</li>
+              <li>Droit à l&apos;effacement (&quot;droit à l&apos;oubli&quot;)</li>
               <li>Droit à la portabilité de vos données</li>
-              <li>Droit d'opposition au traitement marketing</li>
+              <li>Droit d&apos;opposition au traitement marketing</li>
             </ul>
             <p className="text-sm mt-3">Pour exercer ces droits : <a href="mailto:privacy@ohaana.com" className="text-deep-green underline underline-offset-2">privacy@ohaana.com</a></p>
           </section>
@@ -66,7 +66,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-lg font-semibold text-charcoal mb-3">6. Conservation des données</h2>
-            <p className="text-sm">Vos données sont conservées pendant la durée de votre relation avec Ohaana, puis archivées 3 ans conformément aux obligations légales françaises, et supprimées définitivement à l'issue de cette période.</p>
+            <p className="text-sm">Vos données sont conservées pendant la durée de votre relation avec Ohaana, puis archivées 3 ans conformément aux obligations légales françaises, et supprimées définitivement à l&apos;issue de cette période.</p>
           </section>
 
           <section>

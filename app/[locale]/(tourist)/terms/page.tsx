@@ -9,25 +9,25 @@ export default function TermsPage() {
           <ChevronLeft size={16} /> Retour
         </Link>
 
-        <h1 className="text-3xl font-display text-charcoal mb-2">Conditions générales d'utilisation</h1>
+        <h1 className="text-3xl font-display text-charcoal mb-2">Conditions générales d&apos;utilisation</h1>
         <p className="text-sm text-stone mb-10">Dernière mise à jour : juin 2026</p>
 
         <div className="space-y-8 text-sm text-charcoal-soft leading-relaxed">
 
           <section>
             <h2 className="text-lg font-semibold text-charcoal mb-3">1. Objet</h2>
-            <p>Les présentes conditions générales régissent l'utilisation de la plateforme Ohaana, marketplace de services et d'expériences à domicile dans les Antilles françaises. En accédant à la plateforme, vous acceptez sans réserve les présentes conditions.</p>
+            <p>Les présentes conditions générales régissent l&apos;utilisation de la plateforme Ohaana, marketplace de services et d&apos;expériences à domicile dans les Antilles françaises. En accédant à la plateforme, vous acceptez sans réserve les présentes conditions.</p>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-charcoal mb-3">2. Description du service</h2>
-            <p>Ohaana est une plateforme de mise en relation entre des voyageurs (ci-après "Clients") et des prestataires locaux (ci-après "Prestataires") proposant des services à domicile : cuisine, bien-être, photographie, musique, coaching sportif et autres expériences.</p>
-            <p className="mt-2">Ohaana agit en qualité d'intermédiaire et n'est pas partie prenante à la prestation entre le Client et le Prestataire.</p>
+            <p>Ohaana est une plateforme de mise en relation entre des voyageurs (ci-après &quot;Clients&quot;) et des prestataires locaux (ci-après &quot;Prestataires&quot;) proposant des services à domicile : cuisine, bien-être, photographie, musique, coaching sportif et autres expériences.</p>
+            <p className="mt-2">Ohaana agit en qualité d&apos;intermédiaire et n&apos;est pas partie prenante à la prestation entre le Client et le Prestataire.</p>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-charcoal mb-3">3. Inscription et compte</h2>
-            <p>L'utilisation complète de la plateforme nécessite la création d'un compte. Vous vous engagez à fournir des informations exactes et à maintenir la confidentialité de vos identifiants. Ohaana se réserve le droit de suspendre tout compte en cas d'utilisation frauduleuse.</p>
+            <p>L&apos;utilisation complète de la plateforme nécessite la création d&apos;un compte. Vous vous engagez à fournir des informations exactes et à maintenir la confidentialité de vos identifiants. Ohaana se réserve le droit de suspendre tout compte en cas d&apos;utilisation frauduleuse.</p>
           </section>
 
           <section>
@@ -42,22 +42,22 @@ export default function TermsPage() {
               <li>Annulation entre 12h et 24h avant : remboursement de 50%</li>
               <li>Annulation moins de 12h avant : aucun remboursement</li>
             </ul>
-            <p className="mt-2">En cas d'annulation par le Prestataire, le Client est remboursé intégralement dans un délai de 5 jours ouvrés.</p>
+            <p className="mt-2">En cas d&apos;annulation par le Prestataire, le Client est remboursé intégralement dans un délai de 5 jours ouvrés.</p>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-charcoal mb-3">6. Responsabilités</h2>
-            <p>Ohaana ne peut être tenu responsable des dommages résultant de l'exécution des prestations par les Prestataires. Chaque Prestataire certifié est assuré en responsabilité civile professionnelle. Ohaana vérifie les documents obligatoires mais ne garantit pas la qualité des prestations.</p>
+            <p>Ohaana ne peut être tenu responsable des dommages résultant de l&apos;exécution des prestations par les Prestataires. Chaque Prestataire certifié est assuré en responsabilité civile professionnelle. Ohaana vérifie les documents obligatoires mais ne garantit pas la qualité des prestations.</p>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-charcoal mb-3">7. Propriété intellectuelle</h2>
-            <p>L'ensemble des contenus de la plateforme (marque, visuels, textes, interface) est la propriété exclusive d'Ohaana SAS et est protégé par les lois sur la propriété intellectuelle. Toute reproduction est interdite sans autorisation écrite préalable.</p>
+            <p>L&apos;ensemble des contenus de la plateforme (marque, visuels, textes, interface) est la propriété exclusive d&apos;Ohaana SAS et est protégé par les lois sur la propriété intellectuelle. Toute reproduction est interdite sans autorisation écrite préalable.</p>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-charcoal mb-3">8. Droit applicable</h2>
-            <p>Les présentes CGU sont soumises au droit français. En cas de litige, les parties s'engagent à rechercher une solution amiable avant tout recours judiciaire. Le tribunal compétent est celui de Pointe-à-Pitre, Guadeloupe.</p>
+            <p>Les présentes CGU sont soumises au droit français. En cas de litige, les parties s&apos;engagent à rechercher une solution amiable avant tout recours judiciaire. Le tribunal compétent est celui de Pointe-à-Pitre, Guadeloupe.</p>
           </section>
 
           <section>

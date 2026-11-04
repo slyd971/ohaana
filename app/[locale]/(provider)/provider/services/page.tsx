@@ -1,4 +1,4 @@
-import { Briefcase, Plus, Star, Clock, Users } from 'lucide-react'
+import { Plus, Star, Clock, Users } from 'lucide-react'
 
 const SERVICES = [
   {

@@ -126,7 +126,7 @@ export default function OnboardingPage() {
     <motion.div key="interests" {...slide} className="px-5 pt-8 pb-8 space-y-6">
       <div className="space-y-1">
         <p className="text-xs font-medium text-deep-green uppercase tracking-widest">Étape 2 / 3</p>
-        <h2 className="text-2xl font-display text-charcoal">Qu'est-ce qui vous attire&nbsp;?</h2>
+        <h2 className="text-2xl font-display text-charcoal">Qu&apos;est-ce qui vous attire&nbsp;?</h2>
         <p className="text-sm text-stone">Choisissez un ou plusieurs univers</p>
       </div>
 
@@ -177,7 +177,7 @@ export default function OnboardingPage() {
         </Link>
         <Link href="/login">
           <Button fullWidth size="lg" variant="outline">
-            J'ai déjà un compte
+            J&apos;ai déjà un compte
           </Button>
         </Link>
         <button

@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useState, useEffect } from 'react'
+import { use, useState } from 'react'
 import { useLocale } from 'next-intl'
 import { notFound } from 'next/navigation'
 import { useSearchParams } from 'next/navigation'
@@ -186,7 +186,7 @@ function ConfirmationScreen({
           <Button fullWidth variant="primary">Voir mes réservations</Button>
         </Link>
         <Link href="/">
-          <Button fullWidth variant="ghost">Retour à l'accueil</Button>
+          <Button fullWidth variant="ghost">Retour à l&apos;accueil</Button>
         </Link>
       </div>
     </motion.div>
@@ -202,7 +202,7 @@ export default function ReservationPage({ params }: { params: Promise<{ serviceI
   if (!service) notFound()
 
   const svcTitle = locale === 'es'
-    ? ((service as any).title_es ?? service.title_en)
+    ? ((service as { title_es?: string }).title_es ?? service.title_en)
     : locale === 'en' ? service.title_en : service.title_fr
 
   const searchParams = useSearchParams()
@@ -471,7 +471,7 @@ export default function ReservationPage({ params }: { params: Promise<{ serviceI
             <div>
               <p className="text-sm font-medium text-charcoal">Annulation gratuite</p>
               <p className="text-xs text-stone mt-0.5">
-                Remboursement complet jusqu'à 24h avant la prestation.
+                Remboursement complet jusqu&apos;à 24h avant la prestation.
               </p>
             </div>
           </div>

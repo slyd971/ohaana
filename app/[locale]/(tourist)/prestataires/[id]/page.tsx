@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useState, useEffect, useRef, useMemo } from 'react'
+import { use, useState, useEffect, useRef, useMemo, useSyncExternalStore } from 'react'
 import { useLocale } from 'next-intl'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
@@ -79,12 +79,6 @@ function buildAvailability(start: Date | null, end: Date | null) {
 }
 
 const fmtSlot = (t: string) => t.slice(0, 2).replace(/^0/, '') + 'h' + (t.slice(3) !== '00' ? t.slice(3) : '')
-
-const STATUS_STYLES = {
-  available: 'border-turquoise bg-turquoise/10 text-deep-green',
-  request: 'border-[#F5A623]/40 bg-[#F5A623]/10 text-charcoal',
-  full: 'border-mist bg-mist/50 text-stone line-through',
-}
 
 const STATUS_ICON = {
   available: CheckCircle2,
@@ -201,6 +195,41 @@ function LocationAutocomplete({ value, onChange }: { value: string; onChange: (v
   )
 }
 
+const subscribeNoop = () => () => {}
+
+const ISLAND_LABELS: Record<string, string> = {
+  guadeloupe: 'Guadeloupe',
+  martinique: 'Martinique',
+  saint_martin: 'Saint-Martin',
+  saint_barth: 'Saint-Barth',
+}
+
+function readStaySession(): string {
+  try {
+    return JSON.stringify({
+      island: sessionStorage.getItem('ohaana_island'),
+      start: sessionStorage.getItem('ohaana_stay_start'),
+      end: sessionStorage.getItem('ohaana_stay_end'),
+    })
+  } catch {
+    return '{}'
+  }
+}
+
+function parseStaySession(raw: string): { location: string; start: Date | null; end: Date | null } {
+  const o = JSON.parse(raw) as { island?: string | null; start?: string | null; end?: string | null }
+  const toDate = (v?: string | null) => {
+    if (!v) return null
+    const d = new Date(v)
+    return isNaN(d.getTime()) ? null : d
+  }
+  return {
+    location: o.island && o.island !== 'all' ? (ISLAND_LABELS[o.island] ?? '') : '',
+    start: toDate(o.start),
+    end: toDate(o.end),
+  }
+}
+
 export default function ProviderPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const locale = useLocale()
@@ -208,43 +237,26 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
   if (!service) notFound()
 
   const svcTitle = locale === 'es'
-    ? ((service as any).title_es ?? service.title_en)
+    ? ((service as { title_es?: string }).title_es ?? service.title_en)
     : locale === 'en' ? service.title_en : service.title_fr
   const svcDesc = locale === 'es'
-    ? ((service as any).description_es ?? service.description_en)
+    ? ((service as { description_es?: string }).description_es ?? service.description_en)
     : locale === 'en' ? service.description_en : service.description_fr
 
   const [imgIndex, setImgIndex] = useState(0)
   const [isFav, setIsFav] = useState(false)
   const [stickyVisible, setStickyVisible] = useState(false)
-  const [stayStart, setStayStart] = useState<Date | null>(null)
-  const [stayEnd, setStayEnd] = useState<Date | null>(null)
-  const [location, setLocation] = useState('')
+  // Stay dates + island pre-filled from sessionStorage (external store → no setState in effect).
+  const sessionRaw = useSyncExternalStore(subscribeNoop, readStaySession, () => '{}')
+  const saved = useMemo(() => parseStaySession(sessionRaw), [sessionRaw])
+  const [stayStartOverride, setStayStart] = useState<Date | null | undefined>(undefined)
+  const [stayEndOverride, setStayEnd] = useState<Date | null | undefined>(undefined)
+  const [locationOverride, setLocation] = useState<string | undefined>(undefined)
+  const stayStart = stayStartOverride === undefined ? saved.start : stayStartOverride
+  const stayEnd = stayEndOverride === undefined ? saved.end : stayEndOverride
+  const location = locationOverride ?? saved.location
   const [selectedSlot, setSelectedSlot] = useState<{ isoDate: string; day: string; date: string; time: string } | null>(null)
   const [selectedDay, setSelectedDay] = useState<string | null>(null)
-
-  // Pre-fill location + stay dates from session
-  useEffect(() => {
-    try {
-      const savedIsland = sessionStorage.getItem('ohaana_island')
-      if (savedIsland && savedIsland !== 'all') {
-        const labels: Record<string, string> = {
-          guadeloupe: 'Guadeloupe',
-          martinique: 'Martinique',
-          saint_martin: 'Saint-Martin',
-          saint_barth: 'Saint-Barth',
-        }
-        setLocation(labels[savedIsland] ?? '')
-      }
-      const s = sessionStorage.getItem('ohaana_stay_start')
-      const e = sessionStorage.getItem('ohaana_stay_end')
-      if (s) { const d = new Date(s); if (!isNaN(d.getTime())) setStayStart(d) }
-      if (e) { const d = new Date(e); if (!isNaN(d.getTime())) setStayEnd(d) }
-    } catch {}
-  }, [])
-
-  // Reset slot + selected day when dates change
-  useEffect(() => { setSelectedSlot(null); setSelectedDay(null) }, [stayStart, stayEnd])
 
   const availability = useMemo(() => buildAvailability(stayStart, stayEnd), [stayStart, stayEnd])
 
@@ -522,6 +534,8 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
               onChange={(s, e) => {
                 setStayStart(s)
                 setStayEnd(e)
+                setSelectedSlot(null)
+                setSelectedDay(null)
                 try {
                   if (s) sessionStorage.setItem('ohaana_stay_start', s.toISOString())
                   else sessionStorage.removeItem('ohaana_stay_start')
@@ -755,7 +769,7 @@ export default function ProviderPage({ params }: { params: Promise<{ id: string 
             <MessageCircle size={18} className="text-coconut" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold mb-0.5">Besoin d'aide pour composer votre séjour ?</p>
+            <p className="text-sm font-semibold mb-0.5">Besoin d&apos;aide pour composer votre séjour ?</p>
             <p className="text-xs text-coconut/70 leading-relaxed">Notre concierge peut créer un programme sur-mesure pour vous en moins de 2h — chefs, massages, sorties, transferts.</p>
           </div>
           <Link

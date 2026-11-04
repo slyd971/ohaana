@@ -12,6 +12,7 @@ import { Testimonials } from '@/components/home/Testimonials'
 import { type IslandFilter } from '@/components/home/IslandSelector'
 import { MoodSelector } from '@/components/home/MoodSelector'
 import { SERVICES, HOME_ROWS, getServicesByIds } from '@/lib/data/seed'
+import { WHATSAPP_NUMBER } from '@/lib/site'
 import {
   Clock, Sparkles, Leaf, MessageCircle,
   Building2, ChevronRight, Mail, CheckCircle,
@@ -481,15 +482,17 @@ export default function HomePage() {
                 )}
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:justify-start">
-                <a
-                  href="https://wa.me/0000000000"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-coral text-coconut px-6 py-3 rounded-full font-medium text-sm hover:bg-coral-light transition-colors shadow-sm"
-                >
-                  <MessageCircle size={16} />
-                  {L('Parler à Camille', 'Talk to Camille', 'Hablar con Camille')}
-                </a>
+                {WHATSAPP_NUMBER && (
+                  <a
+                    href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-coral text-coconut px-6 py-3 rounded-full font-medium text-sm hover:bg-coral-light transition-colors shadow-sm"
+                  >
+                    <MessageCircle size={16} />
+                    {L('Parler à Camille', 'Talk to Camille', 'Hablar con Camille')}
+                  </a>
+                )}
                 <Link
                   href="/concierge"
                   className="inline-flex items-center gap-2 bg-coconut/10 text-coconut border border-coconut/20 px-6 py-3 rounded-full font-medium text-sm hover:bg-coconut/20 transition-colors"

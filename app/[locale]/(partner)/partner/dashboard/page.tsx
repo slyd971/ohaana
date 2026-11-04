@@ -1,3 +1,4 @@
+import { Link } from '@/lib/i18n/navigation'
 import { Link2, TrendingUp, Wallet, Users, CalendarDays, ChevronRight, ExternalLink } from 'lucide-react'
 
 const KPI = [
@@ -66,9 +67,9 @@ export default function PartnerDashboard() {
       <div className="bg-coconut rounded-2xl border border-mist overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-mist">
           <h2 className="text-sm font-semibold text-charcoal">Réservations récentes</h2>
-          <a href="#" className="text-xs text-deep-green flex items-center gap-1 hover:underline">
+          <Link href="/partner/reservations" className="text-xs text-deep-green flex items-center gap-1 hover:underline">
             Tout voir <ExternalLink size={11} />
-          </a>
+          </Link>
         </div>
         <div className="divide-y divide-mist">
           {RECENT.map((r) => (

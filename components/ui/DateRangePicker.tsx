@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useSyncExternalStore } from 'react'
 import { createPortal } from 'react-dom'
 import { ChevronLeft, ChevronRight, CalendarDays, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -183,6 +183,17 @@ function CalendarGrid({
   )
 }
 
+const subscribeNoop = () => () => {}
+
+function subscribeResize(cb: () => void) {
+  window.addEventListener('resize', cb)
+  return () => window.removeEventListener('resize', cb)
+}
+
+function getIsMobile() {
+  return window.innerWidth < 768
+}
+
 export function DateRangePicker({
   startDate,
   endDate,
@@ -195,17 +206,9 @@ export function DateRangePicker({
   const [viewMonth, setViewMonth] = useState(today.getMonth())
   const [viewYear, setViewYear] = useState(today.getFullYear())
   const [hovered, setHovered] = useState<Date | null>(null)
-  const [isMobile, setIsMobile] = useState(false)
-  const [mounted, setMounted] = useState(false)
+  const isMobile = useSyncExternalStore(subscribeResize, getIsMobile, () => false)
+  const mounted = useSyncExternalStore(subscribeNoop, () => true, () => false)
   const containerRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    setMounted(true)
-    const check = () => setIsMobile(window.innerWidth < 768)
-    check()
-    window.addEventListener('resize', check)
-    return () => window.removeEventListener('resize', check)
-  }, [])
 
   // Close desktop dropdown on outside click
   useEffect(() => {

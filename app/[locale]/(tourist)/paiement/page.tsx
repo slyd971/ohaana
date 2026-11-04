@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 import { Link } from '@/lib/i18n/navigation'
-import { ChevronLeft, CreditCard, Plus, Trash2, ShieldCheck, CheckCircle } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { ChevronLeft, Plus, Trash2, ShieldCheck, CheckCircle } from 'lucide-react'
 
 const DEMO_CARDS = [
   { id: 'c-1', brand: 'Visa', last4: '4242', exp: '12/27', default: true },

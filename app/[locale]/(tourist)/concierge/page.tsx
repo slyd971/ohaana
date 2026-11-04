@@ -7,8 +7,8 @@ import { MessageCircle, Send, ExternalLink, CalendarDays, MapPin, Sparkles, Cloc
 import { Link } from '@/lib/i18n/navigation'
 import { Button } from '@/components/ui/Button'
 import { SERVICES } from '@/lib/data/seed'
+import { WHATSAPP_NUMBER } from '@/lib/site'
 
-const WHATSAPP_NUMBER = '590690000000'
 const WHATSAPP_DEFAULT_MSG = encodeURIComponent(
   "Bonjour, je séjourne en hébergement privatif et je souhaite réserver un service local avec Ohaana. Pouvez-vous m'aider ?"
 )
@@ -77,25 +77,27 @@ export default function ConciergePage() {
           </div>
         </motion.div>
 
-        {/* WhatsApp CTA */}
-        <motion.a
-          href={waLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          initial={{ opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
-          className="flex items-center gap-4 bg-[#25D366] text-white rounded-2xl p-4 mb-6 hover:bg-[#20C05C] transition-colors shadow-sm"
-        >
-          <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center flex-none">
-            <MessageCircle size={24} />
-          </div>
-          <div className="flex-1">
-            <p className="font-semibold">Trouver un service local</p>
-            <p className="text-sm text-white/80">Villa, bungalow, Airbnb ou maison de vacances</p>
-          </div>
-          <ExternalLink size={18} className="flex-none opacity-70" />
-        </motion.a>
+        {/* WhatsApp CTA — hidden until NEXT_PUBLIC_WHATSAPP_NUMBER is set */}
+        {WHATSAPP_NUMBER && (
+          <motion.a
+            href={waLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.1 }}
+            className="flex items-center gap-4 bg-[#25D366] text-white rounded-2xl p-4 mb-6 hover:bg-[#20C05C] transition-colors shadow-sm"
+          >
+            <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center flex-none">
+              <MessageCircle size={24} />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold">Trouver un service local</p>
+              <p className="text-sm text-white/80">Villa, bungalow, Airbnb ou maison de vacances</p>
+            </div>
+            <ExternalLink size={18} className="flex-none opacity-70" />
+          </motion.a>
+        )}
 
         {/* Request form */}
         {!sent ? (

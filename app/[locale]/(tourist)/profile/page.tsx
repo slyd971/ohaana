@@ -4,8 +4,6 @@ import { useState } from 'react'
 import Image from 'next/image'
 import { Link } from '@/lib/i18n/navigation'
 import { Button } from '@/components/ui/Button'
-import { Badge } from '@/components/ui/Badge'
-import { ServiceCard } from '@/components/service/ServiceCard'
 import { OhaanaLogo } from '@/components/layout/OhaanaLogo'
 import { useDemoAuth } from '@/hooks/useDemoAuth'
 import { setDemoRole } from '@/lib/demo-auth'
@@ -13,10 +11,10 @@ import { SERVICES } from '@/lib/data/seed'
 import { formatPrice, cn } from '@/lib/utils'
 import {
   LayoutDashboard, CalendarDays, Heart, Sparkles,
-  CreditCard, Bell, Settings, LogOut, Menu, X,
+  CreditCard, Bell, Settings, LogOut, Menu,
   CheckCircle, Clock, Star, Plus, Trash2,
   ShieldCheck, Globe, Lock, User, MessageCircle,
-  ChevronRight, MapPin, AlertCircle, Check,
+  ChevronRight, Check,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
@@ -67,7 +65,6 @@ function fmtDate(iso: string) { const d = parseLocalDate(iso); return `${DAYS_FR
 function fmtShort(d: Date) { return `${d.getDate()} ${MONTHS_FR[d.getMonth()]}` }
 
 const FAVORITE_IDS = ['s-5', 's-18', 's-17', 's-4']
-const FAVORITE_SERVICES = SERVICES.filter(s => FAVORITE_IDS.includes(s.id))
 
 const DEMO_CARDS = [
   { id: 'c-1', brand: 'Visa',       last4: '4242', exp: '12/27', default: true  },
@@ -155,8 +152,8 @@ function AperçuPanel({ goTo }: { goTo: (t: Tab) => void }) {
           const svc = SERVICES.find(s => s.id === b.serviceId)!
           return (
             <div key={b.id} className="flex items-center gap-4 p-4 bg-surface border border-mist rounded-2xl">
-              <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0">
-                <img src={svc.images[0]?.url} alt={svc.title_fr} className="w-full h-full object-cover" />
+              <div className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0">
+                <Image src={svc.images[0]?.url ?? '/icon-192.png'} alt={svc.title_fr} fill sizes="64px" className="w-full h-full object-cover" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-charcoal truncate">{svc.title_fr}</p>
@@ -230,8 +227,8 @@ function VoyagesPanel() {
             const svc = SERVICES.find(s => s.id === b.serviceId)!
             return (
               <li key={b.id} className="flex items-start gap-4 p-4 bg-surface border border-mist rounded-2xl">
-                <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0">
-                  <img src={svc.images[0]?.url} alt={svc.title_fr} className="w-full h-full object-cover" />
+                <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0">
+                  <Image src={svc.images[0]?.url ?? '/icon-192.png'} alt={svc.title_fr} fill sizes="64px" className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
@@ -253,8 +250,8 @@ function VoyagesPanel() {
             const svc = SERVICES.find(s => s.id === b.serviceId)!
             return (
               <li key={b.id} className="flex items-start gap-4 p-4 bg-surface border border-mist rounded-2xl opacity-80">
-                <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0">
-                  <img src={svc.images[0]?.url} alt={svc.title_fr} className="w-full h-full object-cover grayscale" />
+                <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0">
+                  <Image src={svc.images[0]?.url ?? '/icon-192.png'} alt={svc.title_fr} fill sizes="64px" className="w-full h-full object-cover grayscale" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-charcoal">{svc.title_fr}</p>
@@ -289,15 +286,15 @@ function FavorisPanel() {
       {favs.length === 0 ? (
         <div className="text-center py-14 space-y-3">
           <Heart size={32} className="text-mist mx-auto" />
-          <p className="text-stone text-sm">Aucun favori pour l'instant.</p>
+          <p className="text-stone text-sm">Aucun favori pour l&apos;instant.</p>
           <Link href="/search"><Button variant="outline" size="sm">Explorer les expériences</Button></Link>
         </div>
       ) : (
         <ul className="space-y-3">
           {favs.map(svc => (
             <li key={svc.id} className="flex items-center gap-4 p-4 bg-surface border border-mist rounded-2xl">
-              <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0">
-                <img src={svc.images[0]?.url} alt={svc.title_fr} className="w-full h-full object-cover" />
+              <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0">
+                <Image src={svc.images[0]?.url ?? '/icon-192.png'} alt={svc.title_fr} fill sizes="64px" className="w-full h-full object-cover" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-charcoal truncate">{svc.title_fr}</p>
