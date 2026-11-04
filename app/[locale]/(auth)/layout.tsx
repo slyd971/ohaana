@@ -1,7 +1,11 @@
 import { Link } from '@/lib/i18n/navigation'
+import { getEnabledProviders } from '@/lib/auth/providers'
+import { AuthProvidersProvider } from '@/components/auth/AuthProviders'
 
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+export default async function AuthLayout({ children }: { children: React.ReactNode }) {
+  const providers = await getEnabledProviders()
   return (
+    <AuthProvidersProvider google={providers.google}>
     <div className="min-h-dvh bg-coconut flex flex-col overflow-x-hidden">
       {/* Decorative background */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
@@ -31,5 +35,6 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
       </main>
     </div>
+    </AuthProvidersProvider>
   )
 }
