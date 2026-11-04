@@ -12,7 +12,7 @@ export default async function EditServicePage({ params }: { params: Promise<{ lo
   if (ctx.kind === 'demo') return <DemoServices />
   if (ctx.kind !== 'provider') return <SignInRequired kind={ctx.kind} />
 
-  const service = await getProviderService(ctx.supabase, id)
+  const service = await getProviderService(ctx.supabase, ctx.provider.id, id)
   if (!service) notFound()
   const categories = await getCategories().catch(() => [])
 

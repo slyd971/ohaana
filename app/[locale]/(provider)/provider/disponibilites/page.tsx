@@ -16,7 +16,7 @@ export default async function AvailabilityPage({ searchParams }: { searchParams:
   }
   if (ctx.kind !== 'provider') return <SignInRequired kind={ctx.kind} />
 
-  const services = (await listProviderServices(ctx.supabase)).filter((s) => s.status !== 'archived')
+  const services = (await listProviderServices(ctx.supabase, ctx.provider.id)).filter((s) => s.status !== 'archived')
   const { service: wanted } = await searchParams
   const current = services.find((s) => s.id === wanted) ?? services[0]
 
