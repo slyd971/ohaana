@@ -3,6 +3,7 @@ import type { EmailOtpType } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/server'
 import { ROLE_HOME, safeRedirectPath } from '@/lib/auth/types'
 import { localePrefix } from '@/lib/auth/locale'
+import type { UserRole } from '@/types/database'
 
 const LOCALE_RE = /^\/(fr|en|es)(?=\/|$)/
 const OTP_TYPES: EmailOtpType[] = ['signup', 'invite', 'magiclink', 'recovery', 'email_change', 'email']
@@ -55,7 +56,7 @@ export async function GET(request: NextRequest) {
   let home = '/'
   if (user) {
     const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single()
-    if (profile?.role) home = ROLE_HOME[profile.role]
+    if (profile?.role) home = ROLE_HOME[profile.role as UserRole]
   }
   return NextResponse.redirect(new URL(`${prefix}${home}`, url.origin))
 }

@@ -30,7 +30,7 @@ export const getCurrentUser = cache(async (): Promise<AuthUser | null> => {
       email: user.email ?? '',
       fullName: profile.full_name,
       avatarUrl: profile.avatar_url,
-      role: profile.role,
+      role: profile.role as UserRole,
     }
   } catch {
     return null

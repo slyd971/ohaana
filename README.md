@@ -48,7 +48,7 @@ Créer un compte sur [stripe.com](https://stripe.com) et récupérer :
 # Via Supabase CLI (premier usage : `supabase init` crée supabase/config.toml)
 supabase login
 supabase link --project-ref <your-project-ref>
-supabase db push            # applique supabase/migrations/001 → 007
+supabase db push            # applique supabase/migrations/001 → 008
 # Données de démo (local uniquement) :
 supabase db reset           # rejoue les migrations puis supabase/seed.sql
 ```
@@ -60,12 +60,13 @@ supabase db reset           # rejoue les migrations puis supabase/seed.sql
 | `003_marketplace_extensions.sql` | Statuts de service, slugs, i18n ES, politiques d'annulation, leads, candidatures, `webhook_events`, index anti double-réservation |
 | `004_security_and_rpc.sql` | Triggers de protection de colonnes, RPC `create_booking` / `cancel_booking` / `provider_set_booking_status` / `create_review`, vues publiques, `purge_demo_data()` |
 | `005_storage.sql` | Buckets `service-images` (public) et `provider-docs` (privé) + policies |
+| `008_public_availability.sql` | Vue `public_slot_availability` (créneaux réellement libres, sans données de réservation) |
 | `006_reference_data.sql` | Catégories et politiques d'annulation (données réelles) |
 | `007_become_provider.sql` | RPC `become_provider()` (inscription prestataire via Google) |
 
 Règle d'or : **aucune écriture client directe** sur `bookings`, `payments`, `reviews`, `notifications`. Tout passe par les RPC ou par la clé `service_role` côté serveur (webhooks).
 
-Données de démo : `npm run db:seed` régénère `supabase/seed.sql` depuis `lib/data/seed.ts` (toutes les lignes sont `is_demo = true`). Avant le lancement réel : `select public.purge_demo_data();`.
+Données de démo : `supabase/seed.sql` (toutes les lignes sont `is_demo = true`; le catalogue statique `lib/data/seed.ts` a été supprimé, le site lit la base). Avant le lancement réel : `select public.purge_demo_data();`.
 
 Tests de sécurité de la base (Postgres en mémoire via PGlite, sans Docker) :
 
@@ -143,8 +144,8 @@ lib/
 ├── i18n/               # routing, navigation, request config
 └── utils.ts            # cn(), formatPrice(), computeFees()
 supabase/migrations/
-├── 001_schema.sql … 007_become_provider.sql   # voir tableau ci-dessus
-supabase/seed.sql       # généré (npm run db:seed)
+├── 001_schema.sql … 008_public_availability.sql   # voir tableau ci-dessus
+supabase/seed.sql       # données de démo (is_demo = true)
 supabase/tests/         # tests de sécurité SQL (npm run db:test)
 messages/
 ├── fr.json
@@ -170,3 +171,10 @@ Voir `.env.local.example` pour la liste complète. Points d'attention :
 - `NEXT_PUBLIC_SITE_URL` : domaine public (canonical, sitemap, OG). Défaut : `https://ohaana.vercel.app`.
 - `NEXT_PUBLIC_DEMO_MODE=true` désactive **toute** l'authentification (démo investisseur uniquement, déploiement marqué `noindex`). Désactivé par défaut.
 - `NEXT_PUBLIC_WHATSAPP_NUMBER` : si vide, les boutons WhatsApp sont masqués.
+
+## Couche de données publique
+
+- `lib/data/services.ts` (serveur) : `getHomeData`, `searchServices` (filtres + pagination), `getServiceByIdOrSlug`, `getAvailability`, `getReviews`… Tout est mis en cache avec `unstable_cache` (tags `services` / `availability` / `reviews`, 5 min) : après une modification en back-office, appeler `revalidateTag('services')`.
+- Lecture publique uniquement via la clé publishable (`lib/supabase/public.ts`) : vues `public_provider_profiles`, `public_reviews`, `public_slot_availability`. Les téléphones des prestataires ne sont **pas** publics (RPC `get_provider_contact`, après confirmation).
+- `safe()` : si la base est injoignable, les pages affichent un état vide au lieu de planter le build.
+- Utilisateur connecté (client navigateur, RLS) : favoris (`hooks/useFavorites`), réservations (`useMyBookings`), notifications, préférences.

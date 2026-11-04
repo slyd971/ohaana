@@ -1,47 +1,44 @@
 import type { MetadataRoute } from 'next'
-import { SERVICES } from '@/lib/data/seed'
+import { getPublishedServiceIndex, safe } from '@/lib/data/services'
 import { SITE_URL } from '@/lib/site'
 
-const BASE = SITE_URL
+// Regenerated daily from the database: only PUBLISHED services of APPROVED providers are listed.
+export const revalidate = 86400
 
-function u(path: string, locale: 'fr' | 'en' | 'es') {
+const BASE = SITE_URL
+const LOCALES = ['fr', 'en', 'es'] as const
+
+function u(path: string, locale: (typeof LOCALES)[number]) {
   if (locale === 'fr') return `${BASE}${path}`
   return `${BASE}/${locale}${path}`
 }
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Demo deployments must not advertise any URL.
   if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') return []
 
   const now = new Date()
-  const locales = ['fr', 'en', 'es'] as const
   const entries: MetadataRoute.Sitemap = []
 
-  // Home
-  for (const locale of locales) {
+  for (const locale of LOCALES) {
     entries.push({ url: u('/', locale), lastModified: now, changeFrequency: 'daily', priority: 1.0 })
-  }
-
-  // Search
-  for (const locale of locales) {
     entries.push({ url: u('/search', locale), lastModified: now, changeFrequency: 'daily', priority: 0.9 })
   }
 
-  // Service pages
-  for (const service of SERVICES) {
-    for (const locale of locales) {
+  const services = await safe(getPublishedServiceIndex(), [])
+  for (const service of services) {
+    for (const locale of LOCALES) {
       entries.push({
         url: u(`/prestataires/${service.id}`, locale),
-        lastModified: now,
+        lastModified: new Date(service.updated_at),
         changeFrequency: 'weekly',
         priority: 0.8,
       })
     }
   }
 
-  // Static pages
   for (const path of ['/concierge', '/about']) {
-    for (const locale of locales) {
+    for (const locale of LOCALES) {
       entries.push({ url: u(path, locale), lastModified: now, changeFrequency: 'monthly', priority: 0.5 })
     }
   }

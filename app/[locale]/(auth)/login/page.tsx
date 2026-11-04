@@ -14,6 +14,7 @@ import { DEMO_MODE } from '@/lib/demo-mode'
 import { loginSchema, magicLinkSchema, fieldErrors } from '@/lib/auth/schemas'
 import { authErrorKey } from '@/lib/auth/errors'
 import { ROLE_HOME, safeRedirectPath } from '@/lib/auth/types'
+import type { UserRole } from '@/types/database'
 import { buildCallbackUrl } from '@/lib/auth/client-utils'
 import { useCooldown } from '@/hooks/useCooldown'
 
@@ -67,7 +68,7 @@ export default function LoginPage() {
       const { data: profile } = await supabase.from('users').select('role').eq('id', data.user.id).single()
       router.refresh()
       if (redirectTo) router.push(redirectTo)     // already carries the locale prefix (set by proxy.ts)
-      else i18nRouter.push(ROLE_HOME[profile?.role ?? 'tourist'])
+      else i18nRouter.push(ROLE_HOME[(profile?.role as UserRole | undefined) ?? 'tourist'])
     } catch (error) {
       const key = authErrorKey(error)
       const next = failures + 1

@@ -6,9 +6,9 @@ import { useLocale } from 'next-intl'
 import { Heart, Clock, MapPin } from 'lucide-react'
 import { cn, formatPrice, formatDuration } from '@/lib/utils'
 import { Link } from '@/lib/i18n/navigation'
-import type { SERVICES } from '@/lib/data/seed'
+import type { ServiceView } from '@/lib/data/types'
 
-type ServiceData = typeof SERVICES[0]
+type ServiceData = ServiceView
 
 interface ServiceCardProps {
   service: ServiceData

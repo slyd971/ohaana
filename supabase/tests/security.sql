@@ -240,6 +240,18 @@ begin
   perform t.eq('provider is notified of the new booking',
     t.scalar(format($q$select count(*)::text from public.notifications where user_id = %L and type = 'booking_new'$q$, v_pro_user)), '1');
 
+  -- vue publique des disponibilités : le créneau pris et ceux qui le chevauchent disparaissent
+  perform t.as_anon();
+  perform t.eq('booked slot disappears from public availability',
+    t.scalar(format($q$select count(*)::text from public.public_slot_availability where id = %L$q$, v_slot10)), '0');
+  perform t.eq('overlapping slot of the same provider disappears too',
+    t.scalar(format($q$select count(*)::text from public.public_slot_availability where id = %L$q$, v_slot11)), '0');
+  perform t.eq('a later slot stays available',
+    t.scalar(format($q$select count(*)::text from public.public_slot_availability where id = %L$q$, v_slot15)), '1');
+  perform t.fails('public availability exposes no booking column',
+    $q$select tourist_id from public.public_slot_availability$q$, '42703');
+  perform t.reset();
+
   -- double réservation / chevauchement
   perform t.as_user(B);
   perform t.fails('same slot cannot be booked twice',

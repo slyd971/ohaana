@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { getServiceById, SERVICES } from '@/lib/data/seed'
+import { getServiceByIdOrSlug, safe } from '@/lib/data/services'
 import { SITE_URL } from '@/lib/site'
 
 const BASE = SITE_URL
@@ -9,13 +9,9 @@ interface Props {
   params: Promise<{ id: string; locale: string }>
 }
 
-export async function generateStaticParams() {
-  return SERVICES.map((s) => ({ id: s.id }))
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ id: string; locale: string }> }): Promise<Metadata> {
   const { id, locale } = await params
-  const service = getServiceById(id)
+  const service = await safe(getServiceByIdOrSlug(id), null)
   if (!service) return {}
 
   const isEn = locale === 'en'
@@ -63,7 +59,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function ProviderLayout({ children, params }: Props) {
   const { id, locale } = await params
-  const service = getServiceById(id)
+  const service = await safe(getServiceByIdOrSlug(id), null)
 
   if (!service) return <>{children}</>
 
