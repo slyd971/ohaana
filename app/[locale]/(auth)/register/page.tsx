@@ -6,7 +6,7 @@ import { Link } from '@/lib/i18n/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { GoogleButton } from '@/components/auth/GoogleButton'
+import { GoogleSection } from '@/components/auth/AuthProviders'
 import { Mail, Lock, User } from 'lucide-react'
 import { registerSchema, fieldErrors } from '@/lib/auth/schemas'
 import { authErrorKey } from '@/lib/auth/errors'
@@ -45,6 +45,10 @@ export default function RegisterPage({ searchParams }: RegisterPageProps) {
   async function handleGoogleSignup() {
     if (!acceptTerms) {
       setErrors({ acceptTerms: 'termsRequired' })
+      // The checkbox can be far below the Google button: bring it into view so the click is never silent.
+      const box = document.querySelector<HTMLInputElement>('input[name="acceptTerms"]')
+      box?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+      box?.focus({ preventScroll: true })
       return
     }
     setLoading(true)
@@ -166,13 +170,7 @@ export default function RegisterPage({ searchParams }: RegisterPageProps) {
         <h1 className="text-3xl font-display text-charcoal">{t('registerTitle')}</h1>
       </div>
 
-      <GoogleButton label={t('continueWithGoogle')} onClick={handleGoogleSignup} disabled={loading} />
-
-      <div className="flex items-center gap-3 text-stone text-sm">
-        <div className="flex-1 h-px bg-mist" />
-        {t('or')}
-        <div className="flex-1 h-px bg-mist" />
-      </div>
+      <GoogleSection label={t('continueWithGoogle')} orLabel={t('or')} onClick={handleGoogleSignup} disabled={loading} />
 
       <form onSubmit={handleRegister} className="space-y-4" noValidate>
         <Input

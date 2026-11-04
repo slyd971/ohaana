@@ -29,7 +29,7 @@ export function ConciergeShell({ children }: { children: React.ReactNode }) {
       <aside
         className={cn(
           'fixed inset-y-0 left-0 z-40 w-60 bg-[#1A2E3D] flex flex-col transition-transform duration-300',
-          'md:translate-x-0 md:static',
+          'md:translate-x-0 md:sticky md:top-0 md:h-dvh md:flex-none',
           open ? 'translate-x-0' : '-translate-x-full'
         )}
       >

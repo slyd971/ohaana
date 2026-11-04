@@ -6,12 +6,28 @@ import { Field, inputClass } from './ui'
 import { ISLAND_LABELS, PROVIDER_ISLANDS, type ActionState } from '@/lib/provider/schemas'
 import type { ProviderRow } from '@/lib/provider/context'
 
-export function ProfileForm({ provider }: { provider: ProviderRow }) {
-  const [state, action, pending] = useActionState<ActionState, FormData>(saveProfileAction, {})
+type ProfileValues = Pick<ProviderRow, 'business_name' | 'bio' | 'languages' | 'island' | 'phone' | 'whatsapp'>
+
+const EMPTY_PROFILE: ProfileValues = { business_name: '', bio: '', languages: ['fr'], island: 'guadeloupe', phone: '', whatsapp: '' }
+
+export function ProfileForm({
+  provider = EMPTY_PROFILE,
+  action: formAction = saveProfileAction,
+  hidden,
+  submitLabel = 'Enregistrer',
+}: {
+  provider?: ProfileValues
+  action?: (prev: ActionState, formData: FormData) => Promise<ActionState>
+  /** Extra hidden fields (e.g. provider_id, locale) used by the admin space. */
+  hidden?: Record<string, string>
+  submitLabel?: string
+}) {
+  const [state, action, pending] = useActionState<ActionState, FormData>(formAction, {})
   const err = state.fieldErrors ?? {}
 
   return (
     <form action={action} className="bg-coconut rounded-2xl border border-mist p-5 space-y-4">
+      {hidden && Object.entries(hidden).map(([k, v]) => <input key={k} type="hidden" name={k} value={v} />)}
       <Field label="Nom commercial" htmlFor="business_name" error={err.business_name}>
         <input id="business_name" name="business_name" defaultValue={provider.business_name} required maxLength={100} className={inputClass} />
       </Field>
@@ -45,7 +61,7 @@ export function ProfileForm({ provider }: { provider: ProviderRow }) {
         disabled={pending}
         className="bg-deep-green text-coconut px-6 py-2.5 rounded-full text-sm font-medium hover:bg-deep-green/90 disabled:opacity-60 transition-colors"
       >
-        {pending ? 'Enregistrement…' : 'Enregistrer'}
+        {pending ? 'Enregistrement…' : submitLabel}
       </button>
     </form>
   )

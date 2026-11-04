@@ -7,7 +7,7 @@ import { Link, useRouter } from '@/lib/i18n/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { GoogleButton } from '@/components/auth/GoogleButton'
+import { GoogleSection } from '@/components/auth/AuthProviders'
 import { Mail, Lock, User, Briefcase, Handshake, CheckCircle2 } from 'lucide-react'
 import { setDemoRole } from '@/lib/demo-auth'
 import { DEMO_MODE } from '@/lib/demo-mode'
@@ -153,13 +153,7 @@ export default function LoginPage() {
         <p className="text-stone text-sm text-balance">{t('loginSubtitle')}</p>
       </div>
 
-      <GoogleButton label={t('continueWithGoogle')} onClick={handleGoogleLogin} disabled={loading} />
-
-      <div className="flex items-center gap-3 text-stone text-sm">
-        <div className="flex-1 h-px bg-mist" />
-        {t('or')}
-        <div className="flex-1 h-px bg-mist" />
-      </div>
+      <GoogleSection label={t('continueWithGoogle')} orLabel={t('or')} onClick={handleGoogleLogin} disabled={loading} />
 
       <form
         onSubmit={mode === 'password' ? handlePasswordLogin : handleMagicLink}

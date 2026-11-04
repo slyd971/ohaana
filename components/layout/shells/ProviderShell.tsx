@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { Link } from '@/lib/i18n/navigation'
 import { useAuth } from '@/lib/auth/AuthProvider'
 import { OhaanaLogo } from '@/components/layout/OhaanaLogo'
+import { ShellAccount } from '@/components/layout/ShellAccount'
 import { cn } from '@/lib/utils'
 import {
   LayoutDashboard, Briefcase, CalendarDays,
@@ -32,7 +33,7 @@ export function ProviderShell({ children }: { children: React.ReactNode }) {
       <aside
         className={cn(
           'fixed inset-y-0 left-0 z-40 w-60 bg-deep-green flex flex-col transition-transform duration-300',
-          'md:translate-x-0 md:static',
+          'md:translate-x-0 md:sticky md:top-0 md:h-dvh md:flex-none',
           open ? 'translate-x-0' : '-translate-x-full'
         )}
       >
@@ -63,7 +64,10 @@ export function ProviderShell({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        <div className="px-3 py-4 border-t border-coconut/10">
+        <div className="border-t border-coconut/10 pt-3">
+          <ShellAccount space="provider" />
+        </div>
+        <div className="px-3 pb-4">
           <Link
             href="/"
             className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-coconut/55 hover:text-coconut hover:bg-coconut/10 transition-colors"

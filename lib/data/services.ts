@@ -61,9 +61,13 @@ function mapProvider(row: Row): ProviderView {
 function mapService(row: Row, providers: Map<string, ProviderView>): ServiceView | null {
   const provider = providers.get(row.provider_id as string)
   if (!provider) return null // provider not public (not approved) → the service is not public either
-  const images = ((row.service_images as ServiceImageView[] | null) ?? [])
+  const real = ((row.service_images as ServiceImageView[] | null) ?? [])
     .slice()
     .sort((a, b) => a.sort_order - b.sort_order)
+  // Une fiche créée dans le back-office peut ne pas avoir de photo : le catalogue suppose au moins une image.
+  const images: ServiceImageView[] = real.length
+    ? real
+    : [{ id: 'placeholder', url: '/placeholder-service.svg', alt_fr: 'Photo à venir', alt_en: 'Photo coming soon', alt_es: 'Foto próximamente', sort_order: 0, is_cover: true }]
   const cat = row.service_categories as { slug: string } | null
   const fr = row.title_fr as string
   const descFr = (row.description_fr as string | null) ?? ''
