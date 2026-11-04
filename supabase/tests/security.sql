@@ -163,6 +163,20 @@ begin
   perform t.scalar(format($q$update public.services set status = 'pending_review' where id = %L returning id::text$q$, v_sid));
   perform t.eq('provider can submit for review',
     t.scalar(format($q$select status::text from public.services where id = %L$q$, v_sid)), 'pending_review');
+
+  -- disponibilités : génération idempotente (on conflict do nothing) puis blocage d'un jour, sous RLS
+  perform t.scalar(format($q$with ins as (insert into public.availability_slots (service_id, date, start_time, end_time)
+    values (%L, current_date + 40, '09:00', '11:00'), (%L, current_date + 40, '14:00', '16:00')
+    on conflict (service_id, date, start_time) do nothing returning 1) select count(*)::text from ins$q$, v_sid, v_sid));
+  perform t.eq('provider re-generating slots creates no duplicate',
+    t.scalar(format($q$with ins as (insert into public.availability_slots (service_id, date, start_time, end_time)
+      values (%L, current_date + 40, '09:00', '11:00') on conflict (service_id, date, start_time) do nothing returning 1)
+      select count(*)::text from ins$q$, v_sid)), '0');
+  perform t.scalar(format($q$with u as (update public.availability_slots set is_available = false
+    where service_id = %L and date = current_date + 40 returning 1) select count(*)::text from u$q$, v_sid));
+  perform t.eq('provider can block a whole day',
+    t.scalar(format($q$select count(*)::text from public.availability_slots
+      where service_id = %L and date = current_date + 40 and not is_available$q$, v_sid)), '2');
   perform t.reset();
 
   -- le brouillon n'est pas public

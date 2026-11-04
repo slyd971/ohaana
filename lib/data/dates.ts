@@ -5,3 +5,8 @@ export function availabilityWindow(days = 90): { from: string; to: string } {
   const now = Date.now()
   return { from: isoDay(new Date(now)), to: isoDay(new Date(now + days * 86_400_000)) }
 }
+
+/** Current instant, isolated here so server components stay free of impure calls (react-hooks/purity). */
+export function nowDate(): Date {
+  return new Date(Date.now())
+}

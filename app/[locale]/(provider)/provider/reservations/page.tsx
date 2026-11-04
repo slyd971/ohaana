@@ -1,57 +1,74 @@
-import { CalendarDays, Clock, Users, CheckCircle, AlertCircle, XCircle } from 'lucide-react'
+import { CalendarDays, Users } from 'lucide-react'
+import { Link } from '@/lib/i18n/navigation'
+import { getProviderContext } from '@/lib/provider/context'
+import { listProviderBookings } from '@/lib/provider/queries'
+import { nowDate } from '@/lib/data/dates'
+import { EmptyState, PageHeader, SignInRequired, StatusBadge, eur, formatDateTimeFr } from '@/components/provider/ui'
+import { BookingActions } from '@/components/provider/RowActions'
+import { DemoReservations } from '../_demo/DemoReservations'
 
-const RESERVATIONS = [
-  { client: 'Sophie Laurent',  service: 'Dîner de chef — 4 pers.',   date: 'Ven 14 juin', time: '19h00', guests: 4, total: '720 €', status: 'confirmed' },
-  { client: 'Marcus Williams', service: 'Brunch créole — 6 pers.',    date: 'Sam 15 juin', time: '10h00', guests: 6, total: '570 €', status: 'confirmed' },
-  { client: 'Isabelle Moreau', service: 'Dîner de chef — 6 pers.',   date: 'Dim 16 juin', time: '20h00', guests: 6, total: '1 080 €', status: 'pending'   },
-  { client: 'Julie Besson',    service: 'Dîner de chef — 2 pers.',   date: 'Mar 18 juin', time: '19h30', guests: 2, total: '360 €', status: 'confirmed' },
-  { client: 'Marc Dufresne',   service: 'Brunch créole — 4 pers.',   date: 'Mer 19 juin', time: '09h30', guests: 4, total: '380 €', status: 'pending'   },
-]
+const FILTERS = [
+  { key: 'all', label: 'Toutes', match: () => true },
+  { key: 'upcoming', label: 'À venir', match: (s: string) => s === 'confirmed' },
+  { key: 'pending', label: 'Paiement en attente', match: (s: string) => s === 'pending' },
+  { key: 'done', label: 'Terminées', match: (s: string) => s === 'completed' },
+  { key: 'cancelled', label: 'Annulées', match: (s: string) => s.startsWith('cancelled') || s === 'expired' },
+] as const
 
-const STATUS_CONFIG = {
-  confirmed: { label: 'Confirmé',   Icon: CheckCircle, style: 'text-turquoise' },
-  pending:   { label: 'En attente', Icon: AlertCircle, style: 'text-amber-500'  },
-  cancelled: { label: 'Annulé',     Icon: XCircle,     style: 'text-coral'      },
-}
+export default async function ProviderReservationsPage({ searchParams }: { searchParams: Promise<{ s?: string }> }) {
+  const ctx = await getProviderContext()
+  if (ctx.kind === 'demo') return <DemoReservations />
+  if (ctx.kind !== 'provider') return <SignInRequired kind={ctx.kind} />
 
-export default function ProviderReservationsPage() {
+  const { s } = await searchParams
+  const filter = FILTERS.find((f) => f.key === s) ?? FILTERS[0]
+  const all = await listProviderBookings(ctx.supabase)
+  const bookings = all.filter((b) => filter.match(b.status))
+  const nowIso = nowDate().toISOString()
+
   return (
     <div className="p-5 md:p-8 space-y-6 max-w-4xl">
-      <div>
-        <h1 className="text-2xl font-display text-deep-green">Réservations</h1>
-        <p className="text-stone text-sm mt-0.5">5 réservations à venir</p>
-      </div>
+      <PageHeader title="Réservations" subtitle="La confirmation est automatique dès que le voyageur a payé." />
 
-      <div className="bg-coconut rounded-2xl border border-mist overflow-hidden">
-        <div className="divide-y divide-mist">
-          {RESERVATIONS.map((r) => {
-            const { label, Icon, style } = STATUS_CONFIG[r.status as keyof typeof STATUS_CONFIG]
-            return (
-              <div key={`${r.client}-${r.date}`} className="p-4 flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-sand flex items-center justify-center flex-none">
-                  <CalendarDays size={17} className="text-deep-green" />
+      <nav aria-label="Filtrer les réservations" className="flex flex-wrap gap-2">
+        {FILTERS.map((f) => (
+          <Link
+            key={f.key}
+            href={f.key === 'all' ? '/provider/reservations' : `/provider/reservations?s=${f.key}`}
+            aria-current={f.key === filter.key ? 'page' : undefined}
+            className={`px-3.5 py-1.5 rounded-full text-xs border transition-colors ${
+              f.key === filter.key ? 'bg-deep-green text-coconut border-deep-green' : 'border-mist text-stone hover:bg-sand'
+            }`}
+          >
+            {f.label}
+          </Link>
+        ))}
+      </nav>
+
+      {bookings.length === 0 ? (
+        <EmptyState title="Aucune réservation ici">Les réservations de vos voyageurs apparaîtront dès qu’elles seront créées.</EmptyState>
+      ) : (
+        <ul className="space-y-3">
+          {bookings.map((b) => (
+            <li key={b.id} className="bg-coconut rounded-2xl border border-mist p-5 space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-charcoal truncate">{b.title_fr}</p>
+                  <p className="text-xs text-stone mt-0.5">{b.tourist_first_name || 'Voyageur'}</p>
                 </div>
-                <div className="flex-1 min-w-0 space-y-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-semibold text-charcoal">{r.client}</p>
-                    <span className={`flex items-center gap-1 text-xs font-medium ${style}`}>
-                      <Icon size={12} />
-                      {label}
-                    </span>
-                  </div>
-                  <p className="text-xs text-stone truncate">{r.service}</p>
-                  <div className="flex flex-wrap gap-3 text-xs text-stone">
-                    <span className="flex items-center gap-1"><CalendarDays size={11} />{r.date}</span>
-                    <span className="flex items-center gap-1"><Clock size={11} />{r.time}</span>
-                    <span className="flex items-center gap-1"><Users size={11} />{r.guests} pers.</span>
-                    <span className="font-semibold text-charcoal">{r.total}</span>
-                  </div>
-                </div>
+                <StatusBadge status={b.status} />
               </div>
-            )
-          })}
-        </div>
-      </div>
+              <div className="flex flex-wrap gap-4 text-xs text-stone">
+                <span className="flex items-center gap-1"><CalendarDays size={11} />{formatDateTimeFr(b.starts_at)}</span>
+                <span className="flex items-center gap-1"><Users size={11} />{b.guests_count} pers.</span>
+                <span className="font-semibold text-charcoal">{eur(b.total_cents)}</span>
+              </div>
+              {b.notes && <p className="text-xs bg-sand rounded-lg px-3 py-2 text-charcoal">« {b.notes} »</p>}
+              <BookingActions id={b.id} status={b.status} past={(b.starts_at ?? '9999') <= nowIso} />
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }

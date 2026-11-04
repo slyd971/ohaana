@@ -1,71 +1,74 @@
-import { Wallet, TrendingUp, ArrowDownLeft, Clock } from 'lucide-react'
+import { Wallet, TrendingUp, Clock } from 'lucide-react'
+import { getProviderContext } from '@/lib/provider/context'
+import { listProviderBookings, listProviderPayments } from '@/lib/provider/queries'
+import { EmptyState, PageHeader, SignInRequired, eur } from '@/components/provider/ui'
+import { DemoPaiements } from '../_demo/DemoPaiements'
 
-const SUMMARY = [
-  { label: 'Solde disponible',   value: '2 140 €', Icon: Wallet,      color: 'bg-turquoise/10 text-turquoise' },
-  { label: 'En attente',         value: '660 €',   Icon: Clock,       color: 'bg-sand text-stone'             },
-  { label: 'Total ce mois',      value: '4 320 €', Icon: TrendingUp,  color: 'bg-deep-green/10 text-deep-green'},
-]
-
-const TRANSACTIONS = [
-  { label: 'Dîner de chef · Sophie Laurent',    date: '14 juin', amount: '+648 €',  status: 'versé'     },
-  { label: 'Brunch créole · Marcus Williams',   date: '15 juin', amount: '+513 €',  status: 'versé'     },
-  { label: 'Dîner de chef · Isabelle Moreau',   date: '16 juin', amount: '+972 €',  status: 'en attente'},
-  { label: 'Virement bancaire',                 date: '10 juin', amount: '−1 800 €',status: 'virement'  },
-  { label: 'Brunch créole · Julie Besson',      date: '18 juin', amount: '+342 €',  status: 'en attente'},
-]
-
-const STATUS_STYLE: Record<string, string> = {
-  'versé':      'text-turquoise',
-  'en attente': 'text-amber-500',
-  'virement':   'text-stone',
+const PAYMENT_LABELS: Record<string, string> = {
+  succeeded: 'Encaissé',
+  pending: 'En attente',
+  failed: 'Échoué',
+  refunded: 'Remboursé',
 }
 
-export default function ProviderPaiementsPage() {
+export default async function ProviderPaiementsPage() {
+  const ctx = await getProviderContext()
+  if (ctx.kind === 'demo') return <DemoPaiements />
+  if (ctx.kind !== 'provider') return <SignInRequired kind={ctx.kind} />
+
+  const [payments, bookings] = await Promise.all([listProviderPayments(ctx.supabase), listProviderBookings(ctx.supabase, 300)])
+  const titleByBooking = new Map(bookings.map((b) => [b.id, b.title_fr]))
+  const received = payments.filter((p) => p.status === 'succeeded').reduce((sum, p) => sum + p.provider_amount_cents, 0)
+  const pending = payments.filter((p) => p.status === 'pending').reduce((sum, p) => sum + p.provider_amount_cents, 0)
+  const refunded = payments.filter((p) => p.status === 'refunded').reduce((sum, p) => sum + p.provider_amount_cents, 0)
+
+  const summary = [
+    { label: 'Encaissé (net)', value: eur(received), Icon: TrendingUp, color: 'bg-turquoise/10 text-turquoise' },
+    { label: 'En attente', value: eur(pending), Icon: Clock, color: 'bg-[#F5A623]/15 text-[#B7791F]' },
+    { label: 'Remboursé', value: eur(refunded), Icon: Wallet, color: 'bg-sand text-deep-green' },
+  ]
+
   return (
     <div className="p-5 md:p-8 space-y-6 max-w-4xl">
-      <div>
-        <h1 className="text-2xl font-display text-deep-green">Paiements</h1>
-        <p className="text-stone text-sm mt-0.5">Ohaana retient 10 % de commission sur chaque réservation.</p>
-      </div>
+      <PageHeader title="Paiements" subtitle="Historique réel de vos encaissements." />
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {SUMMARY.map(({ label, value, Icon, color }) => (
-          <div key={label} className="bg-coconut rounded-2xl border border-mist p-5">
-            <div className={`inline-flex items-center justify-center w-9 h-9 rounded-xl mb-3 ${color}`}>
-              <Icon size={18} />
-            </div>
-            <p className="text-2xl font-display text-charcoal">{value}</p>
-            <p className="text-xs text-stone mt-0.5">{label}</p>
+      <div className="grid grid-cols-3 gap-3 sm:gap-4">
+        {summary.map(({ label, value, Icon, color }) => (
+          <div key={label} className="bg-coconut rounded-2xl p-4 border border-mist">
+            <div className={`inline-flex items-center justify-center w-8 h-8 rounded-xl mb-2 ${color}`}><Icon size={16} /></div>
+            <p className="text-lg sm:text-xl font-display text-charcoal">{value}</p>
+            <p className="text-[11px] text-stone">{label}</p>
           </div>
         ))}
       </div>
 
-      <div className="bg-coconut rounded-2xl border border-mist overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-mist">
-          <h2 className="text-sm font-semibold text-charcoal">Historique</h2>
-          <button
-            type="button"
-            className="flex items-center gap-1.5 text-xs text-deep-green hover:underline"
-          >
-            <ArrowDownLeft size={12} />
-            Demander un virement
-          </button>
-        </div>
-        <div className="divide-y divide-mist">
-          {TRANSACTIONS.map((t) => (
-            <div key={`${t.label}-${t.date}`} className="flex items-center gap-3 px-5 py-3.5">
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-charcoal truncate">{t.label}</p>
-                <p className="text-xs text-stone">{t.date}</p>
-              </div>
-              <div className="text-right flex-none">
-                <p className="text-sm font-semibold text-charcoal">{t.amount}</p>
-                <p className={`text-[10px] font-medium ${STATUS_STYLE[t.status]}`}>{t.status}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+      <div className="rounded-xl bg-sand text-stone text-xs px-4 py-3">
+        Les virements vers votre compte bancaire seront disponibles avec la connexion Stripe Connect (prochaine étape).
+        {!ctx.provider.stripe_onboarded && ' Votre compte de versement n’est pas encore connecté.'}
       </div>
+
+      {payments.length === 0 ? (
+        <EmptyState title="Aucun paiement pour l’instant" />
+      ) : (
+        <div className="bg-coconut rounded-2xl border border-mist overflow-hidden">
+          <ul className="divide-y divide-mist">
+            {payments.map((p) => (
+              <li key={`${p.booking_id}-${p.created_at}`} className="px-5 py-3.5 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-sm text-charcoal truncate">{titleByBooking.get(p.booking_id) ?? 'Réservation'}</p>
+                  <p className="text-[11px] text-stone">
+                    {new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium' }).format(new Date(p.created_at))} · {PAYMENT_LABELS[p.status] ?? p.status}
+                  </p>
+                </div>
+                <div className="text-right flex-none">
+                  <p className="text-sm font-semibold text-deep-green">{eur(p.provider_amount_cents)}</p>
+                  <p className="text-[11px] text-stone">payé par le voyageur : {eur(p.total_cents)}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   )
 }
