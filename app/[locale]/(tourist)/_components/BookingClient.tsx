@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocale } from 'next-intl'
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
@@ -11,7 +11,10 @@ import {
   Lock, Info, ChevronDown, ChevronUp, ChevronRight,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
+import { StripeCheckout } from '@/components/checkout/StripeCheckout'
+import { STRIPE_CONFIGURED, STRIPE_TEST_MODE, getStripePromise } from '@/lib/stripe/browser'
+import { useAuth } from '@/lib/auth/AuthProvider'
+import { DEMO_MODE } from '@/lib/demo-mode'
 import type { ServiceView, SlotView } from '@/lib/data/types'
 import { formatPrice, computeFees, formatDuration, cn } from '@/lib/utils'
 
@@ -121,6 +124,7 @@ function ConfirmationScreen({
   guests,
   total,
   platformFee,
+  demo,
 }: {
   service: ServiceView
   title: string
@@ -129,6 +133,7 @@ function ConfirmationScreen({
   guests: number
   total: number
   platformFee: number
+  demo: boolean
 }) {
   const cover = service.images.find((i) => i.is_cover) ?? service.images[0]
   const svcTitle = title
@@ -150,7 +155,9 @@ function ConfirmationScreen({
 
       <h1 className="text-2xl font-display text-charcoal text-center mb-2">Réservation confirmée !</h1>
       <p className="text-stone text-sm text-center max-w-xs mb-8">
-        Un email de confirmation vous sera envoyé dans quelques minutes.
+        {demo
+          ? 'Paiement de démonstration réussi (mode test Stripe) : aucune carte réelle n’a été débitée et aucun prestataire n’a été sollicité.'
+          : 'Un email de confirmation vous sera envoyé dans quelques minutes.'}
       </p>
 
       <div className="w-full max-w-sm bg-surface rounded-3xl border border-mist overflow-hidden mb-6">
@@ -226,12 +233,22 @@ export function BookingClient({ service, slots }: BookingClientProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(initDate)
   const [selectedTime, setSelectedTime] = useState<string | null>(initTime)
   const [editingSlot, setEditingSlot] = useState(!preselected)
-  const [guests, setGuests] = useState(service.capacity_min)
+  const guestsParam = Number(searchParams.get('guests'))
+  const [guests, setGuests] = useState(
+    Number.isInteger(guestsParam) && guestsParam >= service.capacity_min && guestsParam <= service.capacity_max ? guestsParam : service.capacity_min,
+  )
   const [notes, setNotes] = useState('')
   const [notesOpen, setNotesOpen] = useState(false)
   const [showPayment, setShowPayment] = useState(false)
-  const [loading, setLoading] = useState(false)
   const [confirmed, setConfirmed] = useState(false)
+  const { isLoggedIn, loading: authLoading } = useAuth()
+  const [clientSecret, setClientSecret] = useState<string | null>(null)
+  const [intentLoading, setIntentLoading] = useState(false)
+  const [payError, setPayError] = useState('')
+  const [payBusy, setPayBusy] = useState(false)
+  const payRef = useRef<(() => Promise<void>) | null>(null)
+  const registerPay = useCallback((fn: (() => Promise<void>) | null) => { payRef.current = fn }, [])
+  const handleSuccess = useCallback(() => setConfirmed(true), [])
 
   const cover = service.images.find((i) => i.is_cover) ?? service.images[0]
   const total = service.price_unit === 'flat' ? service.price_cents : service.price_cents * guests
@@ -239,12 +256,65 @@ export function BookingClient({ service, slots }: BookingClientProps) {
   const { platformFee } = computeFees(total)
   const canBook = !!selectedDate && !!selectedTime
 
-  async function handlePayment() {
-    setLoading(true)
-    await new Promise((r) => setTimeout(r, 1500))
-    setLoading(false)
-    setConfirmed(true)
+  const selectedSlotId = selectedDate && selectedTime
+    ? slots.find((sl) => sl.date === isoOf(selectedDate) && sl.start_time.startsWith(selectedTime))?.id ?? null
+    : null
+  const returnUrl = typeof window === 'undefined' || !selectedDate || !selectedTime
+    ? ''
+    : `${window.location.origin}${window.location.pathname}?date=${isoOf(selectedDate)}&time=${selectedTime}&guests=${guests}`
+
+  // Any change to the order invalidates the PaymentIntent: it is recreated (server-priced) on the next "Réserver".
+  function invalidatePayment() {
+    setShowPayment(false)
+    setClientSecret(null)
+    setPayError('')
   }
+
+  async function startPayment() {
+    if (!selectedSlotId) return
+    setShowPayment(true)
+    setPayError('')
+    if (!STRIPE_CONFIGURED) return
+    setIntentLoading(true)
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ serviceId: service.id, slotId: selectedSlotId, guests, notes: notes || undefined }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || !data.clientSecret) {
+        const messages: Record<string, string> = {
+          slot_unavailable: 'Ce créneau vient d’être pris. Choisissez-en un autre.',
+          auth_required: 'Connectez-vous pour finaliser votre réservation.',
+          payments_not_configured: 'Le paiement en ligne n’est pas encore disponible.',
+          invalid_guests: 'Le nombre de participants n’est pas valide pour ce service.',
+        }
+        setPayError(messages[data.error as string] ?? 'Impossible de préparer le paiement. Réessayez dans un instant.')
+        setShowPayment(data.error !== 'slot_unavailable')
+        return
+      }
+      setClientSecret(data.clientSecret as string)
+    } catch {
+      setPayError('Connexion impossible. Vérifiez votre réseau et réessayez.')
+    } finally {
+      setIntentLoading(false)
+    }
+  }
+
+  // Back from a redirect (3-D Secure, wallets): Stripe appends payment_intent_client_secret to the URL.
+  const returnedSecret = searchParams.get('payment_intent_client_secret')
+  useEffect(() => {
+    if (!returnedSecret) return
+    let active = true
+    getStripePromise()?.then((stripe) => stripe?.retrievePaymentIntent(returnedSecret)).then((result) => {
+      if (!active || !result) return
+      const status = result.paymentIntent?.status
+      if (status === 'succeeded' || status === 'processing') setConfirmed(true)
+      else setPayError('Le paiement n’a pas abouti. Aucun montant n’a été débité.')
+    })
+    return () => { active = false }
+  }, [returnedSecret])
 
   if (confirmed) {
     return (
@@ -256,6 +326,7 @@ export function BookingClient({ service, slots }: BookingClientProps) {
         guests={guests}
         total={total}
         platformFee={platformFee}
+        demo={DEMO_MODE}
       />
     )
   }
@@ -351,7 +422,7 @@ export function BookingClient({ service, slots }: BookingClientProps) {
             </div>
             <button
               type="button"
-              onClick={() => { setEditingSlot(true); setShowPayment(false) }}
+              onClick={() => { setEditingSlot(true); invalidatePayment() }}
               className="text-xs text-deep-green font-medium underline underline-offset-2 flex-none"
             >
               Modifier
@@ -367,7 +438,7 @@ export function BookingClient({ service, slots }: BookingClientProps) {
                 onChange={(d) => {
                   setSelectedDate(d)
                   setSelectedTime(null)
-                  setShowPayment(false)
+                  invalidatePayment()
                 }}
                 availableDates={availableDates}
               />
@@ -392,7 +463,7 @@ export function BookingClient({ service, slots }: BookingClientProps) {
                         onClick={() => {
                           setSelectedTime(t)
                           setEditingSlot(false)
-                          setShowPayment(false)
+                          invalidatePayment()
                         }}
                         className={cn(
                           'py-3 rounded-xl border-2 text-sm font-medium transition-all',
@@ -422,7 +493,7 @@ export function BookingClient({ service, slots }: BookingClientProps) {
             <div className="flex items-center gap-4">
               <button
                 type="button"
-                onClick={() => setGuests((g) => Math.max(service.capacity_min, g - 1))}
+                onClick={() => { setGuests((g) => Math.max(service.capacity_min, g - 1)); invalidatePayment() }}
                 disabled={guests <= service.capacity_min}
                 className="w-9 h-9 rounded-full border-2 border-mist flex items-center justify-center text-lg font-medium text-charcoal hover:border-deep-green transition-colors disabled:opacity-30"
               >
@@ -431,7 +502,7 @@ export function BookingClient({ service, slots }: BookingClientProps) {
               <span className="text-xl font-semibold text-charcoal w-6 text-center">{guests}</span>
               <button
                 type="button"
-                onClick={() => setGuests((g) => Math.min(service.capacity_max, g + 1))}
+                onClick={() => { setGuests((g) => Math.min(service.capacity_max, g + 1)); invalidatePayment() }}
                 disabled={guests >= service.capacity_max}
                 className="w-9 h-9 rounded-full border-2 border-mist flex items-center justify-center text-lg font-medium text-charcoal hover:border-deep-green transition-colors disabled:opacity-30"
               >
@@ -520,41 +591,59 @@ export function BookingClient({ service, slots }: BookingClientProps) {
               <div className="px-4 py-5">
                 <h2 className="text-base font-semibold text-charcoal mb-4">Paiement sécurisé</h2>
 
-                {/* Express pay */}
-                <div className="flex gap-2 mb-5">
-                  <button
-                    type="button"
-                    className="flex-1 h-12 bg-black text-white rounded-xl text-sm font-medium flex items-center justify-center gap-2"
-                  >
-                    🍎 Apple Pay
-                  </button>
-                  <button
-                    type="button"
-                    className="flex-1 h-12 bg-surface border border-mist rounded-xl text-sm font-medium flex items-center justify-center gap-2 text-charcoal"
-                  >
-                    G Google Pay
-                  </button>
-                </div>
-
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="flex-1 h-px bg-mist" />
-                  <span className="text-xs text-stone">ou payer par carte</span>
-                  <div className="flex-1 h-px bg-mist" />
-                </div>
-
-                <div className="space-y-3">
-                  <Input label="Numéro de carte" placeholder="1234 5678 9012 3456" />
-                  <div className="grid grid-cols-2 gap-3">
-                    <Input label="Expiration" placeholder="MM / AA" />
-                    <Input label="CVC" placeholder="123" />
+                {DEMO_MODE && (
+                  <p className="mb-4 rounded-xl border border-[#F5A623]/40 bg-[#F5A623]/10 px-3.5 py-2.5 text-xs leading-relaxed text-charcoal">
+                    <strong>Version de démonstration.</strong> Le paiement se fait en mode test Stripe : aucun prestataire n’est sollicité et aucune carte réelle n’est débitée.
+                  </p>
+                )}
+                {STRIPE_TEST_MODE && (
+                  <div className="mb-4 rounded-xl border border-mist bg-sand px-3.5 py-3 text-xs leading-relaxed text-charcoal-soft">
+                    <p className="font-semibold text-charcoal">Carte de test</p>
+                    <p className="mt-1">
+                      <span className="font-mono">4242 4242 4242 4242</span> · date future · CVC au choix · code postal au choix.
+                    </p>
+                    <p className="mt-0.5">Avec authentification 3-D Secure : <span className="font-mono">4000 0027 6000 3184</span>.</p>
                   </div>
-                  <Input label="Nom sur la carte" placeholder="SOPHIE MARTIN" />
-                </div>
+                )}
 
-                <div className="flex items-center gap-2 text-xs text-stone mt-4">
-                  <Lock size={12} />
-                  Paiement sécurisé par Stripe · Débité uniquement après confirmation
-                </div>
+                {!STRIPE_CONFIGURED ? (
+                  <p role="status" className="rounded-xl border border-mist bg-sand p-4 text-sm text-stone">
+                    Le paiement en ligne sera disponible très bientôt. Contactez notre concierge pour réserver dès maintenant.
+                  </p>
+                ) : !DEMO_MODE && !authLoading && !isLoggedIn ? (
+                  <div className="rounded-xl border border-mist bg-sand p-4 space-y-3">
+                    <p className="text-sm text-charcoal">Connectez-vous pour finaliser votre réservation. Votre sélection sera conservée.</p>
+                    <Link href={`/login?redirectTo=${encodeURIComponent(typeof window === 'undefined' ? '/' : window.location.pathname + window.location.search)}`}>
+                      <Button fullWidth variant="primary">Se connecter</Button>
+                    </Link>
+                  </div>
+                ) : intentLoading || !clientSecret ? (
+                  <div className="space-y-3" aria-busy="true" role="status" aria-label="Préparation du paiement">
+                    <div className="h-12 animate-pulse rounded-xl bg-mist/70" />
+                    <div className="h-12 animate-pulse rounded-xl bg-mist/70" />
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="h-12 animate-pulse rounded-xl bg-mist/70" />
+                      <div className="h-12 animate-pulse rounded-xl bg-mist/70" />
+                    </div>
+                  </div>
+                ) : (
+                  <StripeCheckout
+                    clientSecret={clientSecret}
+                    returnUrl={returnUrl}
+                    registerPay={registerPay}
+                    onSuccess={handleSuccess}
+                    onError={setPayError}
+                    onBusyChange={setPayBusy}
+                  />
+                )}
+
+                {payError && <p role="alert" className="mt-3 text-sm text-coral">{payError}</p>}
+
+                <ul className="mt-5 space-y-1.5 text-xs text-stone">
+                  <li className="flex items-center gap-2"><Lock size={12} className="flex-none text-deep-green" /> Paiement chiffré et traité par Stripe — Ohaana ne voit ni ne stocke votre carte.</li>
+                  <li className="flex items-center gap-2"><ShieldCheck size={12} className="flex-none text-deep-green" /> Apple Pay, Google Pay et cartes bancaires (3-D Secure), selon votre appareil.</li>
+                  <li className="flex items-center gap-2"><Info size={12} className="flex-none text-deep-green" /> Montant débité à la validation, remboursement selon la politique d’annulation.</li>
+                </ul>
               </div>
             </motion.div>
           )}
@@ -594,7 +683,7 @@ export function BookingClient({ service, slots }: BookingClientProps) {
                 size="lg"
                 variant="primary"
                 disabled={!canBook}
-                onClick={() => setShowPayment(true)}
+                onClick={() => void startPayment()}
               >
                 {canBook ? 'Réserver' : 'Sélectionnez une date'}
               </Button>
@@ -603,8 +692,9 @@ export function BookingClient({ service, slots }: BookingClientProps) {
                 fullWidth
                 size="lg"
                 variant="coral"
-                loading={loading}
-                onClick={handlePayment}
+                loading={payBusy}
+                disabled={!clientSecret || intentLoading}
+                onClick={() => void payRef.current?.()}
               >
                 Payer {formatPrice(total + platformFee)}
               </Button>

@@ -178,3 +178,19 @@ Voir `.env.local.example` pour la liste complète. Points d'attention :
 - Lecture publique uniquement via la clé publishable (`lib/supabase/public.ts`) : vues `public_provider_profiles`, `public_reviews`, `public_slot_availability`. Les téléphones des prestataires ne sont **pas** publics (RPC `get_provider_contact`, après confirmation).
 - `safe()` : si la base est injoignable, les pages affichent un état vide au lieu de planter le build.
 - Utilisateur connecté (client navigateur, RLS) : favoris (`hooks/useFavorites`), réservations (`useMyBookings`), notifications, préférences.
+
+## Paiement Stripe (mode test)
+
+Le paiement utilise le **Payment Element** de Stripe : cartes bancaires (3-D Secure), **Apple Pay** et **Google Pay** s'affichent automatiquement selon l'appareil — ce n'est pas une alternative à Stripe, c'en est une méthode.
+
+1. Stripe Dashboard → bascule **Mode test** → *Developers → API keys*.
+2. Variables (`.env.local` en local ; Vercel → Settings → Environment Variables pour la démo) :
+   - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_…`
+   - `STRIPE_SECRET_KEY=sk_test_…` (secret : jamais dans le chat ni dans une variable `NEXT_PUBLIC_*`)
+3. Redéployer (les variables `NEXT_PUBLIC_*` sont figées au build).
+4. Carte de test : `4242 4242 4242 4242`, date future, CVC au choix. 3-D Secure : `4000 0027 6000 3184`. Refus : `4000 0000 0000 0002`.
+5. **Apple Pay** : Dashboard → *Settings → Payment methods → Apple Pay → Add new domain* (le domaine doit être servi en HTTPS ; visible uniquement dans Safari / appareils Apple avec une carte dans Wallet). **Google Pay** : visible dans Chrome avec une carte enregistrée.
+
+`POST /api/checkout` calcule toujours le montant côté serveur (prix du service × participants + frais de service) ; le navigateur n'envoie que des identifiants.
+- **Démo** (`NEXT_PUBLIC_DEMO_MODE=true`) : aucun compte ni réservation en base, uniquement des clés `sk_test_` acceptées.
+- **Réel** : exige un utilisateur connecté, appelle `create_booking` (verrou de créneau, prix serveur) puis crée le PaymentIntent lié à la réservation ; le webhook `payment_intent.succeeded` confirme la réservation. Requiert `SUPABASE_SERVICE_ROLE_KEY` et `STRIPE_WEBHOOK_SECRET`. Reste à faire (Prompt 6) : Stripe Connect (virement au prestataire), remboursements, idempotence des webhooks.

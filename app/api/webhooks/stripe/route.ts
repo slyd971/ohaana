@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/server'
 import { getStripe } from '@/lib/stripe/client'
-import { computeFees } from '@/lib/utils'
 import type { BookingStatus, PaymentStatus } from '@/types/database'
 
 export async function POST(request: Request) {
@@ -34,15 +33,13 @@ export async function POST(request: Request) {
 
       if (!bookingId) break
 
-      const { platformFee, providerAmount } = computeFees(intent.amount)
-
+      // Amounts (fee / provider share) were written when the PaymentIntent was created, from the
+      // server-side booking total: never recompute them from intent.amount here.
       await supabase
         .from('payments')
         .update({
           status: 'succeeded' as PaymentStatus,
           stripe_charge_id: intent.latest_charge as string | null,
-          platform_fee_cents: platformFee,
-          provider_amount_cents: providerAmount,
         })
         .eq('stripe_payment_intent_id', intent.id)
 
