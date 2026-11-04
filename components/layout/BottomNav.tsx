@@ -6,6 +6,7 @@ import { Link } from '@/lib/i18n/navigation'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { Home, Search, CalendarDays, User, MessageCircle } from 'lucide-react'
+import { useAuth } from '@/lib/auth/AuthProvider'
 
 const navItems = [
   { key: 'home',     href: '/',          Icon: Home },
@@ -18,6 +19,7 @@ const navItems = [
 export function BottomNav() {
   const t = useTranslations('nav')
   const pathname = usePathname()
+  const { isLoggedIn } = useAuth()
 
   return (
     <nav
@@ -29,7 +31,9 @@ export function BottomNav() {
       aria-label="Navigation principale"
     >
       <ul className="flex items-center justify-around h-16 px-2">
-        {navItems.map(({ key, href, Icon }) => {
+        {navItems.map(({ key, href: baseHref, Icon }) => {
+          // Account tabs lead guests to the sign-in page instead of a dead end.
+          const href = !isLoggedIn && (key === 'bookings' || key === 'profile') ? '/login' : baseHref
           const active = pathname.endsWith(href) || (href !== '/' && pathname.includes(href))
 
           return (

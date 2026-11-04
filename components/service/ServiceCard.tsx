@@ -6,9 +6,9 @@ import { useLocale } from 'next-intl'
 import { Heart, Clock, MapPin } from 'lucide-react'
 import { cn, formatPrice, formatDuration } from '@/lib/utils'
 import { Link } from '@/lib/i18n/navigation'
-import type { SERVICES } from '@/lib/data/seed'
+import type { ServiceView } from '@/lib/data/types'
 
-type ServiceData = typeof SERVICES[0]
+type ServiceData = ServiceView
 
 interface ServiceCardProps {
   service: ServiceData
@@ -54,7 +54,7 @@ export function ServiceCard({
   const cover = service.images.find((img) => img.is_cover) ?? service.images[0]
   const price = formatPrice(service.price_cents)
   const title = locale === 'es'
-    ? ((service as any).title_es ?? service.title_en)
+    ? ((service as { title_es?: string }).title_es ?? service.title_en)
     : isEn ? service.title_en : service.title_fr
   const coverAlt = isEn || locale === 'es' ? cover?.alt_en : cover?.alt_fr
   const providerName = service.provider?.business_name ?? 'Ohaana'

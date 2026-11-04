@@ -7,9 +7,9 @@ import { ChevronRight } from 'lucide-react'
 import { Link } from '@/lib/i18n/navigation'
 import { ServiceCard } from '@/components/service/ServiceCard'
 import { cn } from '@/lib/utils'
-import type { SERVICES } from '@/lib/data/seed'
+import type { ServiceView } from '@/lib/data/types'
 
-type ServiceData = typeof SERVICES[0]
+type ServiceData = ServiceView
 
 interface ServiceRowProps {
   title: string

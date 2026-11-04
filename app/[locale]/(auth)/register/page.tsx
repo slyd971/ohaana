@@ -1,20 +1,19 @@
 'use client'
 
-import { use, useEffect, useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { use, useState } from 'react'
+import { useLocale, useTranslations } from 'next-intl'
 import { Link } from '@/lib/i18n/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { GoogleButton } from '@/components/auth/GoogleButton'
 import { Mail, Lock, User } from 'lucide-react'
-import type { UserRole } from '@/types/database'
+import { registerSchema, fieldErrors } from '@/lib/auth/schemas'
+import { authErrorKey } from '@/lib/auth/errors'
+import { buildCallbackUrl } from '@/lib/auth/client-utils'
 
-const roles: { value: UserRole; label: string; desc: string }[] = [
-  { value: 'tourist',  label: 'Voyageur',    desc: 'Réservez des expériences' },
-  { value: 'provider', label: 'Prestataire', desc: 'Proposez vos services' },
-]
-
-const publicRoles = new Set<UserRole>(['tourist', 'provider'])
+type Role = 'tourist' | 'provider'
+const PUBLIC_ROLES: Role[] = ['tourist', 'provider']
 
 interface RegisterPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
@@ -22,122 +21,95 @@ interface RegisterPageProps {
 
 export default function RegisterPage({ searchParams }: RegisterPageProps) {
   const t = useTranslations('auth')
+  const locale = useLocale()
   const params = use(searchParams)
   const roleParam = Array.isArray(params.role) ? params.role[0] : params.role
-  const requestedRole = publicRoles.has(roleParam as UserRole)
-    ? roleParam as UserRole
-    : undefined
+  const requestedRole = PUBLIC_ROLES.find((r) => r === roleParam)
 
   const [step, setStep] = useState<'role' | 'form' | 'done'>(requestedRole ? 'form' : 'role')
-  const [role, setRole] = useState<UserRole>(requestedRole ?? 'tourist')
+  const [role, setRole] = useState<Role>(requestedRole ?? 'tourist')
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [acceptTerms, setAcceptTerms] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [formError, setFormError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (roleParam && !requestedRole) {
-      const url = new URL(window.location.href)
-      url.searchParams.delete('role')
-      window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`)
-    }
-  }, [requestedRole, roleParam])
+  const nextPath = role === 'provider' ? '/provider/onboarding' : '/'
 
-  function canUseSupabase() {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
-
-    return Boolean(url && key && !url.includes('placeholder') && !key.includes('placeholder'))
-  }
-
-  function createAuthClient() {
-    if (!canUseSupabase()) {
-      throw new Error('Mode démo actif : inscription simulée.')
-    }
-
-    return createClient()
-  }
-
-  function getPostSignupPath() {
-    if (role === 'provider') return '/provider/onboarding'
-    return '/'
+  function fieldError(name: string) {
+    return errors[name] ? t(`validation.${errors[name]}` as 'validation.required') : undefined
   }
 
   async function handleGoogleSignup() {
+    if (!acceptTerms) {
+      setErrors({ acceptTerms: 'termsRequired' })
+      return
+    }
     setLoading(true)
-    setError(null)
-
+    setFormError(null)
     try {
-      const auth = createAuthClient()
-      const callbackUrl = new URL('/api/auth/callback', location.origin)
-      callbackUrl.searchParams.set('next', getPostSignupPath())
-
-      const { error } = await auth.auth.signInWithOAuth({
+      const { error } = await createClient().auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: callbackUrl.toString(),
-          queryParams: { role },
+          // OAuth cannot carry metadata: the callback upgrades the account via become_provider().
+          redirectTo: buildCallbackUrl({ next: nextPath, locale, role: role === 'provider' ? 'provider' : undefined }),
         },
       })
-
       if (error) throw error
     } catch (error) {
-      if (error instanceof Error && error.message.includes('Mode démo')) {
-        setStep('done')
-        return
-      }
-
-      setError(error instanceof Error ? error.message : 'Inscription Google indisponible.')
+      setFormError(authErrorKey(error))
       setLoading(false)
     }
   }
 
-  async function handleRegister(e: React.SubmitEvent<HTMLFormElement>) {
+  async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setLoading(true)
-    setError(null)
+    setFormError(null)
 
-    let authError: Error | null = null
-
-    try {
-      const auth = createAuthClient()
-      const callbackUrl = new URL('/api/auth/callback', location.origin)
-      callbackUrl.searchParams.set('next', getPostSignupPath())
-
-      const { error } = await auth.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { full_name: fullName, role },
-          emailRedirectTo: callbackUrl.toString(),
-        },
-      })
-
-      authError = error
-    } catch (error) {
-      authError = error instanceof Error ? error : new Error('Inscription indisponible.')
-    }
-
-    if (authError && !authError.message.includes('Mode démo')) {
-      setError(authError.message)
-      setLoading(false)
+    const parsed = registerSchema.safeParse({ fullName, email, password, role, acceptTerms })
+    if (!parsed.success) {
+      setErrors(fieldErrors(parsed.error))
       return
     }
+    setErrors({})
+    setLoading(true)
 
-    setStep('done')
+    try {
+      const { error } = await createClient().auth.signUp({
+        email: parsed.data.email,
+        password: parsed.data.password,
+        options: {
+          // role is limited to tourist|provider server-side (handle_new_user); admin is impossible here.
+          data: {
+            full_name: parsed.data.fullName,
+            role: parsed.data.role,
+            locale,
+            business_name: parsed.data.role === 'provider' ? parsed.data.fullName : undefined,
+            accepted_terms_at: new Date().toISOString(),
+          },
+          emailRedirectTo: buildCallbackUrl({ next: nextPath, locale }),
+        },
+      })
+      // An already-registered email returns no error (anti-enumeration): same screen either way.
+      if (error && authErrorKey(error) !== 'userExists') throw error
+      setStep('done')
+    } catch (error) {
+      setFormError(authErrorKey(error))
+    }
+    setLoading(false)
   }
 
   if (step === 'done') {
     return (
-      <div className="text-center space-y-4 py-8">
+      <div className="text-center space-y-4 py-8" role="status">
         <div className="w-16 h-16 rounded-full bg-deep-green/10 flex items-center justify-center mx-auto">
           <Mail className="text-deep-green" size={28} />
         </div>
-        <h2 className="text-2xl font-display text-charcoal">{t('emailSent')}</h2>
-        <p className="text-stone text-sm max-w-xs mx-auto">
-          Vérifiez votre boite mail pour activer votre compte.
-        </p>
+        <h1 className="text-2xl font-display text-charcoal">{t('confirmEmailTitle')}</h1>
+        <p className="text-stone text-sm max-w-xs mx-auto">{t('confirmEmailBody', { email })}</p>
+        <p className="text-xs text-stone">{t('checkSpam')}</p>
         <Link href="/login">
           <Button variant="outline" className="mt-4">{t('login')}</Button>
         </Link>
@@ -146,6 +118,10 @@ export default function RegisterPage({ searchParams }: RegisterPageProps) {
   }
 
   if (step === 'role') {
+    const roles: { value: Role; label: string; desc: string }[] = [
+      { value: 'tourist', label: t('roleTourist'), desc: t('roleTouristDesc') },
+      { value: 'provider', label: t('roleProvider'), desc: t('roleProviderDesc') },
+    ]
     return (
       <div className="space-y-8">
         <div className="text-center space-y-2">
@@ -153,16 +129,16 @@ export default function RegisterPage({ searchParams }: RegisterPageProps) {
           <p className="text-stone text-sm">{t('registerSubtitle')}</p>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3" role="radiogroup">
           {roles.map((r) => (
             <button
               key={r.value}
               type="button"
+              role="radio"
+              aria-checked={role === r.value}
               onClick={() => setRole(r.value)}
               className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
-                role === r.value
-                  ? 'border-deep-green bg-deep-green/5'
-                  : 'border-mist bg-surface hover:border-stone'
+                role === r.value ? 'border-deep-green bg-deep-green/5' : 'border-mist bg-surface hover:border-stone'
               }`}
             >
               <div className="font-medium text-charcoal">{r.label}</div>
@@ -171,15 +147,11 @@ export default function RegisterPage({ searchParams }: RegisterPageProps) {
           ))}
         </div>
 
-        <Button fullWidth size="lg" onClick={() => setStep('form')}>
-          Continuer
-        </Button>
+        <Button fullWidth size="lg" onClick={() => setStep('form')}>{t('continue')}</Button>
 
         <p className="text-center text-sm text-stone">
           {t('alreadyAccount')}{' '}
-          <Link href="/login" className="text-deep-green font-medium hover:underline">
-            {t('login')}
-          </Link>
+          <Link href="/login" className="text-deep-green font-medium hover:underline">{t('login')}</Link>
         </p>
       </div>
     )
@@ -188,71 +160,78 @@ export default function RegisterPage({ searchParams }: RegisterPageProps) {
   return (
     <div className="space-y-8">
       <div className="text-center space-y-2">
-        <button
-          type="button"
-          onClick={() => setStep('role')}
-          className="text-sm text-stone hover:text-charcoal transition-colors"
-        >
-          ← Retour
+        <button type="button" onClick={() => setStep('role')} className="text-sm text-stone hover:text-charcoal transition-colors">
+          ← {t('back')}
         </button>
         <h1 className="text-3xl font-display text-charcoal">{t('registerTitle')}</h1>
       </div>
 
-      <button
-        type="button"
-        onClick={handleGoogleSignup}
-        disabled={loading}
-        className="w-full h-12 flex items-center justify-center gap-3 rounded-xl border border-mist bg-surface text-charcoal text-sm font-medium hover:bg-sand transition-colors disabled:opacity-50"
-      >
-        <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden>
-          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z" fill="#4285F4"/>
-          <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z" fill="#34A853"/>
-          <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z" fill="#FBBC05"/>
-          <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58Z" fill="#EA4335"/>
-        </svg>
-        {t('continueWithGoogle')}
-      </button>
+      <GoogleButton label={t('continueWithGoogle')} onClick={handleGoogleSignup} disabled={loading} />
 
       <div className="flex items-center gap-3 text-stone text-sm">
         <div className="flex-1 h-px bg-mist" />
-        ou
+        {t('or')}
         <div className="flex-1 h-px bg-mist" />
       </div>
 
       <form onSubmit={handleRegister} className="space-y-4" noValidate>
         <Input
           label={t('fullName')}
+          name="fullName"
           type="text"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
           required
           autoComplete="name"
           leftIcon={<User size={16} />}
+          error={fieldError('fullName')}
         />
         <Input
           label={t('email')}
+          name="email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
           autoComplete="email"
           leftIcon={<Mail size={16} />}
+          error={fieldError('email')}
         />
         <Input
           label={t('password')}
+          name="password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
           autoComplete="new-password"
           leftIcon={<Lock size={16} />}
-          error={error ?? undefined}
-          hint="Minimum 8 caractères"
+          error={fieldError('password')}
+          hint={t('passwordHint')}
         />
 
-        <Button type="submit" loading={loading} fullWidth size="lg" className="mt-2">
-          {t('register')}
-        </Button>
+        <div>
+          <label className="flex items-start gap-2.5 text-xs text-stone leading-relaxed cursor-pointer">
+            <input
+              type="checkbox"
+              name="acceptTerms"
+              checked={acceptTerms}
+              onChange={(e) => setAcceptTerms(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-mist accent-[var(--deep-green)]"
+            />
+            <span>
+              {t.rich('acceptTerms', {
+                terms: (c) => <Link href="/terms" className="text-deep-green underline underline-offset-2">{c}</Link>,
+                privacy: (c) => <Link href="/privacy" className="text-deep-green underline underline-offset-2">{c}</Link>,
+              })}
+            </span>
+          </label>
+          {fieldError('acceptTerms') && <p role="alert" className="mt-1 text-xs text-coral">{fieldError('acceptTerms')}</p>}
+        </div>
+
+        {formError && <p role="alert" className="text-sm text-coral">{t(`errors.${formError}` as 'errors.generic')}</p>}
+
+        <Button type="submit" loading={loading} fullWidth size="lg" className="mt-2">{t('register')}</Button>
       </form>
     </div>
   )

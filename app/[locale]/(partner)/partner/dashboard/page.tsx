@@ -1,3 +1,4 @@
+import { Link } from '@/lib/i18n/navigation'
 import { Link2, TrendingUp, Wallet, Users, CalendarDays, ChevronRight, ExternalLink } from 'lucide-react'
 
 const KPI = [
@@ -49,7 +50,7 @@ export default function PartnerDashboard() {
           <h2 className="text-sm font-semibold text-charcoal">Mon lien affilié</h2>
         </div>
         <div className="flex items-center gap-2 bg-sand rounded-xl px-4 py-3">
-          <span className="text-sm text-stone flex-1 truncate font-mono">ohaana.com/?ref=iles-dorees</span>
+          <span className="text-sm text-stone flex-1 truncate font-mono">ohaana.fr/?ref=iles-dorees</span>
           <button
             type="button"
             className="text-xs bg-deep-green text-coconut px-3 py-1.5 rounded-full font-medium hover:bg-deep-green/90 transition-colors flex-none"
@@ -66,9 +67,9 @@ export default function PartnerDashboard() {
       <div className="bg-coconut rounded-2xl border border-mist overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-mist">
           <h2 className="text-sm font-semibold text-charcoal">Réservations récentes</h2>
-          <a href="#" className="text-xs text-deep-green flex items-center gap-1 hover:underline">
+          <Link href="/partner/reservations" className="text-xs text-deep-green flex items-center gap-1 hover:underline">
             Tout voir <ExternalLink size={11} />
-          </a>
+          </Link>
         </div>
         <div className="divide-y divide-mist">
           {RECENT.map((r) => (
@@ -100,7 +101,7 @@ export default function PartnerDashboard() {
           </p>
         </div>
         <a
-          href="mailto:partenaires@ohaana.com"
+          href="mailto:partenaires@ohaana.fr"
           className="flex-none inline-flex items-center gap-2 bg-coconut text-deep-green px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-sand transition-colors"
         >
           Contacter mon gestionnaire

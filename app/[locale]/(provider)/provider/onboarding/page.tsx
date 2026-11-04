@@ -200,7 +200,7 @@ export default function ProviderOnboarding() {
       <div>
         <p className="text-xs font-semibold text-deep-green uppercase tracking-widest mb-1">Étape 2 · Activité</p>
         <h2 className="text-2xl font-display text-charcoal">Votre premier service</h2>
-        <p className="text-sm text-stone mt-1">Vous pourrez en ajouter d'autres depuis votre dashboard.</p>
+        <p className="text-sm text-stone mt-1">Vous pourrez en ajouter d&apos;autres depuis votre dashboard.</p>
       </div>
 
       <div>
@@ -334,7 +334,7 @@ export default function ProviderOnboarding() {
           { key: 'hasKbis' as const, icon: FileText, label: 'Extrait Kbis ou attestation auto-entrepreneur', desc: 'PDF ou image · Max 5 Mo' },
           { key: 'hasAssurance' as const, icon: FileText, label: 'Attestation responsabilité civile professionnelle', desc: 'PDF ou image · Max 5 Mo' },
           { key: 'hasPhoto' as const, icon: Camera, label: 'Photo de profil professionnelle', desc: 'JPG/PNG · Min 400×400 px' },
-        ].map(({ key, icon: Icon, label, desc }) => (
+        ].map(({ key, label, desc }) => (
           <button
             key={key}
             type="button"
@@ -361,7 +361,7 @@ export default function ProviderOnboarding() {
 
       <div className="bg-sand rounded-2xl p-4 border border-mist text-xs text-stone space-y-1">
         <p className="font-medium text-charcoal">Validation sous 48h</p>
-        <p>Notre équipe vérifie chaque dossier manuellement. Vous serez notifié par email dès l'activation de votre profil.</p>
+        <p>Notre équipe vérifie chaque dossier manuellement. Vous serez notifié par email dès l&apos;activation de votre profil.</p>
       </div>
     </motion.div>,
   ]

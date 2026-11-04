@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLocale } from 'next-intl'
 import { Star, ChevronLeft, ChevronRight, Quote } from 'lucide-react'
@@ -119,7 +119,7 @@ export function Testimonials() {
   const [paused, setPaused] = useState(false)
   const touchStartX = useRef<number | null>(null)
   const idxRef = useRef(idx)
-  idxRef.current = idx
+  useEffect(() => { idxRef.current = idx }, [idx])
 
   function go(next: number) {
     const cur = idxRef.current
@@ -132,7 +132,6 @@ export function Testimonials() {
     if (paused) return
     const id = setInterval(() => go(idxRef.current + 1), 5000)
     return () => clearInterval(id)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paused])
 
   const t = TESTIMONIALS[idx]

@@ -12,13 +12,13 @@ python audit.py <URL> --output audit-report.md
 ### Exemples
 ```bash
 # Audit de la prod
-python audit.py https://ohaana.com
+python audit.py https://www.ohaana.fr
 
 # Audit d'une branche de staging
 python audit.py https://ohaana-staging.vercel.app --output audit-staging.md
 
 # Audit d'une page spécifique
-python audit.py https://ohaana.com/search --output audit-search.md
+python audit.py https://www.ohaana.fr/search --output audit-search.md
 ```
 
 ## Workflow complet (ce que tu fais quand on te demande un audit)

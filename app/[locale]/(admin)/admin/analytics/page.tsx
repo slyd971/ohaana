@@ -65,7 +65,7 @@ export default function AnalyticsPage() {
       <div className="bg-white/5 rounded-2xl border border-white/8 p-5">
         <h2 className="text-sm font-semibold text-white mb-5">Volume brut mensuel (GMV)</h2>
         <div className="flex items-end gap-3 h-36">
-          {MONTHLY.map(({ month, gmv, bookings }) => (
+          {MONTHLY.map(({ month, gmv }) => (
             <div key={month} className="flex-1 flex flex-col items-center gap-2">
               <p className="text-xs text-white/40 hidden sm:block">{(gmv / 1000).toFixed(0)}k€</p>
               <div className="w-full rounded-t-lg bg-gradient-to-t from-turquoise/80 to-turquoise transition-all"

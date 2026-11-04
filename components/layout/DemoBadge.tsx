@@ -1,30 +1,22 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { getDemoRole, setDemoRole, type DemoRole } from '@/lib/demo-auth'
+import { setDemoRole, type DemoRole } from '@/lib/demo-auth'
+import { useDemoRole } from '@/hooks/useDemoRole'
+import { DEMO_MODE } from '@/lib/demo-mode'
 import { User, Briefcase, Handshake, LogOut, ChevronUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function DemoBadge() {
-  const [role, setRole] = useState<DemoRole>(null)
+  const role = useDemoRole()
   const [open, setOpen] = useState(false)
   const router = useRouter()
 
-  useEffect(() => {
-    setRole(getDemoRole())
-    function onStorage(e: StorageEvent) {
-      if (e.key === 'ohaana_demo_role') setRole(getDemoRole())
-    }
-    window.addEventListener('storage', onStorage)
-    return () => window.removeEventListener('storage', onStorage)
-  }, [])
-
-  if (!role) return null
+  if (!DEMO_MODE || !role) return null
 
   function switchTo(r: DemoRole) {
     setDemoRole(r)
-    setRole(r)
     setOpen(false)
     if (r === 'provider') router.push('/provider/dashboard')
     else if (r === 'partner') router.push('/partner/dashboard')
@@ -33,7 +25,6 @@ export function DemoBadge() {
 
   function logout() {
     setDemoRole(null)
-    setRole(null)
     setOpen(false)
     router.push('/')
   }

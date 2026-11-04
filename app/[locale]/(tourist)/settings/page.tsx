@@ -2,10 +2,11 @@
 
 import { useState } from 'react'
 import { Link } from '@/lib/i18n/navigation'
-import { Button } from '@/components/ui/Button'
 import { ChevronLeft, ChevronRight, Globe, Lock, Trash2, LogOut } from 'lucide-react'
-import { setDemoRole } from '@/lib/demo-auth'
-import { useRouter } from 'next/navigation'
+import { useAuth } from '@/lib/auth/AuthProvider'
+import { createClient } from '@/lib/supabase/client'
+import { updatePasswordSchema } from '@/lib/auth/schemas'
+import { authErrorKey } from '@/lib/auth/errors'
 import { cn } from '@/lib/utils'
 
 const LANGS = [
@@ -15,14 +16,40 @@ const LANGS = [
 ]
 
 export default function SettingsPage() {
-  const router = useRouter()
+  const { signOut } = useAuth()
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [passwordBusy, setPasswordBusy] = useState(false)
+  const [passwordMsg, setPasswordMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [lang, setLang] = useState('fr')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [showPasswordForm, setShowPasswordForm] = useState(false)
 
+  async function handlePasswordChange(e: React.FormEvent) {
+    e.preventDefault()
+    const parsed = updatePasswordSchema.safeParse({ password: newPassword, confirm: confirmPassword })
+    if (!parsed.success) {
+      const first = parsed.error.issues[0]?.message
+      const text: Record<string, string> = {
+        passwordTooShort: '8 caractères minimum.', passwordTooLong: '72 caractères maximum.',
+        passwordWeak: 'Ajoutez au moins une lettre et un chiffre.', passwordMismatch: 'Les mots de passe ne correspondent pas.',
+      }
+      setPasswordMsg({ ok: false, text: text[first ?? ''] ?? 'Mot de passe invalide.' })
+      return
+    }
+    setPasswordBusy(true)
+    const { error } = await createClient().auth.updateUser({ password: parsed.data.password })
+    setPasswordBusy(false)
+    if (error) {
+      setPasswordMsg({ ok: false, text: authErrorKey(error) === 'weakPassword' ? 'Ce mot de passe est trop faible ou trop courant.' : 'Modification impossible. Reconnectez-vous puis réessayez.' })
+      return
+    }
+    setNewPassword(''); setConfirmPassword('')
+    setPasswordMsg({ ok: true, text: 'Mot de passe modifié.' })
+  }
+
   function handleLogout() {
-    setDemoRole(null)
-    router.push('/')
+    void signOut()
   }
 
   return (
@@ -38,7 +65,7 @@ export default function SettingsPage() {
         {/* Language */}
         <section className="space-y-3">
           <div className="flex items-center gap-2 text-sm font-semibold text-charcoal">
-            <Globe size={16} className="text-deep-green" /> Langue de l'interface
+            <Globe size={16} className="text-deep-green" /> Langue de l&apos;interface
           </div>
           <div className="flex gap-2">
             {LANGS.map(({ id, label, flag }) => (
@@ -64,15 +91,16 @@ export default function SettingsPage() {
             <Lock size={16} className="text-deep-green" /> Sécurité
           </div>
           {showPasswordForm ? (
-            <div className="p-4 rounded-2xl bg-surface border border-mist space-y-3">
-              <input placeholder="Mot de passe actuel" type="password" className="w-full px-3 py-2.5 rounded-xl border border-mist bg-coconut text-sm placeholder-stone focus:outline-none focus:border-deep-green/40" />
-              <input placeholder="Nouveau mot de passe" type="password" className="w-full px-3 py-2.5 rounded-xl border border-mist bg-coconut text-sm placeholder-stone focus:outline-none focus:border-deep-green/40" />
-              <input placeholder="Confirmer le nouveau mot de passe" type="password" className="w-full px-3 py-2.5 rounded-xl border border-mist bg-coconut text-sm placeholder-stone focus:outline-none focus:border-deep-green/40" />
+            <form onSubmit={handlePasswordChange} className="p-4 rounded-2xl bg-surface border border-mist space-y-3" noValidate>
+              <input name="password" aria-label="Nouveau mot de passe" placeholder="Nouveau mot de passe" type="password" autoComplete="new-password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-mist bg-coconut text-sm placeholder-stone focus:outline-none focus:border-deep-green/40" />
+              <input name="confirm" aria-label="Confirmer le nouveau mot de passe" placeholder="Confirmer le nouveau mot de passe" type="password" autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-mist bg-coconut text-sm placeholder-stone focus:outline-none focus:border-deep-green/40" />
+              <p className="text-xs text-stone">8 caractères minimum, avec une lettre et un chiffre.</p>
+              {passwordMsg && <p role={passwordMsg.ok ? 'status' : 'alert'} className={passwordMsg.ok ? 'text-sm text-deep-green' : 'text-sm text-coral'}>{passwordMsg.text}</p>}
               <div className="flex gap-2 pt-1">
-                <button onClick={() => setShowPasswordForm(false)} className="flex-1 py-2.5 rounded-xl text-sm text-stone border border-mist hover:bg-sand transition-colors">Annuler</button>
-                <button onClick={() => setShowPasswordForm(false)} className="flex-1 py-2.5 rounded-xl text-sm text-coconut bg-deep-green hover:bg-deep-green/90 transition-colors">Modifier</button>
+                <button type="button" onClick={() => { setShowPasswordForm(false); setPasswordMsg(null) }} className="flex-1 py-2.5 rounded-xl text-sm text-stone border border-mist hover:bg-sand transition-colors">Annuler</button>
+                <button type="submit" disabled={passwordBusy} className="flex-1 py-2.5 rounded-xl text-sm text-coconut bg-deep-green hover:bg-deep-green/90 transition-colors disabled:opacity-50">Modifier</button>
               </div>
-            </div>
+            </form>
           ) : (
             <button
               onClick={() => setShowPasswordForm(true)}
@@ -107,11 +135,12 @@ export default function SettingsPage() {
           ) : (
             <div className="p-5 rounded-2xl bg-coral/5 border border-coral/30 space-y-3">
               <p className="text-sm font-medium text-coral">Supprimer définitivement votre compte ?</p>
-              <p className="text-xs text-stone">Cette action est irréversible. Toutes vos réservations et données seront supprimées.</p>
-              <div className="flex gap-2">
-                <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 py-2.5 rounded-xl text-sm text-stone border border-mist bg-surface hover:bg-sand transition-colors">Annuler</button>
-                <button className="flex-1 py-2.5 rounded-xl text-sm text-coconut bg-coral hover:bg-coral/90 transition-colors">Confirmer</button>
-              </div>
+              <p className="text-xs text-stone">
+                Pour exercer votre droit à l&apos;effacement, écrivez-nous à{' '}
+                <a href="mailto:privacy@ohaana.fr" className="text-deep-green underline underline-offset-2">privacy@ohaana.fr</a>
+                {' '}depuis l&apos;adresse de votre compte : nous traiterons votre demande rapidement.
+              </p>
+              <button onClick={() => setShowDeleteConfirm(false)} className="w-full py-2.5 rounded-xl text-sm text-stone border border-mist bg-surface hover:bg-sand transition-colors">Fermer</button>
             </div>
           )}
         </section>

@@ -1,4 +1,4 @@
-export type UserRole = 'tourist' | 'provider' | 'concierge' | 'admin'
+export type UserRole = 'tourist' | 'provider' | 'concierge' | 'partner' | 'admin'
 export type BookingStatus =
   | 'pending'
   | 'confirmed'
@@ -6,6 +6,11 @@ export type BookingStatus =
   | 'cancelled_provider'
   | 'completed'
   | 'disputed'
+  | 'expired'
+export type ServiceStatus = 'draft' | 'pending_review' | 'published' | 'rejected' | 'archived'
+export type PriceUnit = 'per_person' | 'flat'
+export type ApplicationStatus = 'pending' | 'needs_info' | 'approved' | 'rejected'
+export type LeadStatus = 'new' | 'contacted' | 'converted' | 'discarded'
 export type PaymentStatus = 'pending' | 'succeeded' | 'failed' | 'refunded'
 export type NotificationType =
   | 'booking_new'
@@ -35,6 +40,7 @@ export interface User {
   island: Island | null
   locale: string
   is_active: boolean
+  is_demo?: boolean
   created_at: string
   updated_at: string
 }
@@ -51,10 +57,11 @@ export interface TouristProfile {
 
 export interface ProviderProfile {
   id: string
-  user_id: string
+  user_id: string | null // null = fiche créée par un admin, non revendiquée
   business_name: string
   bio: string | null
   bio_en: string | null
+  bio_es?: string | null
   languages: string[]
   certifications: string[]
   island: Island
@@ -65,6 +72,10 @@ export interface ProviderProfile {
   is_approved: boolean
   avg_rating: number
   review_count: number
+  created_by_admin_id?: string | null
+  claimed?: boolean
+  claimed_at?: string | null
+  is_demo?: boolean
   created_at: string
   updated_at: string
   // joined
@@ -76,6 +87,7 @@ export interface ServiceCategory {
   slug: string
   name_fr: string
   name_en: string
+  name_es?: string | null
   icon: string | null
   color: string | null
   sort_order: number
@@ -88,10 +100,16 @@ export interface Service {
   category_id: string
   title_fr: string
   title_en: string | null
+  title_es?: string | null
   description_fr: string | null
   description_en: string | null
+  description_es?: string | null
+  slug_fr?: string | null
+  slug_en?: string | null
+  slug_es?: string | null
   island: Island
   price_cents: number
+  price_unit?: PriceUnit
   duration_min: number | null
   capacity_min: number
   capacity_max: number
@@ -100,6 +118,12 @@ export interface Service {
   longitude: number | null
   is_active: boolean
   is_featured: boolean
+  status?: ServiceStatus
+  min_notice_hours?: number
+  cancellation_policy_id?: string | null
+  created_by_admin_id?: string | null
+  rejection_reason?: string | null
+  is_demo?: boolean
   tags: string[]
   avg_rating: number
   review_count: number
@@ -118,6 +142,7 @@ export interface ServiceImage {
   url: string
   alt_fr: string | null
   alt_en: string | null
+  alt_es?: string | null
   sort_order: number
   is_cover: boolean
   created_at: string
@@ -143,6 +168,16 @@ export interface Booking {
   guests_count: number
   notes: string | null
   total_cents: number
+  starts_at?: string | null
+  expires_at?: string | null
+  unit_price_cents?: number | null
+  price_unit?: PriceUnit | null
+  service_address?: string | null
+  cancellation_policy_id?: string | null
+  cancelled_at?: string | null
+  cancellation_reason?: string | null
+  refund_pct?: number | null
+  partner_id?: string | null
   created_at: string
   updated_at: string
   // joined
@@ -174,6 +209,8 @@ export interface Review {
   rating: number
   content: string | null
   is_published: boolean
+  provider_reply?: string | null
+  provider_replied_at?: string | null
   created_at: string
   // joined
   tourist?: User
@@ -255,3 +292,97 @@ export type Database = {
     }
   }
 }
+
+// ─── Tables ajoutées par les migrations 003+ ───────────────────────────────
+
+export interface PartnerProfile {
+  id: string
+  user_id: string
+  referral_code: string
+  company_name: string | null
+  commission_pct: number
+  created_at: string
+}
+
+export interface CancellationPolicy {
+  id: string
+  code: string
+  name_fr: string
+  name_en: string
+  name_es: string | null
+  rules: { hours_before: number; refund_pct: number }[]
+  is_default: boolean
+  created_at: string
+}
+
+export interface Lead {
+  id: string
+  email: string
+  destination: string | null
+  whatsapp: string | null
+  locale: 'fr' | 'en' | 'es'
+  source: string
+  consent: boolean
+  status: LeadStatus
+  created_at: string
+}
+
+export interface ProviderApplication {
+  id: string
+  user_id: string
+  provider_id: string | null
+  business_name: string
+  message: string | null
+  documents: string[]
+  status: ApplicationStatus
+  review_note: string | null
+  reviewed_by: string | null
+  reviewed_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface PlatformSetting {
+  key: string
+  value: unknown
+  updated_by: string | null
+  updated_at: string
+}
+
+// ─── Vues publiques (aucune donnée de contact / Stripe) ─────────────────────
+
+export interface PublicProviderProfile {
+  id: string
+  business_name: string
+  bio: string | null
+  bio_en: string | null
+  bio_es: string | null
+  languages: string[]
+  certifications: string[]
+  island: Island
+  avg_rating: number
+  review_count: number
+  full_name: string | null
+  avatar_url: string | null
+}
+
+export interface PublicReview {
+  id: string
+  service_id: string
+  provider_id: string
+  rating: number
+  content: string | null
+  created_at: string
+  provider_reply: string | null
+  provider_replied_at: string | null
+  author_first_name: string
+}
+
+// ─── Fonctions RPC (supabase.rpc) ───────────────────────────────────────────
+// create_booking(p_service_id, p_slot_id, p_guests, p_notes?, p_address?) -> Booking
+// cancel_booking(p_booking_id, p_reason?) -> Booking
+// provider_set_booking_status(p_booking_id, p_status) -> Booking
+// create_review(p_booking_id, p_rating, p_content?) -> Review
+// get_provider_contact(p_booking_id) -> { phone, whatsapp }[]
+// purge_demo_data() -> void   (admin ou service_role)
+// NOTE : à remplacer par `supabase gen types typescript` une fois un projet Supabase lié.

@@ -1,12 +1,22 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { notFound } from 'next/navigation'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { routing } from '@/lib/i18n/routing'
+import { SITE_URL } from '@/lib/site'
+import { DEMO_MODE } from '@/lib/demo-mode'
+import { AuthProvider } from '@/lib/auth/AuthProvider'
 import '../globals.css'
 
-const BASE = 'https://ohaana.com'
+const BASE = SITE_URL
 const OG_IMAGE = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&h=630&fit=crop&q=85'
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#1A3D2B',
+}
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE),
@@ -16,7 +26,6 @@ export const metadata: Metadata = {
   },
   description:
     'Chef créole, massage en bord de piscine, DJ pour votre terrasse — les meilleurs prestataires des Antilles, réservés en quelques clics depuis votre villa.',
-  keywords: ['guadeloupe', 'martinique', 'caraïbes', 'concierge digital', 'hébergement privatif', 'airbnb', 'villa', 'chef privé', 'massage à domicile', 'services locaux'],
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
@@ -27,15 +36,7 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
   },
-  alternates: {
-    canonical: BASE,
-    languages: {
-      fr: BASE,
-      en: `${BASE}/en`,
-      es: `${BASE}/es`,
-      'x-default': BASE,
-    },
-  },
+  // canonical / hreflang are defined per page (a layout-level canonical would point every page to the home).
   openGraph: {
     siteName: 'Ohaana',
     type: 'website',
@@ -48,7 +49,8 @@ export const metadata: Metadata = {
     site: '@ohaana_caraibe',
     images: [OG_IMAGE],
   },
-  robots: { index: true, follow: true },
+  // La démo ne doit jamais être indexée (robots.txt la bloque déjà : on double côté balise).
+  robots: DEMO_MODE ? { index: false, follow: false } : { index: true, follow: true },
 }
 
 interface LocaleLayoutProps {
@@ -96,8 +98,6 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <meta name="theme-color" content="#1A3D2B" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
@@ -109,7 +109,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       </head>
       <body className="h-full antialiased" style={{ fontFamily: 'var(--font-body)' }}>
         <NextIntlClientProvider locale={locale} messages={messages}>
-          {children}
+          <AuthProvider>{children}</AuthProvider>
         </NextIntlClientProvider>
       </body>
     </html>

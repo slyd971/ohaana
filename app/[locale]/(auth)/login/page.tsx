@@ -1,156 +1,218 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useTranslations } from 'next-intl'
-import { Link } from '@/lib/i18n/navigation'
+import { useRouter as useNextRouter, useSearchParams } from 'next/navigation'
+import { useLocale, useTranslations } from 'next-intl'
+import { Link, useRouter } from '@/lib/i18n/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { Mail, Lock, User, Briefcase, Handshake } from 'lucide-react'
+import { GoogleButton } from '@/components/auth/GoogleButton'
+import { Mail, Lock, User, Briefcase, Handshake, CheckCircle2 } from 'lucide-react'
 import { setDemoRole } from '@/lib/demo-auth'
+import { DEMO_MODE } from '@/lib/demo-mode'
+import { loginSchema, magicLinkSchema, fieldErrors } from '@/lib/auth/schemas'
+import { authErrorKey } from '@/lib/auth/errors'
+import { ROLE_HOME, safeRedirectPath } from '@/lib/auth/types'
+import type { UserRole } from '@/types/database'
+import { buildCallbackUrl } from '@/lib/auth/client-utils'
+import { useCooldown } from '@/hooks/useCooldown'
+
+const MAX_FAILURES = 5
+const COOLDOWN_SECONDS = 30
 
 export default function LoginPage() {
   const t = useTranslations('auth')
-  const router = useRouter()
+  const locale = useLocale()
+  const i18nRouter = useRouter()
+  const router = useNextRouter()
+  const params = useSearchParams()
 
+  const redirectTo = safeRedirectPath(params.get('redirectTo'), '')
+  const callbackFailed = params.get('error') === 'callback'
+
+  const [mode, setMode] = useState<'password' | 'link'>('password')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [formError, setFormError] = useState<string | null>(callbackFailed ? 'callbackError' : null)
+  const [linkSent, setLinkSent] = useState(false)
+  const [failures, setFailures] = useState(0)
+  const { remaining, start } = useCooldown()
 
-  function canUseSupabase() {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
+  const locked = remaining > 0
 
-    return Boolean(url && key && !url.includes('placeholder') && !key.includes('placeholder'))
+  function fieldError(name: string) {
+    return errors[name] ? t(`validation.${errors[name]}` as 'validation.required') : undefined
   }
 
-  function createAuthClient() {
-    if (!canUseSupabase()) {
-      throw new Error('Mode démo actif : authentification désactivée.')
-    }
-
-    return createClient()
-  }
-
-  function getRedirectTo() {
-    if (typeof window === 'undefined') return '/'
-
-    const redirectTo = new URLSearchParams(window.location.search).get('redirectTo')
-    if (!redirectTo?.startsWith('/') || redirectTo.startsWith('//')) return '/'
-
-    return redirectTo
-  }
-
-  async function handleEmailLogin(e: React.FormEvent<HTMLFormElement>) {
+  async function handlePasswordLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setLoading(true)
-    setError(null)
+    if (locked) return
+    setFormError(null)
 
-    let authError: Error | null = null
-
-    try {
-      const supabase = createAuthClient()
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
-      authError = error
-    } catch (error) {
-      authError = error instanceof Error ? error : new Error('Connexion indisponible.')
-    }
-
-    if (authError) {
-      setError(authError.message)
-      setLoading(false)
+    const parsed = loginSchema.safeParse({ email, password })
+    if (!parsed.success) {
+      setErrors(fieldErrors(parsed.error))
       return
     }
+    setErrors({})
+    setLoading(true)
 
-    router.push(getRedirectTo())
-    router.refresh()
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase.auth.signInWithPassword(parsed.data)
+      if (error) throw error
+
+      const { data: profile } = await supabase.from('users').select('role').eq('id', data.user.id).single()
+      router.refresh()
+      if (redirectTo) router.push(redirectTo)     // already carries the locale prefix (set by proxy.ts)
+      else i18nRouter.push(ROLE_HOME[(profile?.role as UserRole | undefined) ?? 'tourist'])
+    } catch (error) {
+      const key = authErrorKey(error)
+      const next = failures + 1
+      setFailures(next)
+      if (key === 'invalidCredentials' && next >= MAX_FAILURES) {
+        start(COOLDOWN_SECONDS)
+        setFailures(0)
+      }
+      setFormError(key)
+      setLoading(false)
+    }
+  }
+
+  async function handleMagicLink(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setFormError(null)
+
+    const parsed = magicLinkSchema.safeParse({ email })
+    if (!parsed.success) {
+      setErrors(fieldErrors(parsed.error))
+      return
+    }
+    setErrors({})
+    setLoading(true)
+
+    try {
+      const { error } = await createClient().auth.signInWithOtp({
+        email: parsed.data.email,
+        options: {
+          shouldCreateUser: false,
+          emailRedirectTo: buildCallbackUrl({ next: redirectTo || undefined, locale }),
+        },
+      })
+      // "user not found" is deliberately indistinguishable from success (no account enumeration).
+      if (error && authErrorKey(error) !== 'generic') throw error
+      setLinkSent(true)
+    } catch (error) {
+      setFormError(authErrorKey(error))
+    }
+    setLoading(false)
   }
 
   async function handleGoogleLogin() {
     setLoading(true)
-    setError(null)
-
-    const next = getRedirectTo()
-    const callbackUrl = new URL('/api/auth/callback', location.origin)
-    callbackUrl.searchParams.set('next', next)
-
+    setFormError(null)
     try {
-      const supabase = createAuthClient()
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { error } = await createClient().auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: callbackUrl.toString() },
+        options: { redirectTo: buildCallbackUrl({ next: redirectTo || undefined, locale }) },
       })
-
       if (error) throw error
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Connexion Google indisponible.')
+      setFormError(authErrorKey(error))
       setLoading(false)
     }
   }
 
+  if (linkSent) {
+    return (
+      <div className="text-center space-y-4 py-8" role="status">
+        <div className="w-16 h-16 rounded-full bg-deep-green/10 flex items-center justify-center mx-auto">
+          <CheckCircle2 className="text-deep-green" size={28} />
+        </div>
+        <h1 className="text-2xl font-display text-charcoal">{t('magicLinkSentTitle')}</h1>
+        <p className="text-stone text-sm max-w-xs mx-auto">{t('magicLinkSentBody', { email })}</p>
+        <p className="text-xs text-stone">{t('checkSpam')}</p>
+        <Button variant="ghost" onClick={() => { setLinkSent(false); setMode('password') }}>{t('backToLogin')}</Button>
+      </div>
+    )
+  }
+
+  const errorMessage = locked
+    ? t('tooManyAttempts', { seconds: remaining })
+    : formError
+      ? t(formError === 'callbackError' ? 'callbackError' : (`errors.${formError}` as 'errors.generic'))
+      : null
+
   return (
     <div className="w-full min-w-0 space-y-8">
-      {/* Heading */}
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-display text-charcoal">{t('loginTitle')}</h1>
         <p className="text-stone text-sm text-balance">{t('loginSubtitle')}</p>
       </div>
 
-      {/* Google */}
-      <button
-        type="button"
-        onClick={handleGoogleLogin}
-        disabled={loading}
-        className="flex h-12 w-full min-w-0 items-center justify-center gap-3 rounded-xl border border-mist bg-surface px-3 text-sm font-medium text-charcoal transition-colors hover:bg-sand disabled:opacity-50"
-      >
-        <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden>
-          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z" fill="#4285F4"/>
-          <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z" fill="#34A853"/>
-          <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z" fill="#FBBC05"/>
-          <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58Z" fill="#EA4335"/>
-        </svg>
-        {t('continueWithGoogle')}
-      </button>
+      <GoogleButton label={t('continueWithGoogle')} onClick={handleGoogleLogin} disabled={loading} />
 
       <div className="flex items-center gap-3 text-stone text-sm">
         <div className="flex-1 h-px bg-mist" />
-        ou
+        {t('or')}
         <div className="flex-1 h-px bg-mist" />
       </div>
 
-      {/* Email form */}
-      <form onSubmit={handleEmailLogin} className="w-full min-w-0 space-y-4" noValidate>
+      <form
+        onSubmit={mode === 'password' ? handlePasswordLogin : handleMagicLink}
+        className="w-full min-w-0 space-y-4"
+        noValidate
+      >
         <Input
           label={t('email')}
+          name="email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
           autoComplete="email"
           leftIcon={<Mail size={16} />}
+          error={fieldError('email')}
         />
-        <Input
-          label={t('password')}
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          autoComplete="current-password"
-          leftIcon={<Lock size={16} />}
-          error={error ?? undefined}
-        />
+        {mode === 'password' && (
+          <>
+            <Input
+              label={t('password')}
+              name="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              autoComplete="current-password"
+              leftIcon={<Lock size={16} />}
+              error={fieldError('password')}
+            />
+            <div className="flex justify-end">
+              <Link href="/reset-password" className="text-xs text-stone hover:text-deep-green transition-colors">
+                {t('forgotPassword')}
+              </Link>
+            </div>
+          </>
+        )}
 
-        <div className="flex justify-end">
-          <Link href="/reset-password" className="text-xs text-stone hover:text-deep-green transition-colors">
-            {t('forgotPassword')}
-          </Link>
-        </div>
+        {errorMessage && (
+          <p role="alert" className="text-sm text-coral">{errorMessage}</p>
+        )}
 
-        <Button type="submit" loading={loading} fullWidth size="lg" className="mt-2">
-          {t('login')}
+        <Button type="submit" loading={loading} disabled={locked} fullWidth size="lg" className="mt-2">
+          {mode === 'password' ? t('login') : t('sendMagicLink')}
         </Button>
+
+        <button
+          type="button"
+          onClick={() => { setMode(mode === 'password' ? 'link' : 'password'); setErrors({}); setFormError(null) }}
+          className="w-full text-center text-sm text-stone hover:text-deep-green transition-colors"
+        >
+          {mode === 'password' ? t('loginWithLink') : t('loginWithPassword')}
+        </button>
       </form>
 
       <p className="text-center text-sm text-stone text-balance">
@@ -160,52 +222,31 @@ export default function LoginPage() {
         </Link>
       </p>
 
-      {/* ── Mode démo ── */}
-      <div className="border-t border-mist pt-6 space-y-3">
-        <p className="text-center text-[11px] text-stone uppercase tracking-widest">Accès démo</p>
-
-        <button
-          type="button"
-          onClick={() => { setDemoRole('client'); router.push('/voyages') }}
-          className="w-full flex items-center gap-3 h-12 rounded-xl border border-mist bg-sand hover:bg-mist px-4 text-sm font-medium text-charcoal transition-colors"
-        >
-          <span className="w-8 h-8 rounded-full bg-deep-green/10 flex items-center justify-center flex-none">
-            <User size={15} className="text-deep-green" />
-          </span>
-          <span className="flex-1 text-left">
-            Parcours Client
-            <span className="block text-[11px] text-stone font-normal">Réservations · Carnet · Favoris</span>
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => { setDemoRole('provider'); router.push('/provider/dashboard') }}
-          className="w-full flex items-center gap-3 h-12 rounded-xl border border-mist bg-sand hover:bg-mist px-4 text-sm font-medium text-charcoal transition-colors"
-        >
-          <span className="w-8 h-8 rounded-full bg-coral/10 flex items-center justify-center flex-none">
-            <Briefcase size={15} className="text-coral" />
-          </span>
-          <span className="flex-1 text-left">
-            Parcours Prestataire
-            <span className="block text-[11px] text-stone font-normal">Dashboard · Services · Paiements</span>
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => { setDemoRole('partner'); router.push('/partner/dashboard') }}
-          className="w-full flex items-center gap-3 h-12 rounded-xl border border-mist bg-sand hover:bg-mist px-4 text-sm font-medium text-charcoal transition-colors"
-        >
-          <span className="w-8 h-8 rounded-full bg-turquoise/10 flex items-center justify-center flex-none">
-            <Handshake size={15} className="text-turquoise" />
-          </span>
-          <span className="flex-1 text-left">
-            Parcours Partenaire
-            <span className="block text-[11px] text-stone font-normal">Commissions · Apports · Lien affilié</span>
-          </span>
-        </button>
-      </div>
+      {DEMO_MODE && (
+        <div className="border-t border-mist pt-6 space-y-3">
+          <p className="text-center text-[11px] text-stone uppercase tracking-widest">Accès démo</p>
+          {[
+            { role: 'client' as const, href: '/voyages', title: 'Parcours Client', sub: 'Réservations · Carnet · Favoris', Icon: User, tone: 'bg-deep-green/10 text-deep-green' },
+            { role: 'provider' as const, href: '/provider/dashboard', title: 'Parcours Prestataire', sub: 'Dashboard · Services · Paiements', Icon: Briefcase, tone: 'bg-coral/10 text-coral' },
+            { role: 'partner' as const, href: '/partner/dashboard', title: 'Parcours Partenaire', sub: 'Commissions · Apports · Lien affilié', Icon: Handshake, tone: 'bg-turquoise/10 text-turquoise' },
+          ].map(({ role, href, title, sub, Icon, tone }) => (
+            <button
+              key={role}
+              type="button"
+              onClick={() => { setDemoRole(role); i18nRouter.push(href) }}
+              className="w-full flex items-center gap-3 h-12 rounded-xl border border-mist bg-sand hover:bg-mist px-4 text-sm font-medium text-charcoal transition-colors"
+            >
+              <span className={`w-8 h-8 rounded-full flex items-center justify-center flex-none ${tone}`}>
+                <Icon size={15} />
+              </span>
+              <span className="flex-1 text-left">
+                {title}
+                <span className="block text-[11px] text-stone font-normal">{sub}</span>
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

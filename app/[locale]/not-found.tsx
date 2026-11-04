@@ -21,7 +21,7 @@ export default function NotFound() {
           <p className="text-[96px] font-display text-deep-green/10 leading-none select-none">404</p>
           <h1 className="text-2xl font-display text-charcoal -mt-4">Page introuvable</h1>
           <p className="text-stone text-sm leading-relaxed">
-            Cette page n'existe pas ou a été déplacée. Pas de panique — les plus belles expériences caribéennes vous attendent.
+            Cette page n&apos;existe pas ou a été déplacée. Pas de panique — les plus belles expériences caribéennes vous attendent.
           </p>
         </div>
 
@@ -32,7 +32,7 @@ export default function NotFound() {
             className="flex items-center justify-center gap-2 w-full py-3 px-5 rounded-2xl bg-deep-green text-coconut font-medium text-sm hover:bg-deep-green/90 transition-colors"
           >
             <Home size={16} />
-            Retour à l'accueil
+            Retour à l&apos;accueil
           </Link>
           <Link
             href="/search"
