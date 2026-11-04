@@ -92,11 +92,12 @@ test.describe('password reset', () => {
 })
 
 test.describe('auth callback hardening', () => {
-  test('open redirect via next= is neutralised', async ({ request }) => {
+  test('open redirect via next= is neutralised', async ({ request, baseURL }) => {
     const res = await request.get('/api/auth/callback?next=//evil.example&code=bogus', { maxRedirects: 0 })
     expect(res.status()).toBe(307)
     const location = res.headers()['location'] ?? ''
-    expect(new URL(location, 'http://localhost').host).toBe('localhost:3200')
+    // The redirect must stay on the app's own origin (never on evil.example).
+    expect(new URL(location, baseURL).host).toBe(new URL(baseURL ?? '').host)
     expect(location).toContain('/login?error=callback')
   })
 })
