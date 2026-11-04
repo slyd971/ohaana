@@ -82,7 +82,7 @@ export async function saveServiceAction(_prev: ActionState, formData: FormData):
   }
 
   if (id) {
-    const current = await getProviderService(supabase, id)
+    const current = await getProviderService(supabase, provider.id, id)
     if (!current) return { error: 'Service introuvable.' }
     // Une fiche publiée qui change repasse en relecture : le contenu public n'est jamais modifié sans validation.
     const status = current.status === 'published' ? 'pending_review' : current.status === 'rejected' ? 'draft' : current.status
@@ -115,7 +115,7 @@ export async function submitServiceAction(serviceId: string): Promise<ActionStat
   if (!UUID_RE.test(serviceId)) return { error: 'Service invalide.' }
   const { supabase } = s.ctx
 
-  const service = await getProviderService(supabase, serviceId)
+  const service = await getProviderService(supabase, s.ctx.provider.id, serviceId)
   if (!service) return { error: 'Service introuvable.' }
   if (service.status !== 'draft' && service.status !== 'rejected') {
     return { error: 'Seul un brouillon ou une fiche refusée peut être soumis.' }
@@ -180,7 +180,7 @@ export async function generateSlotsAction(input: {
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Paramètres invalides.' }
   const v = parsed.data
 
-  const service = await getProviderService(s.ctx.supabase, v.service_id)
+  const service = await getProviderService(s.ctx.supabase, s.ctx.provider.id, v.service_id)
   if (!service) return { error: 'Service introuvable.' }
   const duration = service.duration_min ?? 60
 
@@ -214,7 +214,7 @@ export async function setDayBlockedAction(serviceId: string, date: string, block
   if ('error' in s) return { error: s.error }
   if (!UUID_RE.test(serviceId) || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return { error: 'Paramètres invalides.' }
 
-  const service = await getProviderService(s.ctx.supabase, serviceId)
+  const service = await getProviderService(s.ctx.supabase, s.ctx.provider.id, serviceId)
   if (!service) return { error: 'Service introuvable.' }
 
   const { error } = await s.ctx.supabase

@@ -11,7 +11,7 @@ export default async function ProviderDashboard() {
   if (ctx.kind === 'demo') return <DemoDashboard />
   if (ctx.kind !== 'provider') return <SignInRequired kind={ctx.kind} />
 
-  const stats = await getDashboardStats(ctx.supabase, nowDate())
+  const stats = await getDashboardStats(ctx.supabase, ctx.provider.id, nowDate())
   const { provider } = ctx
 
   const kpis = [

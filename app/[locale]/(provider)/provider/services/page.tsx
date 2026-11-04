@@ -12,7 +12,7 @@ export default async function ProviderServicesPage() {
   if (ctx.kind === 'demo') return <DemoServices />
   if (ctx.kind !== 'provider') return <SignInRequired kind={ctx.kind} />
 
-  const services = await listProviderServices(ctx.supabase)
+  const services = await listProviderServices(ctx.supabase, ctx.provider.id)
 
   return (
     <div className="p-5 md:p-8 space-y-6 max-w-4xl">

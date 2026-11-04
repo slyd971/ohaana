@@ -29,17 +29,20 @@ export interface ProviderService {
 const SERVICE_COLUMNS =
   'id, title_fr, description_fr, title_en, description_en, category_id, island, price_cents, price_unit, duration_min, capacity_min, capacity_max, address, tags, min_notice_hours, status, rejection_reason, avg_rating, review_count, booking_count'
 
-export async function listProviderServices(supabase: SupabaseClient): Promise<ProviderService[]> {
+// IMPORTANT : la RLS autorise aussi la lecture publique des services publiés (tous prestataires) ; on filtre donc
+// explicitement sur le prestataire connecté, sinon son espace afficherait le catalogue des autres.
+export async function listProviderServices(supabase: SupabaseClient, providerId: string): Promise<ProviderService[]> {
   const { data, error } = await supabase
     .from('services')
     .select(SERVICE_COLUMNS)
+    .eq('provider_id', providerId)
     .order('created_at', { ascending: false })
   if (error) throw new Error(error.message)
   return (data ?? []) as ProviderService[]
 }
 
-export async function getProviderService(supabase: SupabaseClient, id: string): Promise<ProviderService | null> {
-  const { data } = await supabase.from('services').select(SERVICE_COLUMNS).eq('id', id).maybeSingle()
+export async function getProviderService(supabase: SupabaseClient, providerId: string, id: string): Promise<ProviderService | null> {
+  const { data } = await supabase.from('services').select(SERVICE_COLUMNS).eq('id', id).eq('provider_id', providerId).maybeSingle()
   return (data as ProviderService | null) ?? null
 }
 
@@ -102,12 +105,12 @@ export function startOfMonthIso(now: Date): string {
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString()
 }
 
-export async function getDashboardStats(supabase: SupabaseClient, now: Date): Promise<DashboardStats> {
+export async function getDashboardStats(supabase: SupabaseClient, providerId: string, now: Date): Promise<DashboardStats> {
   const monthStart = startOfMonthIso(now)
   const [bookings, payments, services] = await Promise.all([
     listProviderBookings(supabase, 200),
     listProviderPayments(supabase, 500),
-    listProviderServices(supabase),
+    listProviderServices(supabase, providerId),
   ])
 
   const paid = payments.filter((p) => p.status === 'succeeded')
