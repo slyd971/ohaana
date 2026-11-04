@@ -263,7 +263,7 @@ export default function ProviderOnboarding() {
       <div>
         <p className="text-xs font-semibold text-deep-green uppercase tracking-widest mb-1">Étape 3 · Tarifs</p>
         <h2 className="text-2xl font-display text-charcoal">Définissez vos prix</h2>
-        <p className="text-sm text-stone mt-1">Ohaana prélève 20 % de commission sur chaque réservation.</p>
+        <p className="text-sm text-stone mt-1">Le voyageur paie le prix que vous fixez ; Ohaana en prélève une commission et vous versez le reste (le taux en vigueur s’affiche dans le formulaire de chaque service).</p>
       </div>
 
       <div className="bg-sand rounded-2xl p-4 border border-mist">

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { getAdminContext } from '@/lib/admin/context'
 import { saveServiceAsAdminAction } from '@/app/actions/admin'
 import { getCategories } from '@/lib/data/services'
+import { getCommissionPct } from '@/lib/commission'
 import { ServiceForm } from '@/components/provider/ServiceForm'
 import { isUuid } from '@/lib/provider/service-input'
 
@@ -16,6 +17,7 @@ export default async function AdminNewServicePage({ params }: { params: Promise<
   const { data: provider } = await ctx.supabase.from('provider_profiles').select('id, business_name, island').eq('id', id).maybeSingle()
   if (!provider) notFound()
   const categories = await getCategories().catch(() => [])
+  const commissionPct = await getCommissionPct()
 
   return (
     <div className="p-5 md:p-8 space-y-6 max-w-3xl">
@@ -26,6 +28,7 @@ export default async function AdminNewServicePage({ params }: { params: Promise<
       </div>
       <div className="bg-sand rounded-2xl p-3 md:p-4">
         <ServiceForm
+          commissionPct={commissionPct}
           locale={locale}
           categories={categories.map((c) => ({ id: c.id, name_fr: c.name_fr }))}
           defaultIsland={provider.island}

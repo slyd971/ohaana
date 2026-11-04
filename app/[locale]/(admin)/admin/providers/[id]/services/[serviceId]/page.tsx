@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { getAdminContext } from '@/lib/admin/context'
 import { saveServiceAsAdminAction, manageServiceImageAsAdminAction } from '@/app/actions/admin'
 import { getCategories } from '@/lib/data/services'
+import { getCommissionPct } from '@/lib/commission'
 import { getProviderService } from '@/lib/provider/queries'
 import { ServiceForm } from '@/components/provider/ServiceForm'
 import { ServiceImagesManager } from '@/components/provider/ServiceImagesManager'
@@ -20,6 +21,7 @@ export default async function AdminEditServicePage({ params }: { params: Promise
   const service = provider ? await getProviderService(ctx.supabase, id, serviceId) : null
   if (!provider || !service) notFound()
   const categories = await getCategories().catch(() => [])
+  const commissionPct = await getCommissionPct()
   const images = await listServiceImages(ctx.supabase, service.id)
 
   return (
@@ -31,6 +33,7 @@ export default async function AdminEditServicePage({ params }: { params: Promise
       </div>
       <div className="bg-sand rounded-2xl p-3 md:p-4">
         <ServiceForm
+          commissionPct={commissionPct}
           locale={locale}
           categories={categories.map((c) => ({ id: c.id, name_fr: c.name_fr }))}
           service={service}

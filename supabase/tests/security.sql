@@ -292,6 +292,35 @@ begin
 end $$;
 
 -- ─────────────────────────────────────────────────────────────
+-- 2d. Commission (migration 009) : lecture publique bornée, écriture admin validée
+-- ─────────────────────────────────────────────────────────────
+do $$
+begin
+  perform t.as_anon();
+  perform t.eq('anyone can read the commission rate (default 20)', t.scalar('select public.get_commission_pct()::text'), '20');
+  perform t.fails('anon cannot read platform_settings itself',
+    $q$select count(*) from public.platform_settings$q$, '42501');
+  perform t.reset();
+
+  perform t.as_user('aaaaaaaa-0000-4000-8000-000000000004');
+  perform t.scalar($q$update public.platform_settings set value = '15'::jsonb where key = 'commission_pct' returning key$q$);
+  perform t.eq('admin can change the commission rate', t.scalar('select public.get_commission_pct()::text'), '15');
+  perform t.fails('a rate above 50 is refused',
+    $q$update public.platform_settings set value = '60'::jsonb where key = 'commission_pct'$q$, '23514');
+  perform t.fails('a negative rate is refused',
+    $q$update public.platform_settings set value = '-1'::jsonb where key = 'commission_pct'$q$, '23514');
+  perform t.fails('a non-numeric rate is refused',
+    $q$update public.platform_settings set value = '"abc"'::jsonb where key = 'commission_pct'$q$, '23514');
+  perform t.scalar($q$update public.platform_settings set value = '20'::jsonb where key = 'commission_pct' returning key$q$);
+  perform t.reset();
+
+  perform t.as_user('aaaaaaaa-0000-4000-8000-000000000003');
+  perform t.scalar($q$with u as (update public.platform_settings set value = '0'::jsonb where key = 'commission_pct' returning 1) select count(*)::text from u$q$);
+  perform t.eq('a provider cannot lower the commission', t.scalar('select public.get_commission_pct()::text'), '20');
+  perform t.reset();
+end $$;
+
+-- ─────────────────────────────────────────────────────────────
 -- 3. Lecture publique : pas de fuite de données de contact
 -- ─────────────────────────────────────────────────────────────
 do $$

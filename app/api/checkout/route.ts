@@ -5,7 +5,8 @@ import { createAdminClient, createClient, hasServiceRole } from '@/lib/supabase/
 import { createPublicClient } from '@/lib/supabase/public'
 import { getServiceByIdOrSlug } from '@/lib/data/services'
 import { DEMO_MODE } from '@/lib/demo-mode'
-import { computeFees } from '@/lib/utils'
+import { computeCommission } from '@/lib/utils'
+import { getCommissionPct } from '@/lib/commission'
 
 const bodySchema = z.object({
   serviceId: z.uuid(),
@@ -47,15 +48,15 @@ export async function POST(request: Request) {
     if (!slot) return fail('slot_unavailable', 409)
 
     const total = service.price_unit === 'flat' ? service.price_cents : service.price_cents * guests
-    const { platformFee } = computeFees(total)
+    // Commission incluse : le voyageur paie exactement le prix du catalogue.
     const intent = await stripe.paymentIntents.create({
-      amount: total + platformFee,
+      amount: total,
       currency: 'eur',
       automatic_payment_methods: { enabled: true },
       description: `Ohaana DEMO — ${service.title_fr}`.slice(0, 200),
       metadata: { demo: 'true', service_id: serviceId, slot_id: slotId, guests: String(guests) },
     })
-    return NextResponse.json({ clientSecret: intent.client_secret, amount: total + platformFee, demo: true })
+    return NextResponse.json({ clientSecret: intent.client_secret, amount: total, demo: true })
   }
 
   // ── Real: authenticated booking + payment ───────────────────────────────────────────────────
@@ -78,9 +79,10 @@ export async function POST(request: Request) {
     return fail('booking_failed', 500)
   }
 
-  const total = booking.total_cents as number // server-authoritative
-  const { platformFee } = computeFees(total)
-  const amount = total + platformFee
+  // Montants faisant foi : le total vient de la réservation créée par la base ; la commission est prélevée
+  // sur la part du prestataire (le voyageur paie exactement ce total), au taux réglé par l'admin.
+  const amount = booking.total_cents as number
+  const { platformFee, providerAmount } = computeCommission(amount, await getCommissionPct())
 
   try {
     const intent = await stripe.paymentIntents.create(
@@ -102,7 +104,7 @@ export async function POST(request: Request) {
       status: 'pending',
       total_cents: amount,
       platform_fee_cents: platformFee,
-      provider_amount_cents: total,
+      provider_amount_cents: providerAmount,
       currency: 'eur',
     })
     if (paymentError) throw new Error(paymentError.message)

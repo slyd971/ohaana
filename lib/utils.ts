@@ -43,12 +43,17 @@ export function buildUnsplashUrl(
   return `https://images.unsplash.com/photo-1548574505-5e239809ee19?w=${width}&h=${height}&fit=crop&q=80&auto=format`
 }
 
-export const PLATFORM_FEE_PERCENT = 20
+/** Repli si le taux ne peut pas être lu en base (le vrai taux est platform_settings.commission_pct). */
+export const DEFAULT_COMMISSION_PCT = 20
 
-export function computeFees(totalCents: number): {
+/**
+ * Commission incluse : le voyageur paie `totalCents` (le prix affiché), Ohaana en garde `pct` %,
+ * le prestataire reçoit le reste. Les deux parts somment toujours exactement au total.
+ */
+export function computeCommission(totalCents: number, pct: number = DEFAULT_COMMISSION_PCT): {
   platformFee: number
   providerAmount: number
 } {
-  const platformFee = Math.round(totalCents * (PLATFORM_FEE_PERCENT / 100))
+  const platformFee = Math.round(totalCents * (pct / 100))
   return { platformFee, providerAmount: totalCents - platformFee }
 }
