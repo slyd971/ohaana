@@ -6,6 +6,7 @@ import { getProviderContext } from '@/lib/provider/context'
 import { profileSchema, submissionProblems, type ActionState } from '@/lib/provider/schemas'
 import { fieldErrors, formObject, isUuid, parseServiceForm } from '@/lib/provider/service-input'
 import { planSlots } from '@/lib/provider/slots'
+import { MIN_PHOTOS, applyImageOp, countServiceImages, type ImageOp } from '@/lib/provider/images'
 import { getProviderService } from '@/lib/provider/queries'
 import { slugify } from '@/lib/utils'
 import { CACHE_TAGS } from '@/lib/data/services'
@@ -38,6 +39,7 @@ export async function saveServiceAction(_prev: ActionState, formData: FormData):
   if (!parsed.ok) return { error: parsed.error, fieldErrors: parsed.fieldErrors }
   const { id, locale, row, title_fr } = parsed
 
+  let createdId: string | null = null
   if (id) {
     const current = await getProviderService(supabase, provider.id, id)
     if (!current) return { error: 'Service introuvable.' }
@@ -52,6 +54,7 @@ export async function saveServiceAction(_prev: ActionState, formData: FormData):
       .select('id')
       .single()
     if (error || !data) return { error: `Création impossible : ${error?.message ?? 'erreur inconnue'}` }
+    createdId = data.id as string
     // Slug lisible et unique (suffixe = début de l'identifiant).
     await supabase
       .from('services')
@@ -61,7 +64,8 @@ export async function saveServiceAction(_prev: ActionState, formData: FormData):
 
   invalidateCatalogue()
   revalidatePath('/provider/services')
-  redirect({ href: '/provider/services', locale })
+  // Une nouvelle fiche ouvre directement son écran d'édition : l'étape suivante, ce sont les photos.
+  redirect({ href: createdId ? `/provider/services/${createdId}` : '/provider/services', locale })
   return { ok: true }
 }
 
@@ -78,6 +82,8 @@ export async function submitServiceAction(serviceId: string): Promise<ActionStat
     return { error: 'Seul un brouillon ou une fiche refusée peut être soumis.' }
   }
   const problems = submissionProblems(service)
+  const photos = await countServiceImages(supabase, serviceId)
+  if (photos < MIN_PHOTOS) problems.push(`${MIN_PHOTOS} photos minimum (${photos} ajoutée${photos > 1 ? 's' : ''})`)
   if (problems.length) return { error: `Fiche incomplète : ${problems.join(', ')}.` }
 
   const { error } = await supabase.from('services').update({ status: 'pending_review' }).eq('id', serviceId)
@@ -204,4 +210,23 @@ export async function saveProfileAction(_prev: ActionState, formData: FormData):
   revalidateTag(CACHE_TAGS.services, 'max') // le nom et la bio apparaissent sur les fiches publiques
   revalidatePath('/provider/settings')
   return { ok: true, message: 'Profil enregistré.' }
+}
+
+// ─── Photos ──────────────────────────────────────────────────────────────────
+
+/** Ajoute, décrit, ordonne ou supprime les photos d'un service du prestataire connecté. */
+export async function manageServiceImageAction(input: ImageOp): Promise<ActionState> {
+  const s = await session()
+  if ('error' in s) return { error: s.error }
+  if (!input || !isUuid(input.serviceId)) return { error: 'Service invalide.' }
+
+  const service = await getProviderService(s.ctx.supabase, s.ctx.provider.id, input.serviceId)
+  if (!service) return { error: 'Service introuvable.' }
+
+  const result = await applyImageOp(s.ctx.supabase, { id: service.id, provider_id: s.ctx.provider.id }, input)
+  if (result.ok) {
+    invalidateCatalogue()
+    revalidatePath(`/provider/services/${service.id}`)
+  }
+  return result
 }
