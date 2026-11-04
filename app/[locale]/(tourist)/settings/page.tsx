@@ -3,8 +3,7 @@
 import { useState } from 'react'
 import { Link } from '@/lib/i18n/navigation'
 import { ChevronLeft, ChevronRight, Globe, Lock, Trash2, LogOut } from 'lucide-react'
-import { setDemoRole } from '@/lib/demo-auth'
-import { useRouter } from 'next/navigation'
+import { useAuth } from '@/lib/auth/AuthProvider'
 import { cn } from '@/lib/utils'
 
 const LANGS = [
@@ -14,14 +13,13 @@ const LANGS = [
 ]
 
 export default function SettingsPage() {
-  const router = useRouter()
+  const { signOut } = useAuth()
   const [lang, setLang] = useState('fr')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [showPasswordForm, setShowPasswordForm] = useState(false)
 
   function handleLogout() {
-    setDemoRole(null)
-    router.push('/')
+    void signOut()
   }
 
   return (

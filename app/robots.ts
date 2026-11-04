@@ -15,7 +15,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           '/partner/', '/api/', '/admin/', '/provider/', '/reserver/',
           '/profile', '/voyages', '/paiement', '/notifications', '/settings', '/preferences', '/onboarding',
-          '/login', '/register', '/reset-password',
+          '/login', '/register', '/reset-password', '/update-password',
           '/en/partner/', '/en/admin/', '/en/provider/', '/en/reserver/',
           '/es/partner/', '/es/admin/', '/es/provider/', '/es/reserver/',
         ],

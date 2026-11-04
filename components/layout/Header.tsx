@@ -8,6 +8,8 @@ import { cn } from '@/lib/utils'
 import { Heart, User } from 'lucide-react'
 import { OhaanaLogo } from './OhaanaLogo'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { UserMenu } from './UserMenu'
+import { useAuth } from '@/lib/auth/AuthProvider'
 
 interface HeaderProps {
   transparent?: boolean
@@ -16,6 +18,7 @@ interface HeaderProps {
 export function Header({ transparent = false }: HeaderProps) {
   const t = useTranslations('nav')
   const tAuth = useTranslations('auth')
+  const { isLoggedIn, loading } = useAuth()
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
@@ -71,16 +74,20 @@ export function Header({ transparent = false }: HeaderProps) {
           >
             <Heart size={18} />
           </Link>
-          <Link href="/login" className="ml-1">
-            <Button
-              variant={isOpaque ? 'ghost' : 'outline'}
-              size="sm"
-              className={!isOpaque ? 'border-coconut/40 text-coconut hover:bg-coconut/10' : ''}
-            >
-              <User size={16} />
-              <span className="hidden sm:inline">{tAuth('login')}</span>
-            </Button>
-          </Link>
+          {isLoggedIn ? (
+            <UserMenu opaque={isOpaque} />
+          ) : (
+            <Link href="/login" className={cn('ml-1', loading && 'invisible')}>
+              <Button
+                variant={isOpaque ? 'ghost' : 'outline'}
+                size="sm"
+                className={!isOpaque ? 'border-coconut/40 text-coconut hover:bg-coconut/10' : ''}
+              >
+                <User size={16} />
+                <span className="hidden sm:inline">{tAuth('login')}</span>
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
     </header>

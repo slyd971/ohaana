@@ -42,3 +42,10 @@ next-env.d.ts
 
 # but keep the documented example
 !.env.local.example
+
+# generated SQL bundles
+supabase/.generated/
+
+# playwright
+/test-results/
+/playwright-report/

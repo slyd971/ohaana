@@ -3,9 +3,15 @@
 import { useTranslations } from 'next-intl'
 import { Link } from '@/lib/i18n/navigation'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { useAuth } from '@/lib/auth/AuthProvider'
+import { ROLE_HOME } from '@/lib/auth/types'
 
 export function Footer() {
   const t = useTranslations('footer')
+  const { isProvider, isPartner, isAdmin, isDemo } = useAuth()
+  const providerHref = isProvider ? ROLE_HOME.provider : '/register?role=provider'
+  // The partner space is private: guests and other roles are sent to sign-in.
+  const partnerHref = isPartner || isAdmin || isDemo ? ROLE_HOME.partner : '/login'
 
   return (
     <footer className="bg-deep-green text-coconut/80">
@@ -65,8 +71,8 @@ export function Footer() {
             </h3>
             <ul className="space-y-2 text-xs">
               {([
-                { key: 'becomeProvider', href: '/register?role=provider' },
-                { key: 'partnerSpace',   href: '/partner/dashboard' },
+                { key: 'becomeProvider', href: providerHref },
+                { key: 'partnerSpace',   href: partnerHref },
                 { key: 'concierge',      href: '/concierge' },
                 { key: 'about',          href: '/about' },
               ] as const).map(({ key, href }) => (

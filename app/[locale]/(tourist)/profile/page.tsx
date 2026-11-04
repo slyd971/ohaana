@@ -5,8 +5,7 @@ import Image from 'next/image'
 import { Link } from '@/lib/i18n/navigation'
 import { Button } from '@/components/ui/Button'
 import { OhaanaLogo } from '@/components/layout/OhaanaLogo'
-import { useDemoAuth } from '@/hooks/useDemoAuth'
-import { setDemoRole } from '@/lib/demo-auth'
+import { useAuth } from '@/lib/auth/AuthProvider'
 import { SERVICES } from '@/lib/data/seed'
 import { formatPrice, cn } from '@/lib/utils'
 import {
@@ -17,7 +16,6 @@ import {
   ChevronRight, Check,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useRouter } from 'next/navigation'
 
 // ─── Types & data ────────────────────────────────────────────────────────────
 
@@ -540,13 +538,12 @@ function ParamètresPanel({ onLogout }: { onLogout: () => void }) {
 // ─── Connected layout ─────────────────────────────────────────────────────────
 
 function ClientSpace() {
-  const router = useRouter()
+  const { signOut } = useAuth()
   const [activeTab, setActiveTab] = useState<Tab>('apercu')
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   function handleLogout() {
-    setDemoRole(null)
-    router.push('/')
+    void signOut()
   }
 
   function goTo(tab: Tab) {
@@ -665,6 +662,6 @@ function GuestProfile() {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ProfilePage() {
-  const { isLoggedIn } = useDemoAuth()
+  const { isLoggedIn } = useAuth()
   return isLoggedIn ? <ClientSpace /> : <GuestProfile />
 }

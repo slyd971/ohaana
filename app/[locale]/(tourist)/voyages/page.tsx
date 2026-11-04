@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Link } from '@/lib/i18n/navigation'
 import { CalendarDays, Clock, Plus, Users } from 'lucide-react'
-import { useDemoAuth } from '@/hooks/useDemoAuth'
+import { useAuth } from '@/lib/auth/AuthProvider'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { ServiceCard } from '@/components/service/ServiceCard'
@@ -216,7 +216,7 @@ function PastCard({ booking }: { booking: PastBooking }) {
 export default function VoyagesPage() {
   const [tab, setTab] = useState<Tab>('programme')
   const [favorites, setFavorites] = useState<Set<string>>(new Set(['s-3', 's-2']))
-  const { isGuest } = useDemoAuth()
+  const { isGuest } = useAuth()
 
   if (isGuest) {
     return (

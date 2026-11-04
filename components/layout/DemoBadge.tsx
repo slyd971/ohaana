@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { setDemoRole, type DemoRole } from '@/lib/demo-auth'
-import { useDemoRole } from '@/hooks/useDemoAuth'
+import { useDemoRole } from '@/hooks/useDemoRole'
+import { DEMO_MODE } from '@/lib/demo-mode'
 import { User, Briefcase, Handshake, LogOut, ChevronUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -12,7 +13,7 @@ export function DemoBadge() {
   const [open, setOpen] = useState(false)
   const router = useRouter()
 
-  if (!role) return null
+  if (!DEMO_MODE || !role) return null
 
   function switchTo(r: DemoRole) {
     setDemoRole(r)

@@ -104,6 +104,29 @@ begin
   perform t.reset();
 end $$;
 
+-- become_provider (inscription OAuth "prestataire") : tourist -> provider uniquement
+do $$
+declare
+  A constant uuid := 'aaaaaaaa-0000-4000-8000-000000000001';
+begin
+  perform t.as_anon();
+  perform t.fails('anon cannot call become_provider', 'select public.become_provider()', '42501');
+  perform t.as_user('aaaaaaaa-0000-4000-8000-000000000004');   -- admin
+  perform t.fails('an admin cannot be downgraded through become_provider', 'select public.become_provider()', '42501');
+  perform t.reset();
+
+  insert into auth.users (id, email, raw_user_meta_data)
+  values ('aaaaaaaa-0000-4000-8000-000000000006', 'oauth-pro@test.local', '{"full_name":"Olivia Pro"}');
+  perform t.as_user('aaaaaaaa-0000-4000-8000-000000000006');
+  perform t.run($q$select public.become_provider('Olivia Services')$q$);
+  perform t.run($q$select public.become_provider('Olivia Services')$q$);   -- idempotent
+  perform t.reset();
+  perform t.eq('tourist became provider',
+    t.scalar($q$select role::text from public.users where id = 'aaaaaaaa-0000-4000-8000-000000000006'$q$), 'provider');
+  perform t.eq('provider profile created, unapproved',
+    t.scalar($q$select business_name || '/' || is_approved::text from public.provider_profiles where user_id = 'aaaaaaaa-0000-4000-8000-000000000006'$q$), 'Olivia Services/false');
+end $$;
+
 -- ─────────────────────────────────────────────────────────────
 -- 2. Prestataire : auto-approbation / publication interdites
 -- ─────────────────────────────────────────────────────────────
@@ -432,7 +455,7 @@ begin
   perform t.reset();
   perform t.eq('purge removes demo services', t.scalar('select count(*)::text from public.services where is_demo'), '0');
   perform t.eq('purge removes demo users', t.scalar('select count(*)::text from public.users where is_demo'), '0');
-  perform t.eq('purge keeps real users', t.scalar($q$select count(*)::text from public.users where email like '%@test.local'$q$), '5');
+  perform t.eq('purge keeps real users', t.scalar($q$select count(*)::text from public.users where email like '%@test.local'$q$), '6');
   perform t.eq('purge keeps real services', t.scalar($q$select count(*)::text from public.services where title_fr = 'Service test'$q$), '1');
 end $$;
 

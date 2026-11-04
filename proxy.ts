@@ -2,6 +2,7 @@ import createMiddleware from 'next-intl/middleware'
 import { type NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { routing } from '@/lib/i18n/routing'
+import { SUPABASE_URL, SUPABASE_KEY } from '@/lib/supabase/config'
 
 const intlMiddleware = createMiddleware(routing)
 
@@ -65,8 +66,8 @@ export async function proxy(request: NextRequest) {
 
   if (!needsAuth && !isAuthRoute) return response
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const url = SUPABASE_URL
+  const key = SUPABASE_KEY
   const redirectToLogin = () => {
     const loginUrl = new URL(`${prefix}/login`, request.url)
     loginUrl.searchParams.set('redirectTo', `${pathname}${request.nextUrl.search}`)

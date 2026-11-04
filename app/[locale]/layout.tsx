@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { routing } from '@/lib/i18n/routing'
 import { SITE_URL } from '@/lib/site'
+import { AuthProvider } from '@/lib/auth/AuthProvider'
 import '../globals.css'
 
 const BASE = SITE_URL
@@ -106,7 +107,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       </head>
       <body className="h-full antialiased" style={{ fontFamily: 'var(--font-body)' }}>
         <NextIntlClientProvider locale={locale} messages={messages}>
-          {children}
+          <AuthProvider>{children}</AuthProvider>
         </NextIntlClientProvider>
       </body>
     </html>

@@ -8,7 +8,10 @@
     "start": "next start",
     "lint": "eslint",
     "db:seed": "node --no-warnings scripts/generate-seed-sql.mjs",
-    "db:test": "node scripts/db/run.mjs"
+    "db:test": "node scripts/db/run.mjs",
+    "db:bundle": "node scripts/db/bundle.mjs",
+    "make-admin": "node --env-file=.env.local scripts/make-admin.mjs",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.12",
@@ -36,6 +39,7 @@
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.15",
+    "@playwright/test": "^1.64.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20.19.43",
     "@types/react": "^19",
