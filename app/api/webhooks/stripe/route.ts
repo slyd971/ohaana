@@ -1,81 +1,71 @@
 import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
-import Stripe from 'stripe'
-import { createAdminClient } from '@/lib/supabase/server'
+import type Stripe from 'stripe'
+import { createAdminClient, hasServiceRole } from '@/lib/supabase/server'
 import { getStripe } from '@/lib/stripe/client'
-import type { BookingStatus, PaymentStatus } from '@/types/database'
+import { handleStripeEvent, type WebhookDeps } from '@/lib/stripe/webhook-handlers'
 
+/**
+ * Stripe webhook. Order of operations:
+ *  1. verify the signature on the raw body;
+ *  2. claim the event id in webhook_events (a processed event is acknowledged and ignored);
+ *  3. apply it through atomic SQL functions (replayable);
+ *  4. mark it processed, or store the error and answer 500 so Stripe retries.
+ */
 export async function POST(request: Request) {
-  const body = await request.text()
-  const headersList = await headers()
-  const sig = headersList.get('stripe-signature')
-
-  if (!sig) {
-    return NextResponse.json({ error: 'Missing stripe-signature' }, { status: 400 })
+  const secret = process.env.STRIPE_WEBHOOK_SECRET
+  if (!process.env.STRIPE_SECRET_KEY || !secret || !hasServiceRole()) {
+    return NextResponse.json({ error: 'webhook_not_configured' }, { status: 503 })
   }
+
+  const body = await request.text()
+  const signature = (await headers()).get('stripe-signature')
+  if (!signature) return NextResponse.json({ error: 'missing_signature' }, { status: 400 })
 
   const stripe = getStripe()
   let event: Stripe.Event
-
   try {
-    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Invalid signature'
-    return NextResponse.json({ error: message }, { status: 400 })
+    event = stripe.webhooks.constructEvent(body, signature, secret)
+  } catch {
+    return NextResponse.json({ error: 'invalid_signature' }, { status: 400 })
   }
 
   const supabase = await createAdminClient()
 
-  switch (event.type) {
-    case 'payment_intent.succeeded': {
-      const intent = event.data.object as Stripe.PaymentIntent
-      const bookingId = intent.metadata.booking_id
+  const { data: claim, error: claimError } = await supabase.rpc('webhook_claim_event', {
+    p_id: event.id,
+    p_type: event.type,
+    // Only a pointer to the object: the full payload would store customer data we do not need.
+    p_payload: { object_id: (event.data.object as { id?: string }).id ?? null, livemode: event.livemode },
+  })
+  if (claimError) {
+    console.error('[stripe-webhook] claim failed:', claimError.message)
+    return NextResponse.json({ error: 'claim_failed' }, { status: 500 })
+  }
+  if (claim === 'duplicate') return NextResponse.json({ received: true, duplicate: true })
 
-      if (!bookingId) break
-
-      // Amounts (fee / provider share) were written when the PaymentIntent was created, from the
-      // server-side booking total: never recompute them from intent.amount here.
-      await supabase
-        .from('payments')
-        .update({
-          status: 'succeeded' as PaymentStatus,
-          stripe_charge_id: intent.latest_charge as string | null,
-        })
-        .eq('stripe_payment_intent_id', intent.id)
-
-      await supabase
-        .from('bookings')
-        .update({ status: 'confirmed' as BookingStatus })
-        .eq('id', bookingId)
-
-      break
-    }
-
-    case 'payment_intent.payment_failed': {
-      const intent = event.data.object as Stripe.PaymentIntent
-
-      await supabase
-        .from('payments')
-        .update({ status: 'failed' as PaymentStatus })
-        .eq('stripe_payment_intent_id', intent.id)
-
-      break
-    }
-
-    case 'charge.refunded': {
-      const charge = event.data.object as Stripe.Charge
-
-      await supabase
-        .from('payments')
-        .update({ status: 'refunded' as PaymentStatus })
-        .eq('stripe_charge_id', charge.id)
-
-      break
-    }
-
-    default:
-      break
+  const deps: WebhookDeps = {
+    rpc: async (fn, args) => {
+      const { data, error } = await supabase.rpc(fn, args)
+      return { data, error: error ? { message: error.message } : null }
+    },
+    refundLatePayment: async (intentId) => {
+      // The idempotency key makes a replayed event reuse the same refund instead of creating another.
+      await stripe.refunds.create(
+        { payment_intent: intentId, reason: 'requested_by_customer', metadata: { cause: 'payment_after_booking_expired' } },
+        { idempotencyKey: `late-payment-refund-${intentId}` },
+      )
+    },
   }
 
-  return NextResponse.json({ received: true })
+  try {
+    const outcome = await handleStripeEvent(event, deps)
+    await supabase.rpc('webhook_finish_event', { p_id: event.id, p_error: null })
+    return NextResponse.json({ received: true, handled: outcome.handled, result: outcome.result ?? null })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'unknown_error'
+    console.error('[stripe-webhook] processing failed:', event.type, message)
+    await supabase.rpc('webhook_finish_event', { p_id: event.id, p_error: message })
+    return NextResponse.json({ error: 'processing_failed' }, { status: 500 })
+  }
 }

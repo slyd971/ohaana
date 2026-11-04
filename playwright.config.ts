@@ -17,7 +17,7 @@ const EXTERNAL_URL = process.env.PW_BASE_URL
 // Uses the locally installed Chrome (no browser download). In CI: `npx playwright install chromium`
 // and set PW_CHANNEL= (empty) to use the bundled Chromium.
 export default defineConfig({
-  testDir: './tests/e2e',
+  testDir: './tests',
   timeout: 30_000,
   retries: process.env.CI ? 1 : 0,
   reporter: [['list']],
