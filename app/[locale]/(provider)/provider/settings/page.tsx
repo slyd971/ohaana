@@ -38,7 +38,7 @@ const SECTIONS = [
     title: 'Sécurité',
     Icon: Lock,
     fields: [
-      { label: 'Email', value: 'marcus@demo.ohaana.com' },
+      { label: 'Email', value: 'marcus@demo.ohaana.fr' },
       { label: 'Mot de passe', value: '••••••••' },
     ],
   },

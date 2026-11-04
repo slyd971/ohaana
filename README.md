@@ -79,8 +79,8 @@ npm run db:test   # migrations + seed + supabase/tests/security.sql
 Dans le dashboard Supabase → **Authentication** :
 
 1. **URL Configuration**
-   - *Site URL* : l'URL publique (ex. `https://ohaana.vercel.app`).
-   - *Redirect URLs* : `http://localhost:3000/api/auth/callback`, `https://ohaana.vercel.app/api/auth/callback` et, pour les previews Vercel, `https://*.vercel.app/api/auth/callback`.
+   - *Site URL* : l'URL publique (ex. `https://www.ohaana.fr`).
+   - *Redirect URLs* : `http://localhost:3000/api/auth/callback`, `https://www.ohaana.fr/api/auth/callback` et, pour les previews Vercel, `https://*.vercel.app/api/auth/callback`.
 2. **Sign In / Providers** : *Email* activé avec **Confirm email = ON**. Google : activer, renseigner Client ID / Secret (Google Cloud Console → URI de redirection autorisée : `https://<ref>.supabase.co/auth/v1/callback`).
 3. **Email Templates** (pour que les liens fonctionnent aussi quand l'email est ouvert sur un autre appareil) — remplacer le lien de chaque template par :
 
@@ -168,7 +168,7 @@ types/
 
 Voir `.env.local.example` pour la liste complète. Points d'attention :
 
-- `NEXT_PUBLIC_SITE_URL` : domaine public (canonical, sitemap, OG). Défaut : `https://ohaana.vercel.app`.
+- `NEXT_PUBLIC_SITE_URL` : domaine public (canonical, sitemap, OG). Défaut : `https://www.ohaana.fr`.
 - `NEXT_PUBLIC_DEMO_MODE=true` désactive **toute** l'authentification (démo investisseur uniquement, déploiement marqué `noindex`). Désactivé par défaut.
 - `NEXT_PUBLIC_WHATSAPP_NUMBER` : si vide, les boutons WhatsApp sont masqués.
 

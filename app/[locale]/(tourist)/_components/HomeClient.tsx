@@ -544,7 +544,7 @@ export function HomeClient({ services, rows }: HomeClientProps) {
                 <ChevronRight size={14} />
               </Link>
               <a
-                href="mailto:partenaires@ohaana.com"
+                href="mailto:partenaires@ohaana.fr"
                 className="inline-flex items-center gap-2 border border-mist text-charcoal px-5 py-2.5 rounded-full text-sm font-medium hover:border-deep-green/40 transition-colors"
               >
                 <Mail size={14} />

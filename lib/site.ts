@@ -1,6 +1,6 @@
 // Single source of truth for the public site URL.
 // Set NEXT_PUBLIC_SITE_URL per environment (no trailing slash).
-const RAW = process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://ohaana.vercel.app'
+const RAW = process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://www.ohaana.fr'
 
 export const SITE_URL = RAW.replace(/\/+$/, '')
 

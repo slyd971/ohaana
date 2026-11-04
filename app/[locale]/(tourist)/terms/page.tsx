@@ -63,7 +63,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold text-charcoal mb-3">9. Contact</h2>
             <p>Ohaana SAS — Guadeloupe, France<br />
-            <a href="mailto:legal@ohaana.com" className="text-deep-green underline underline-offset-2">legal@ohaana.com</a></p>
+            <a href="mailto:legal@ohaana.fr" className="text-deep-green underline underline-offset-2">legal@ohaana.fr</a></p>
           </section>
         </div>
       </div>

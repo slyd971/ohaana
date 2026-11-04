@@ -15,9 +15,9 @@ python audit.py <URL> --output audit-report.md
 ## Exemples
 
 ```bash
-python audit.py https://ohaana.com
+python audit.py https://www.ohaana.fr
 python audit.py https://ohaana-staging.vercel.app --output audit-staging.md
-python audit.py https://ohaana.com/search --output audit-search.md
+python audit.py https://www.ohaana.fr/search --output audit-search.md
 ```
 
 ## Workflow complet

@@ -56,7 +56,7 @@ export default function PrivacyPage() {
               <li>Droit à la portabilité de vos données</li>
               <li>Droit d&apos;opposition au traitement marketing</li>
             </ul>
-            <p className="text-sm mt-3">Pour exercer ces droits : <a href="mailto:privacy@ohaana.com" className="text-deep-green underline underline-offset-2">privacy@ohaana.com</a></p>
+            <p className="text-sm mt-3">Pour exercer ces droits : <a href="mailto:privacy@ohaana.fr" className="text-deep-green underline underline-offset-2">privacy@ohaana.fr</a></p>
           </section>
 
           <section>
@@ -72,7 +72,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-lg font-semibold text-charcoal mb-3">7. Contact</h2>
             <p className="text-sm">Ohaana SAS — Guadeloupe, France<br />
-            DPO : <a href="mailto:privacy@ohaana.com" className="text-deep-green underline underline-offset-2">privacy@ohaana.com</a></p>
+            DPO : <a href="mailto:privacy@ohaana.fr" className="text-deep-green underline underline-offset-2">privacy@ohaana.fr</a></p>
           </section>
         </div>
       </div>

@@ -137,7 +137,7 @@ export default function SettingsPage() {
               <p className="text-sm font-medium text-coral">Supprimer définitivement votre compte ?</p>
               <p className="text-xs text-stone">
                 Pour exercer votre droit à l&apos;effacement, écrivez-nous à{' '}
-                <a href="mailto:privacy@ohaana.com" className="text-deep-green underline underline-offset-2">privacy@ohaana.com</a>
+                <a href="mailto:privacy@ohaana.fr" className="text-deep-green underline underline-offset-2">privacy@ohaana.fr</a>
                 {' '}depuis l&apos;adresse de votre compte : nous traiterons votre demande rapidement.
               </p>
               <button onClick={() => setShowDeleteConfirm(false)} className="w-full py-2.5 rounded-xl text-sm text-stone border border-mist bg-surface hover:bg-sand transition-colors">Fermer</button>

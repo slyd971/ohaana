@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import { Link2, Copy, Check, QrCode, Globe } from 'lucide-react'
 
-const AFFILIATE_LINK = 'https://ohaana.com/?ref=iles-dorees'
-const WIDGET_CODE = `<script src="https://ohaana.com/widget.js" data-ref="iles-dorees"></script>`
+const AFFILIATE_LINK = 'https://www.ohaana.fr/?ref=iles-dorees'
+const WIDGET_CODE = `<script src="https://www.ohaana.fr/widget.js" data-ref="iles-dorees"></script>`
 
 export default function PartnerLinkPage() {
   const [copiedLink, setCopiedLink] = useState(false)

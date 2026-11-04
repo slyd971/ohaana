@@ -373,7 +373,7 @@ def generate_report(url: str, seo: dict, ux: dict, copy: dict, tech: dict) -> st
 
 def main():
     parser = argparse.ArgumentParser(description="Agent audit complet pour Ohaana")
-    parser.add_argument("url", help="URL à auditer (ex: https://ohaana.vercel.app)")
+    parser.add_argument("url", help="URL à auditer (ex: https://www.ohaana.fr)")
     parser.add_argument("--output", default="audit-report.md", help="Fichier de sortie (.md)")
     args = parser.parse_args()
 
