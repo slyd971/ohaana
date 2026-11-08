@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { useLocale } from 'next-intl'
@@ -15,7 +15,7 @@ import type { HomeRow, ServiceView } from '@/lib/data/types'
 import { useFavorites } from '@/hooks/useFavorites'
 import { WHATSAPP_NUMBER } from '@/lib/site'
 import {
-  Clock, Sparkles, Leaf, MessageCircle,
+  Clock, Leaf, MessageCircle,
   Building2, ChevronRight, Mail, CheckCircle,
 } from 'lucide-react'
 
@@ -29,11 +29,6 @@ const WHY_ITEMS = [
     icon: Clock,
     title: 'Gain de temps',
     text: 'Réservez en quelques minutes, nous nous occupons du reste.',
-  },
-  {
-    icon: Sparkles,
-    title: 'Expériences premium',
-    text: 'Des prestations soigneusement sélectionnées pour rendre votre séjour inoubliable.',
   },
   {
     icon: MessageCircle,
@@ -52,11 +47,6 @@ const WHY_ITEMS_EN = [
     icon: Clock,
     title: 'Time saved',
     text: 'Book in just a few minutes, and we take care of the rest.',
-  },
-  {
-    icon: Sparkles,
-    title: 'Premium experiences',
-    text: 'Carefully selected services designed to make your stay unforgettable.',
   },
   {
     icon: MessageCircle,
@@ -85,11 +75,6 @@ const WHY_ITEMS_ES = [
     icon: Clock,
     title: 'Tiempo ganado',
     text: 'Reserva en pocos minutos y nosotros nos encargamos del resto.',
-  },
-  {
-    icon: Sparkles,
-    title: 'Experiencias premium',
-    text: 'Servicios cuidadosamente seleccionados para que tu estancia sea inolvidable.',
   },
   {
     icon: MessageCircle,
@@ -161,6 +146,24 @@ export function HomeClient({ services, rows }: HomeClientProps) {
   const [showAllExplorer, setShowAllExplorer] = useState(false)
   const [whyActiveIdx, setWhyActiveIdx] = useState(0)
   const whyScrollRef = useRef<HTMLDivElement>(null)
+  const explorerGridRef = useRef<HTMLDivElement>(null)
+  const [stickyHidden, setStickyHidden] = useState(false)
+
+  // Fade the sticky category bar out before the grid fully leaves the screen
+  useEffect(() => {
+    const onScroll = () => {
+      const el = explorerGridRef.current
+      if (!el) return
+      setStickyHidden(el.getBoundingClientRect().bottom < 520)
+    }
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [])
 
   const handleWhyScroll = useCallback(() => {
     const el = whyScrollRef.current
@@ -235,31 +238,13 @@ export function HomeClient({ services, rows }: HomeClientProps) {
       />
 
       {/* '- -' 2. Pourquoi Ohaana '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
-      <section className="border-y border-mist/70 bg-[#F7F7F4]">
-        <div className="max-w-7xl mx-auto px-5 md:px-8 py-10 md:py-12">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.6 }}
-            className="mb-6 md:mb-8"
-          >
-            <h2 className="text-2xl md:text-3xl font-display text-charcoal">
-              {L('Pourquoi réserver avec Ohaana ?', 'Why book with Ohaana?', '¿Por qué reservar con Ohaana?')}
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm md:text-base text-stone leading-relaxed">
-              {L(
-                'La simplicité pensée pour les voyageurs en villa, bungalow, Airbnb ou maison de vacances.',
-                'The simplicity designed for travelers staying in villas, bungalows, Airbnbs, or vacation homes.',
-                'La facilidad pensada para viajeros en villas, bungalows, Airbnb o casas de vacaciones.'
-              )}
-            </p>
-          </motion.div>
+      <section className="bg-sand">
+        <div className="max-w-7xl mx-auto px-5 md:px-8 py-7 md:py-9">
           <div className="space-y-4 sm:space-y-0">
             <div
               ref={whyScrollRef}
               onScroll={handleWhyScroll}
-              className="-mx-5 flex gap-4 overflow-x-auto px-5 pb-1 snap-x snap-mandatory sm:mx-0 sm:grid sm:grid-cols-4 sm:gap-8 sm:overflow-visible sm:px-0 sm:pb-0 scrollbar-hide"
+              className="-mx-5 flex gap-4 overflow-x-auto px-5 pb-1 snap-x snap-mandatory sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-8 sm:overflow-visible sm:px-0 sm:pb-0 scrollbar-hide"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               {whyItems.map(({ icon: Icon, title, text }, i) => (
@@ -269,13 +254,15 @@ export function HomeClient({ services, rows }: HomeClientProps) {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-40px' }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="w-[calc(100vw-2.5rem)] flex-none snap-center rounded-2xl border border-mist/80 bg-white p-5 text-center shadow-card space-y-3 sm:w-auto sm:min-w-0 sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none"
+                  className="w-[calc(100vw-2.5rem)] flex-none snap-center flex items-start gap-4 rounded-2xl bg-white p-4 shadow-card sm:w-auto sm:min-w-0 sm:rounded-none sm:bg-transparent sm:p-0 sm:shadow-none"
                 >
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center sm:h-11 sm:w-11">
-                    <Icon size={34} strokeWidth={1.7} className="text-charcoal sm:size-8" />
+                  <div className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-deep-green">
+                    <Icon size={20} strokeWidth={1.7} className="text-coconut" />
                   </div>
-                  <h3 className="font-semibold text-charcoal text-base sm:text-sm">{title}</h3>
-                  <p className="text-sm text-stone leading-relaxed">{text}</p>
+                  <div className="min-w-0">
+                    <h3 className="text-[15px] font-semibold text-deep-green">{title}</h3>
+                    <p className="mt-0.5 text-xs leading-relaxed text-charcoal/70">{text}</p>
+                  </div>
                 </motion.div>
               ))}
               <div className="w-1 flex-none sm:hidden" />
@@ -285,7 +272,7 @@ export function HomeClient({ services, rows }: HomeClientProps) {
                 <span
                   key={item.title}
                   className={`h-1.5 rounded-full transition-all duration-300 ${
-                    i === whyActiveIdx ? 'w-4 bg-charcoal' : 'w-1.5 bg-charcoal/30'
+                    i === whyActiveIdx ? 'w-4 bg-deep-green' : 'w-1.5 bg-deep-green/25'
                   }`}
                 />
               ))}
@@ -295,22 +282,17 @@ export function HomeClient({ services, rows }: HomeClientProps) {
       </section>
 
       {/* '- -' Zone 1 : Explorer '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
-      <section className="px-5 md:px-8 pt-8 pb-4 max-w-7xl mx-auto">
-        <div className="max-w-2xl">
-          <h2 className="text-xl md:text-2xl font-display text-charcoal">
+      {/* Wrapper: bounds the sticky category bar to the explorer grid only */}
+      <div>
+      <div
+        className={`sticky top-16 z-20 border-b border-mist bg-coconut/96 backdrop-blur-md transition-all duration-300 ${
+          stickyHidden ? 'pointer-events-none -translate-y-2 opacity-0' : 'translate-y-0 opacity-100'
+        }`}
+      >
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-5 pt-4 md:px-8 md:pt-5">
+          <h2 className="font-display text-xl text-deep-green md:text-2xl">
             {L('Explorer par catégorie', 'Explore by category', 'Explorar por categoría')}
           </h2>
-          <p className="mt-1.5 text-sm text-stone">
-            {L(
-              "Choisissez le type d'expérience que vous recherchez.",
-              'Choose the type of experience you are looking for.',
-              'Elige el tipo de experiencia que buscas.'
-            )}
-          </p>
-        </div>
-      </section>
-      <div className="sticky top-16 z-20 bg-coconut/96 backdrop-blur-md border-b border-mist pt-2 pb-2">
-        <div className="max-w-7xl mx-auto px-5 md:px-8">
           <MoodSelector
             value={mood}
             onChange={(nextMood) => {
@@ -320,7 +302,7 @@ export function HomeClient({ services, rows }: HomeClientProps) {
           />
         </div>
       </div>
-      <div className="pt-8 pb-8 px-5 md:px-8 max-w-7xl mx-auto">
+      <div ref={explorerGridRef} className="pt-8 pb-8 px-5 md:px-8 max-w-7xl mx-auto">
         <motion.div
           key={mood + island}
           initial={{ opacity: 0, y: 10 }}
@@ -358,97 +340,10 @@ export function HomeClient({ services, rows }: HomeClientProps) {
         </motion.div>
       </div>
 
-      {/* Rappel concierge */}
-      <div className="px-5 md:px-8 pb-16 md:pb-20 max-w-7xl mx-auto">
-        <div className="rounded-2xl border border-deep-green/15 bg-deep-green/5 px-5 py-4 flex items-center gap-4">
-          <span className="relative flex h-2.5 w-2.5 flex-none">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-turquoise opacity-75" />
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-turquoise" />
-          </span>
-          <p className="text-sm text-deep-green flex-1 leading-snug">
-            <span className="font-semibold">{L('Vous ne savez pas quoi choisir ?', 'Not sure what to choose?', '¿No sabes qué elegir?')}</span>{' '}
-            {L(
-              'Décrivez votre séjour, nous vous orientons vers les bons prestataires locaux.',
-              'Tell us about your stay, and we will point you to the right local providers.',
-              'Cuéntanos tu estancia y te orientamos hacia los proveedores locales adecuados.'
-            )}
-          </p>
-          <Link
-            href="/concierge"
-            className="flex-none text-xs font-medium bg-deep-green text-coconut px-3.5 py-2 rounded-full hover:bg-coral transition-colors whitespace-nowrap"
-          >
-            {L('Demander conseil', 'Ask for advice', 'Pedir consejo')}
-          </Link>
-        </div>
       </div>
-
-      {/* '- -' Zone 2 : Ce soir '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
-      {rowTonight && (
-        <div className="pb-14 max-w-7xl mx-auto md:px-8">
-          <ServiceRow
-            title={L(rowTonight.label_fr, rowTonight.label_en, rowTonight.label_es)}
-            services={editorialServices(rowTonight.ids)}
-            favorites={favorites}
-            onToggleFavorite={toggleFavorite}
-            seeAllHref="/search"
-          />
-        </div>
-      )}
-
-      {/* '- -' Zone 3 : Sélections éditoriales '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
-      <section className="px-5 md:px-8 pt-2 pb-6 max-w-7xl mx-auto">
-        <div className="max-w-2xl">
-          <h2 className="text-xl md:text-2xl font-display text-charcoal">
-            {L('Les incontournables', 'Essential picks', 'Imprescindibles')}
-          </h2>
-          <p className="mt-1.5 text-sm text-stone">
-            {L(
-              'Les services les plus réservés par les voyageurs en hébergement privatif.',
-              'The services most booked by travelers in private accommodation.',
-              'Los servicios más reservados por viajeros en alojamientos privados.'
-            )}
-          </p>
-        </div>
-      </section>
-      <div className="px-5 md:px-8 pb-14 max-w-7xl mx-auto">
-        <div className="space-y-3 sm:space-y-0">
-          <div
-            className="-mx-5 flex gap-4 overflow-x-auto px-5 pb-1 scroll-snap-x sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3 lg:gap-6 scrollbar-hide"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            {featuredServices.map((service, i) => (
-              <motion.div
-                key={service.id}
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.4, delay: i * 0.05 }}
-                className="w-[82vw] max-w-[21rem] flex-none sm:w-auto sm:max-w-none sm:min-w-0"
-              >
-                <ServiceCard
-                  service={service}
-                  isFavorite={favorites.has(service.id)}
-                  onToggleFavorite={toggleFavorite}
-                  size="lg"
-                  className="w-full"
-                />
-              </motion.div>
-            ))}
-            <div className="w-1 flex-none sm:hidden" />
-          </div>
-          <div className="flex justify-center gap-1.5 sm:hidden" aria-hidden="true">
-            {featuredServices.map((service) => (
-              <span key={service.id} className="h-1.5 w-1.5 rounded-full bg-charcoal/35" />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* '- -' 5. Témoignages '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
-      <Testimonials />
 
       {/* '- -' 7. Concierge  - filet de sécurité '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
-      <section className="mx-5 md:mx-8 mb-10 rounded-3xl overflow-hidden relative"
+      <section className="mx-5 md:mx-8 mt-6 mb-16 md:mb-20 rounded-3xl overflow-hidden relative"
         style={{ background: 'linear-gradient(135deg, var(--deep-green) 0%, #0F2B1D 100%)' }}
       >
         <div className="absolute inset-0 opacity-10" style={{
@@ -514,6 +409,71 @@ export function HomeClient({ services, rows }: HomeClientProps) {
         </div>
       </section>
 
+      {/* '- -' Zone 2 : Ce soir '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
+      {rowTonight && (
+        <div className="pb-14 max-w-7xl mx-auto md:px-8">
+          <ServiceRow
+            title={L(rowTonight.label_fr, rowTonight.label_en, rowTonight.label_es)}
+            services={editorialServices(rowTonight.ids)}
+            favorites={favorites}
+            onToggleFavorite={toggleFavorite}
+            seeAllHref="/search"
+          />
+        </div>
+      )}
+
+      {/* '- -' Zone 3 : Sélections éditoriales '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
+      <section className="px-5 md:px-8 pt-2 pb-6 max-w-7xl mx-auto">
+        <div className="max-w-2xl">
+          <h2 className="text-2xl md:text-3xl font-display text-deep-green">
+            {L('Les incontournables', 'Essential picks', 'Imprescindibles')}
+          </h2>
+          <p className="mt-1.5 text-sm text-stone">
+            {L(
+              'Les services les plus réservés par les voyageurs en hébergement privatif.',
+              'The services most booked by travelers in private accommodation.',
+              'Los servicios más reservados por viajeros en alojamientos privados.'
+            )}
+          </p>
+        </div>
+      </section>
+      <div className="px-5 md:px-8 pb-14 max-w-7xl mx-auto">
+        <div className="space-y-3 sm:space-y-0">
+          <div
+            className="-mx-5 flex gap-4 overflow-x-auto px-5 pb-1 scroll-snap-x sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3 lg:gap-6 scrollbar-hide"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {featuredServices.map((service, i) => (
+              <motion.div
+                key={service.id}
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.4, delay: i * 0.05 }}
+                className="w-[82vw] max-w-[21rem] flex-none sm:w-auto sm:max-w-none sm:min-w-0"
+              >
+                <ServiceCard
+                  service={service}
+                  isFavorite={favorites.has(service.id)}
+                  onToggleFavorite={toggleFavorite}
+                  size="lg"
+                  className="w-full"
+                />
+              </motion.div>
+            ))}
+            <div className="w-1 flex-none sm:hidden" />
+          </div>
+          <div className="flex justify-center gap-1.5 sm:hidden" aria-hidden="true">
+            {featuredServices.map((service) => (
+              <span key={service.id} className="h-1.5 w-1.5 rounded-full bg-charcoal/35" />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* '- -' 5. Témoignages '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
+      <Testimonials />
+
       {/* '- -' 6. B2B partenaires '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
       <section id="partner" className="mx-5 md:mx-8 mb-10 rounded-3xl bg-sand border border-mist p-8 md:p-12">
         <div className="max-w-2xl mx-auto flex flex-col md:flex-row items-center gap-8">
@@ -521,7 +481,7 @@ export function HomeClient({ services, rows }: HomeClientProps) {
             <Building2 size={24} className="text-coconut" />
           </div>
           <div className="flex-1 text-center md:text-left space-y-3">
-            <h2 className="text-xl md:text-2xl font-display text-charcoal">
+            <h2 className="text-2xl md:text-3xl font-display text-deep-green">
               {L(
                 'Vous êtes chef.fe, masseur.se, DJ, photographe ou coach sportif ?',
                 'Are you a chef, massage therapist, DJ, photographer, or fitness coach?',

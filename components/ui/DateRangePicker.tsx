@@ -57,6 +57,8 @@ interface DateRangePickerProps {
   placeholder?: string
   className?: string
   upward?: boolean
+  /** Borderless, background-less trigger for embedding in a composite search bar. */
+  bare?: boolean
 }
 
 // Shared calendar grid used by both mobile and desktop layouts
@@ -200,6 +202,7 @@ export function DateRangePicker({
   onChange,
   placeholder = 'Dates de séjour',
   className,
+  bare = false,
 }: DateRangePickerProps) {
   const today = new Date()
   const [open, setOpen] = useState(false)
@@ -270,12 +273,17 @@ export function DateRangePicker({
       type="button"
       onClick={() => setOpen((v) => !v)}
       className={cn(
-        'w-full h-11 rounded-xl border bg-coconut px-3 text-sm text-left flex items-center gap-2 transition-colors',
-        open ? 'border-deep-green ring-2 ring-deep-green/15' : 'border-mist',
+        'w-full text-sm text-left flex items-center gap-2 transition-colors',
+        bare
+          ? 'h-6 bg-transparent focus:outline-none'
+          : cn(
+              'h-11 rounded-xl border bg-coconut px-3',
+              open ? 'border-deep-green ring-2 ring-deep-green/15' : 'border-mist',
+            ),
         displayValue ? 'text-charcoal' : 'text-stone',
       )}
     >
-      <CalendarDays size={14} className="text-deep-green flex-none" />
+      {!bare && <CalendarDays size={14} className="text-deep-green flex-none" />}
       <span className="flex-1 truncate">{displayValue || placeholder}</span>
       {displayValue && (
         <span

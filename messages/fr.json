@@ -6,7 +6,8 @@
     "profile": "Profil",
     "concierge": "Concierge",
     "account": "Mon compte",
-    "dashboard": "Mon espace"
+    "dashboard": "Mon espace",
+    "becomeProvider": "Devenir prestataire"
   },
   "auth": {
     "login": "Se connecter",

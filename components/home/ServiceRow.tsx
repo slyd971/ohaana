@@ -79,7 +79,7 @@ export function ServiceRow({
       className="space-y-4"
     >
       <div className="flex items-center justify-between px-5 md:px-0">
-        <h2 className="text-lg font-display text-charcoal">{title}</h2>
+        <h2 className="text-2xl md:text-3xl font-display text-deep-green">{title}</h2>
         <Link
           href={seeAllHref}
           className="flex items-center gap-0.5 text-sm text-deep-green font-medium"

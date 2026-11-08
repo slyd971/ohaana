@@ -6,7 +6,8 @@
     "profile": "Profile",
     "concierge": "Concierge",
     "account": "My account",
-    "dashboard": "My dashboard"
+    "dashboard": "My dashboard",
+    "becomeProvider": "Become a provider"
   },
   "auth": {
     "login": "Sign In",

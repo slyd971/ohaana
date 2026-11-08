@@ -27,7 +27,7 @@ export function MoodSelector({ value, onChange }: MoodSelectorProps) {
 
   return (
     <div
-      className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide"
+      className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide md:gap-5"
       style={{ scrollbarWidth: 'none' }}
     >
       {CATEGORIES.map(({ key, label, Icon }) => {
@@ -38,15 +38,27 @@ export function MoodSelector({ value, onChange }: MoodSelectorProps) {
             type="button"
             whileTap={{ scale: 0.94 }}
             onClick={() => onChange(key)}
-            className={cn(
-              'flex-none flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer',
-              active
-                ? 'bg-deep-green text-coconut shadow-sm'
-                : 'bg-coconut border border-mist text-charcoal-soft hover:border-deep-green'
-            )}
+            aria-pressed={active}
+            className="group flex-none flex flex-col items-center gap-1.5 cursor-pointer"
           >
-            <Icon size={14} />
-            <span>{label[lang]}</span>
+            <span
+              className={cn(
+                'flex h-12 w-12 items-center justify-center rounded-full border transition-colors duration-200',
+                active
+                  ? 'border-deep-green bg-deep-green text-coconut shadow-sm'
+                  : 'border-mist bg-white text-charcoal-soft group-hover:border-deep-green/50'
+              )}
+            >
+              <Icon size={20} strokeWidth={1.7} />
+            </span>
+            <span
+              className={cn(
+                'text-xs font-medium transition-colors',
+                active ? 'text-deep-green' : 'text-stone group-hover:text-charcoal'
+              )}
+            >
+              {label[lang]}
+            </span>
           </motion.button>
         )
       })}
