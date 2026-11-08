@@ -14,6 +14,8 @@ import { MoodSelector } from '@/components/home/MoodSelector'
 import type { HomeRow, ServiceView } from '@/lib/data/types'
 import { useFavorites } from '@/hooks/useFavorites'
 import { WHATSAPP_NUMBER } from '@/lib/site'
+import { useAuth } from '@/lib/auth/AuthProvider'
+import { providerTarget, PARTNER_EMAIL } from '@/lib/auth/provider-link'
 import {
   Clock, Leaf, MessageCircle,
   Building2, ChevronRight, Mail, CheckCircle,
@@ -133,6 +135,8 @@ interface HomeClientProps {
 
 export function HomeClient({ services, rows }: HomeClientProps) {
   const locale = useLocale()
+  const { isLoggedIn, isProvider, isAdmin } = useAuth()
+  const provider = providerTarget({ isLoggedIn, isProvider, isAdmin })
   const L = (fr: string, en: string, es: string) =>
     locale === 'en' ? en : locale === 'es' ? es : fr
   const whyItems = locale === 'en' ? WHY_ITEMS_EN : locale === 'es' ? WHY_ITEMS_ES : WHY_ITEMS
@@ -515,19 +519,23 @@ export function HomeClient({ services, rows }: HomeClientProps) {
               )}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start pt-1">
-              <Link
-                href="/register?role=provider"
-                className="inline-flex items-center gap-2 bg-deep-green text-coconut px-5 py-2.5 rounded-full text-sm font-medium hover:bg-deep-green-light transition-colors"
-              >
-                {L('Rejoindre Ohaana', 'Join Ohaana', 'Unirse a Ohaana')}
-                <ChevronRight size={14} />
-              </Link>
+              {(() => {
+                const cta = 'inline-flex items-center gap-2 bg-deep-green text-coconut px-5 py-2.5 rounded-full text-sm font-medium hover:bg-deep-green-light transition-colors'
+                const label = isProvider || isAdmin
+                  ? L('Mon espace prestataire', 'My provider space', 'Mi espacio de proveedor')
+                  : L('Rejoindre Ohaana', 'Join Ohaana', 'Unirse a Ohaana')
+                return provider.external ? (
+                  <a href={provider.href} className={cta}>{label}<ChevronRight size={14} /></a>
+                ) : (
+                  <Link href={provider.href} className={cta}>{label}<ChevronRight size={14} /></Link>
+                )
+              })()}
               <a
-                href="mailto:partenaires@ohaana.fr"
+                href={`mailto:${PARTNER_EMAIL}`}
                 className="inline-flex items-center gap-2 border border-mist text-charcoal px-5 py-2.5 rounded-full text-sm font-medium hover:border-deep-green/40 transition-colors"
               >
                 <Mail size={14} />
-                {L('Nous contacter', 'Contact us', 'Contáctanos')}
+                {PARTNER_EMAIL}
               </a>
             </div>
           </div>

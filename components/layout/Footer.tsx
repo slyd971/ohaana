@@ -5,11 +5,12 @@ import { Link } from '@/lib/i18n/navigation'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { useAuth } from '@/lib/auth/AuthProvider'
 import { ROLE_HOME } from '@/lib/auth/types'
+import { providerTarget } from '@/lib/auth/provider-link'
 
 export function Footer() {
   const t = useTranslations('footer')
-  const { isProvider, isPartner, isAdmin, isDemo } = useAuth()
-  const providerHref = isProvider ? ROLE_HOME.provider : '/register?role=provider'
+  const { isLoggedIn, isProvider, isPartner, isAdmin, isDemo } = useAuth()
+  const provider = providerTarget({ isLoggedIn, isProvider, isAdmin })
   // The partner space is private: guests and other roles are sent to sign-in.
   const partnerHref = isPartner || isAdmin || isDemo ? ROLE_HOME.partner : '/login'
 
@@ -71,15 +72,17 @@ export function Footer() {
             </h3>
             <ul className="space-y-2 text-xs">
               {([
-                { key: 'becomeProvider', href: providerHref },
-                { key: 'partnerSpace',   href: partnerHref },
-                { key: 'concierge',      href: '/concierge' },
-                { key: 'about',          href: '/about' },
-              ] as const).map(({ key, href }) => (
+                { key: 'becomeProvider', href: provider.href, external: provider.external },
+                { key: 'partnerSpace',   href: partnerHref, external: false },
+                { key: 'concierge',      href: '/concierge', external: false },
+                { key: 'about',          href: '/about', external: false },
+              ] as const).map(({ key, href, external }) => (
                 <li key={key}>
-                  <Link href={href} className="hover:text-coconut transition-colors">
-                    {t(`links.${key}`)}
-                  </Link>
+                  {external ? (
+                    <a href={href} className="hover:text-coconut transition-colors">{t(`links.${key}`)}</a>
+                  ) : (
+                    <Link href={href} className="hover:text-coconut transition-colors">{t(`links.${key}`)}</Link>
+                  )}
                 </li>
               ))}
             </ul>
