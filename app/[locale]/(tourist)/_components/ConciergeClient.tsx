@@ -35,6 +35,13 @@ const COPY = {
   datesPh: { fr: 'Ex : 12–18 août', en: 'E.g. Aug 12–18', es: 'Ej.: 12–18 agosto' },
   place: { fr: 'Lieu de séjour', en: 'Where you stay', es: 'Lugar de estancia' },
   placePh: { fr: 'Ex : villa à Deshaies', en: 'E.g. villa in Deshaies', es: 'Ej.: villa en Deshaies' },
+  contact: { fr: 'Votre email ou WhatsApp', en: 'Your email or WhatsApp', es: 'Tu email o WhatsApp' },
+  contactPh: { fr: 'Pour vous répondre', en: 'So we can reply', es: 'Para responderte' },
+  privacy: {
+    fr: 'Ces informations servent uniquement à répondre à votre demande.',
+    en: 'This information is only used to answer your request.',
+    es: 'Esta información solo se usa para responder a tu solicitud.',
+  },
   ideas: { fr: 'Idées populaires', en: 'Popular ideas', es: 'Ideas populares' },
   suggestions: {
     fr: ['Un massage à domicile', 'Un chef privé', 'Je voyage avec deux enfants', 'Un DJ pour notre soirée en terrasse', 'Un photographe près de notre villa'],
@@ -80,6 +87,7 @@ export function ConciergeClient({ recommendations }: ConciergeClientProps) {
   const [message, setMessage] = useState('')
   const [stayDates, setStayDates] = useState('')
   const [location, setLocation] = useState('')
+  const [contact, setContact] = useState('')
 
   const fullMessage = [
     message.trim(),
@@ -94,6 +102,20 @@ export function ConciergeClient({ recommendations }: ConciergeClientProps) {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    // Record the request for the team (best effort: the visitor is never blocked by a storage error).
+    void fetch('/api/concierge-requests', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        message: message.trim(),
+        stayDates: stayDates.trim() || undefined,
+        location: location.trim() || undefined,
+        contact: contact.trim(),
+        locale: lang,
+      }),
+      keepalive: true,
+    }).catch(() => {})
+
     if (WHATSAPP_NUMBER) {
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(fullMessage)}`, '_blank', 'noopener,noreferrer')
     } else {
@@ -169,6 +191,21 @@ export function ConciergeClient({ recommendations }: ConciergeClientProps) {
               </label>
             </div>
 
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium text-charcoal">{c('contact')}</span>
+              <input
+                value={contact}
+                onChange={(e) => setContact(e.target.value)}
+                placeholder={c('contactPh')}
+                required
+                minLength={3}
+                maxLength={254}
+                autoComplete="email"
+                className={`${field} h-12`}
+              />
+              <span className="mt-1.5 block text-xs text-charcoal/60">{c('privacy')}</span>
+            </label>
+
             <div>
               <p className="mb-2 text-xs text-charcoal/70">{c('ideas')}</p>
               <div className="flex flex-wrap gap-2">
@@ -188,7 +225,7 @@ export function ConciergeClient({ recommendations }: ConciergeClientProps) {
             <div className="space-y-3 pt-1">
               <button
                 type="submit"
-                disabled={!message.trim()}
+                disabled={!message.trim() || contact.trim().length < 3}
                 className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-deep-green text-sm font-medium text-coconut transition-colors hover:bg-coral disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {WHATSAPP_NUMBER ? <MessageCircle size={18} /> : <Search size={18} />}

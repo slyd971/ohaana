@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createPublicClient } from '@/lib/supabase/public'
+import { clientIp, rateLimited } from '@/lib/rate-limit'
 
 const bodySchema = z.object({
   email: z.string().trim().max(254).pipe(z.email()),
@@ -10,26 +11,11 @@ const bodySchema = z.object({
   consent: z.literal(true),
 })
 
-// Best-effort, per-instance throttle (the DB also allows a single lead per email per day).
-const WINDOW_MS = 10 * 60_000
-const MAX_PER_WINDOW = 5
-const hits = new Map<string, number[]>()
-
-function tooMany(ip: string) {
-  const now = Date.now()
-  const recent = (hits.get(ip) ?? []).filter((t) => now - t < WINDOW_MS)
-  recent.push(now)
-  hits.set(ip, recent)
-  if (hits.size > 5000) hits.clear()
-  return recent.length > MAX_PER_WINDOW
-}
-
 const fail = (error: string, status: number) => NextResponse.json({ error }, { status })
 
 /** Home lead capture. Inserts with the anon role: RLS only allows status='new' and consent=true. */
 export async function POST(request: Request) {
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
-  if (tooMany(ip)) return fail('rate_limited', 429)
+  if (rateLimited(`leads:${clientIp(request)}`)) return fail('rate_limited', 429)
 
   const parsed = bodySchema.safeParse(await request.json().catch(() => null))
   if (!parsed.success) return fail('invalid_request', 400)

@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { setLeadStatusAction } from '@/app/actions/admin'
+import { setLeadStatusAction, setConciergeRequestStatusAction } from '@/app/actions/admin'
 import { LEAD_LABELS, LEAD_STATUSES } from '@/lib/admin/schemas'
 
-export function LeadStatusSelect({ leadId, status, email }: { leadId: string; status: (typeof LEAD_STATUSES)[number]; email: string }) {
+export function LeadStatusSelect({ leadId, status, email, kind = 'lead' }: { leadId: string; status: (typeof LEAD_STATUSES)[number]; email: string; kind?: 'lead' | 'concierge' }) {
+  const setStatus = kind === 'concierge' ? setConciergeRequestStatusAction : setLeadStatusAction
   const [pending, start] = useTransition()
   const [error, setError] = useState<string | null>(null)
   return (
@@ -16,7 +17,7 @@ export function LeadStatusSelect({ leadId, status, email }: { leadId: string; st
         disabled={pending}
         onChange={(e) =>
           start(async () => {
-            const res = await setLeadStatusAction(leadId, e.target.value as (typeof LEAD_STATUSES)[number])
+            const res = await setStatus(leadId, e.target.value as (typeof LEAD_STATUSES)[number])
             setError(res.error ?? null)
           })
         }
