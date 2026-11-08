@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Button } from '@/components/ui/Button'
 import { Link } from '@/lib/i18n/navigation'
 import { ChevronLeft, ChevronRight, Globe, Lock, Trash2, LogOut } from 'lucide-react'
 import { useAuth } from '@/lib/auth/AuthProvider'
@@ -73,7 +74,7 @@ export default function SettingsPage() {
                 key={id}
                 onClick={() => setLang(id)}
                 className={cn(
-                  'flex-1 py-3 rounded-xl text-sm font-medium border transition-all',
+                  'flex-1 py-3 rounded-control text-sm font-medium border transition-all',
                   lang === id
                     ? 'bg-deep-green/10 border-deep-green/40 text-deep-green'
                     : 'bg-surface border-mist text-stone hover:border-deep-green/20'
@@ -91,20 +92,20 @@ export default function SettingsPage() {
             <Lock size={16} className="text-deep-green" /> Sécurité
           </div>
           {showPasswordForm ? (
-            <form onSubmit={handlePasswordChange} className="p-4 rounded-2xl bg-surface border border-mist space-y-3" noValidate>
-              <input name="password" aria-label="Nouveau mot de passe" placeholder="Nouveau mot de passe" type="password" autoComplete="new-password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-mist bg-coconut text-sm placeholder-stone focus:outline-none focus:border-deep-green/40" />
-              <input name="confirm" aria-label="Confirmer le nouveau mot de passe" placeholder="Confirmer le nouveau mot de passe" type="password" autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-mist bg-coconut text-sm placeholder-stone focus:outline-none focus:border-deep-green/40" />
+            <form onSubmit={handlePasswordChange} className="p-4 rounded-card bg-surface border border-mist space-y-3" noValidate>
+              <input name="password" aria-label="Nouveau mot de passe" placeholder="Nouveau mot de passe" type="password" autoComplete="new-password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full px-3 py-2.5 rounded-control border border-mist bg-coconut text-sm placeholder-stone focus:outline-none focus:border-deep-green/40" />
+              <input name="confirm" aria-label="Confirmer le nouveau mot de passe" placeholder="Confirmer le nouveau mot de passe" type="password" autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full px-3 py-2.5 rounded-control border border-mist bg-coconut text-sm placeholder-stone focus:outline-none focus:border-deep-green/40" />
               <p className="text-xs text-stone">8 caractères minimum, avec une lettre et un chiffre.</p>
-              {passwordMsg && <p role={passwordMsg.ok ? 'status' : 'alert'} className={passwordMsg.ok ? 'text-sm text-deep-green' : 'text-sm text-coral'}>{passwordMsg.text}</p>}
+              {passwordMsg && <p role={passwordMsg.ok ? 'status' : 'alert'} className={passwordMsg.ok ? 'text-sm text-deep-green' : 'text-sm text-coral-text'}>{passwordMsg.text}</p>}
               <div className="flex gap-2 pt-1">
-                <button type="button" onClick={() => { setShowPasswordForm(false); setPasswordMsg(null) }} className="flex-1 py-2.5 rounded-xl text-sm text-stone border border-mist hover:bg-sand transition-colors">Annuler</button>
-                <button type="submit" disabled={passwordBusy} className="flex-1 py-2.5 rounded-xl text-sm text-coconut bg-deep-green hover:bg-deep-green/90 transition-colors disabled:opacity-50">Modifier</button>
+                <button type="button" onClick={() => { setShowPasswordForm(false); setPasswordMsg(null) }} className="flex-1 py-2.5 rounded-control text-sm text-stone border border-mist hover:bg-sand transition-colors">Annuler</button>
+                <Button size="sm" type="submit" disabled={passwordBusy} className="flex-1">Modifier</Button>
               </div>
             </form>
           ) : (
             <button
               onClick={() => setShowPasswordForm(true)}
-              className="w-full flex items-center justify-between px-5 py-4 rounded-2xl bg-surface border border-mist hover:border-deep-green/20 transition-colors"
+              className="w-full flex items-center justify-between px-5 py-4 rounded-card bg-surface border border-mist hover:border-deep-green/20 transition-colors"
             >
               <span className="text-sm text-charcoal">Modifier le mot de passe</span>
               <ChevronRight size={16} className="text-stone" />
@@ -118,7 +119,7 @@ export default function SettingsPage() {
 
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-5 py-4 rounded-2xl bg-surface border border-mist hover:border-stone/30 transition-colors text-left"
+            className="w-full flex items-center gap-3 px-5 py-4 rounded-card bg-surface border border-mist hover:border-stone/30 transition-colors text-left"
           >
             <LogOut size={16} className="text-stone" />
             <span className="text-sm text-charcoal">Se déconnecter</span>
@@ -127,20 +128,20 @@ export default function SettingsPage() {
           {!showDeleteConfirm ? (
             <button
               onClick={() => setShowDeleteConfirm(true)}
-              className="w-full flex items-center gap-3 px-5 py-4 rounded-2xl bg-coral/5 border border-coral/20 hover:border-coral/40 transition-colors text-left"
+              className="w-full flex items-center gap-3 px-5 py-4 rounded-card bg-coral/5 border border-coral/20 hover:border-coral/40 transition-colors text-left"
             >
-              <Trash2 size={16} className="text-coral" />
-              <span className="text-sm text-coral">Supprimer mon compte</span>
+              <Trash2 size={16} className="text-coral-text" />
+              <span className="text-sm text-coral-text">Supprimer mon compte</span>
             </button>
           ) : (
-            <div className="p-5 rounded-2xl bg-coral/5 border border-coral/30 space-y-3">
-              <p className="text-sm font-medium text-coral">Supprimer définitivement votre compte ?</p>
+            <div className="p-5 rounded-card bg-coral/5 border border-coral/30 space-y-3">
+              <p className="text-sm font-medium text-coral-text">Supprimer définitivement votre compte ?</p>
               <p className="text-xs text-stone">
                 Pour exercer votre droit à l&apos;effacement, écrivez-nous à{' '}
                 <a href="mailto:privacy@ohaana.fr" className="text-deep-green underline underline-offset-2">privacy@ohaana.fr</a>
                 {' '}depuis l&apos;adresse de votre compte : nous traiterons votre demande rapidement.
               </p>
-              <button onClick={() => setShowDeleteConfirm(false)} className="w-full py-2.5 rounded-xl text-sm text-stone border border-mist bg-surface hover:bg-sand transition-colors">Fermer</button>
+              <button onClick={() => setShowDeleteConfirm(false)} className="w-full py-2.5 rounded-control text-sm text-stone border border-mist bg-surface hover:bg-sand transition-colors">Fermer</button>
             </div>
           )}
         </section>

@@ -1,12 +1,28 @@
 import type { Metadata, Viewport } from 'next'
 import { notFound } from 'next/navigation'
 import { NextIntlClientProvider } from 'next-intl'
+import { MotionProvider } from '@/components/MotionProvider'
 import { getMessages } from 'next-intl/server'
 import { routing } from '@/lib/i18n/routing'
 import { SITE_URL } from '@/lib/site'
 import { DEMO_MODE } from '@/lib/demo-mode'
 import { AuthProvider } from '@/lib/auth/AuthProvider'
+import { Fraunces, Inter } from 'next/font/google'
 import '../globals.css'
+
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  style: ['normal', 'italic'],
+  weight: ['300', '400', '500'],
+  variable: '--font-fraunces',
+  display: 'swap',
+})
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-inter',
+  display: 'swap',
+})
 
 const BASE = SITE_URL
 const OG_IMAGE = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&h=630&fit=crop&q=85'
@@ -94,10 +110,8 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   const messages = await getMessages()
 
   return (
-    <html lang={locale} className="h-full scroll-smooth">
+    <html lang={locale} className={`h-full scroll-smooth ${fraunces.variable} ${inter.variable}`}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
@@ -109,7 +123,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       </head>
       <body className="h-full antialiased" style={{ fontFamily: 'var(--font-body)' }}>
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <AuthProvider>{children}</AuthProvider>
+          <MotionProvider><AuthProvider>{children}</AuthProvider></MotionProvider>
         </NextIntlClientProvider>
       </body>
     </html>

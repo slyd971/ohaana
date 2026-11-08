@@ -3,8 +3,8 @@
 import { forwardRef } from 'react'
 import { cn } from '@/lib/utils'
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'coral' | 'outline'
-type Size = 'sm' | 'md' | 'lg' | 'icon'
+type Variant = 'primary' | 'secondary' | 'ghost' | 'coral' | 'outline' | 'danger' | 'link' | 'soft'
+type Size = 'sm' | 'md' | 'lg' | 'icon' | 'bare'
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant
@@ -21,16 +21,24 @@ const variantStyles: Record<Variant, string> = {
   ghost:
     'bg-transparent text-charcoal hover:bg-sand active:scale-[0.98]',
   coral:
-    'bg-coral text-coconut hover:bg-coral-light active:scale-[0.98] shadow-sm',
+    'bg-coral-text text-coconut hover:bg-coral active:scale-[0.98] shadow-sm',
+  link:
+    'bg-transparent text-deep-green hover:underline underline-offset-2',
+  soft:
+    'bg-turquoise/20 text-turquoise border border-turquoise/30 hover:bg-turquoise/30',
+  danger:
+    'bg-danger text-white hover:bg-danger/90 active:scale-[0.98] shadow-sm',
   outline:
     'bg-transparent text-deep-green border border-deep-green hover:bg-sand active:scale-[0.98]',
 }
 
 const sizeStyles: Record<Size, string> = {
-  sm: 'h-9 px-4 text-sm rounded-xl',
-  md: 'h-12 px-6 text-base rounded-xl',
-  lg: 'h-14 px-8 text-lg rounded-2xl',
-  icon: 'h-10 w-10 rounded-full',
+  sm: 'h-11 px-4 text-sm rounded-control',
+  md: 'h-12 px-6 text-base rounded-control',
+  lg: 'h-14 px-8 text-lg rounded-card',
+  icon: 'h-11 w-11 rounded-full',
+  /** Sans hauteur ni padding imposés : pour liens-boutons et actions denses (tableaux). Fournir padding via className. */
+  bare: '',
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(

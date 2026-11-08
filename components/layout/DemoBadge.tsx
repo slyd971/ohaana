@@ -33,8 +33,8 @@ export function DemoBadge() {
     <div className="fixed bottom-24 md:bottom-6 left-4 z-[90]">
       {/* Menu */}
       {open && (
-        <div className="mb-2 bg-charcoal rounded-2xl overflow-hidden shadow-elevated border border-white/10 min-w-[200px]">
-          <p className="text-[10px] text-coconut/40 uppercase tracking-widest px-4 pt-3 pb-1">Mode démo</p>
+        <div className="mb-2 bg-charcoal rounded-card overflow-hidden shadow-elevated border border-white/10 min-w-[200px]">
+          <p className="text-xs text-coconut/40 uppercase tracking-widest px-4 pt-3 pb-1">Mode démo</p>
 
           <button
             onClick={() => switchTo('client')}
@@ -45,7 +45,7 @@ export function DemoBadge() {
           >
             <User size={15} />
             Parcours Client
-            {role === 'client' && <span className="ml-auto text-[10px] bg-turquoise/20 text-turquoise px-1.5 py-0.5 rounded-full">actif</span>}
+            {role === 'client' && <span className="ml-auto text-xs bg-turquoise/20 text-turquoise px-1.5 py-0.5 rounded-full">actif</span>}
           </button>
 
           <button
@@ -57,7 +57,7 @@ export function DemoBadge() {
           >
             <Briefcase size={15} />
             Parcours Prestataire
-            {role === 'provider' && <span className="ml-auto text-[10px] bg-turquoise/20 text-turquoise px-1.5 py-0.5 rounded-full">actif</span>}
+            {role === 'provider' && <span className="ml-auto text-xs bg-turquoise/20 text-turquoise px-1.5 py-0.5 rounded-full">actif</span>}
           </button>
 
           <button
@@ -69,7 +69,7 @@ export function DemoBadge() {
           >
             <Handshake size={15} />
             Parcours Partenaire
-            {role === 'partner' && <span className="ml-auto text-[10px] bg-turquoise/20 text-turquoise px-1.5 py-0.5 rounded-full">actif</span>}
+            {role === 'partner' && <span className="ml-auto text-xs bg-turquoise/20 text-turquoise px-1.5 py-0.5 rounded-full">actif</span>}
           </button>
 
           <div className="h-px bg-white/10 mx-4" />

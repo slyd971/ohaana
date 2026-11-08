@@ -45,12 +45,12 @@ export default function AnalyticsPage() {
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'GMV juin', value: '87 400 €', delta: '+50% vs mai', Icon: CreditCard, color: 'text-[#F5A623]' },
+          { label: 'GMV juin', value: '87 400 €', delta: '+50% vs mai', Icon: CreditCard, color: 'text-star' },
           { label: 'Réservations juin', value: '248', delta: '+49% vs mai', Icon: Repeat2, color: 'text-turquoise' },
           { label: 'Nouveaux utilisateurs', value: '312', delta: '+38%', Icon: Users2, color: 'text-green-400' },
           { label: 'Valeur moy. panier', value: '352 €', delta: '+8%', Icon: TrendingUp, color: 'text-blue-400' },
         ].map(({ label, value, delta, Icon, color }) => (
-          <div key={label} className="bg-white/5 rounded-2xl p-4 border border-white/8">
+          <div key={label} className="bg-white/5 rounded-card p-4 border border-white/8">
             <Icon size={18} className={`mb-3 ${color}`} />
             <p className="text-2xl font-display text-white">{value}</p>
             <p className="text-xs text-white/40 mt-0.5">{label}</p>
@@ -62,7 +62,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* GMV chart */}
-      <div className="bg-white/5 rounded-2xl border border-white/8 p-5">
+      <div className="bg-white/5 rounded-card border border-white/8 p-5">
         <h2 className="text-sm font-semibold text-white mb-5">Volume brut mensuel (GMV)</h2>
         <div className="flex items-end gap-3 h-36">
           {MONTHLY.map(({ month, gmv }) => (
@@ -92,7 +92,7 @@ export default function AnalyticsPage() {
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* By category */}
-        <div className="bg-white/5 rounded-2xl border border-white/8 p-5">
+        <div className="bg-white/5 rounded-card border border-white/8 p-5">
           <h2 className="text-sm font-semibold text-white mb-4">GMV par catégorie</h2>
           <div className="space-y-3">
             {BY_CAT.map(({ label, pct, color, amount }) => (
@@ -113,14 +113,14 @@ export default function AnalyticsPage() {
         </div>
 
         {/* By island */}
-        <div className="bg-white/5 rounded-2xl border border-white/8 p-5">
+        <div className="bg-white/5 rounded-card border border-white/8 p-5">
           <h2 className="text-sm font-semibold text-white mb-4">Réservations par île</h2>
           <div className="space-y-4">
             {BY_ISLAND.map(({ label, pct, bookings, color }) => (
               <div key={label} className="flex items-center gap-4">
                 <div className="relative w-14 h-14 rounded-full shrink-0" style={{ background: `conic-gradient(${color} ${pct}%, rgba(255,255,255,0.08) 0)` }}>
                   <div className="absolute inset-2 rounded-full bg-[#0F1923] flex items-center justify-center">
-                    <span className="text-[10px] font-bold text-white">{pct}%</span>
+                    <span className="text-xs font-bold text-white">{pct}%</span>
                   </div>
                 </div>
                 <div>
@@ -134,7 +134,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Top services */}
-      <div className="bg-white/5 rounded-2xl border border-white/8 overflow-hidden">
+      <div className="bg-white/5 rounded-card border border-white/8 overflow-hidden">
         <div className="px-5 py-4 border-b border-white/8">
           <h2 className="text-sm font-semibold text-white">Top services ce mois</h2>
         </div>
@@ -157,7 +157,7 @@ export default function AnalyticsPage() {
                   <td className="px-5 py-3 font-medium text-white max-w-[200px] truncate">{title}</td>
                   <td className="px-5 py-3 text-white/50 hidden md:table-cell">{provider}</td>
                   <td className="px-5 py-3 text-right text-white">{bookings}</td>
-                  <td className="px-5 py-3 text-right font-semibold text-[#F5A623]">{gmv}</td>
+                  <td className="px-5 py-3 text-right font-semibold text-star">{gmv}</td>
                   <td className="px-5 py-3 text-right text-green-400 font-medium">{growth}</td>
                 </tr>
               ))}

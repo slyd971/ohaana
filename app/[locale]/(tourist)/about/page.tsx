@@ -44,8 +44,8 @@ export default function AboutPage() {
           <h2 className="text-xl font-display text-charcoal mb-6">Ce en quoi on croit</h2>
           <div className="grid sm:grid-cols-2 gap-5">
             {VALUES.map(({ Icon, title, text }) => (
-              <div key={title} className="flex gap-4 p-5 rounded-2xl bg-surface border border-mist">
-                <div className="w-9 h-9 rounded-xl bg-sand flex items-center justify-center flex-none">
+              <div key={title} className="flex gap-4 p-5 rounded-card bg-surface border border-mist">
+                <div className="w-9 h-9 rounded-control bg-sand flex items-center justify-center flex-none">
                   <Icon size={16} className="text-deep-green" />
                 </div>
                 <div>
@@ -80,7 +80,7 @@ export default function AboutPage() {
         </div>
 
         {/* CTA */}
-        <div className="rounded-2xl bg-deep-green px-7 py-8 text-center space-y-4">
+        <div className="rounded-card bg-deep-green px-7 py-8 text-center space-y-4">
           <p className="text-xs text-coconut/50 uppercase tracking-widest">Rejoignez l&apos;aventure</p>
           <h2 className="text-xl font-display text-coconut">Vous êtes prestataire aux Antilles ?</h2>
           <p className="text-sm text-coconut/60 leading-relaxed max-w-sm mx-auto">

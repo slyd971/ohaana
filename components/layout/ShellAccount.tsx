@@ -21,7 +21,7 @@ export function ShellAccount({ space }: { space: 'admin' | 'provider' }) {
 
   if (isDemo) {
     return (
-      <div className="mx-3 mb-3 rounded-xl bg-white/5 px-3 py-2.5 text-xs text-white/50">Mode démo : aucun compte connecté.</div>
+      <div className="mx-3 mb-3 rounded-control bg-white/5 px-3 py-2.5 text-xs text-white/50">Mode démo : aucun compte connecté.</div>
     )
   }
   if (!user) return null
@@ -33,7 +33,7 @@ export function ShellAccount({ space }: { space: 'admin' | 'provider' }) {
     : { href: '/admin/dashboard', label: 'Espace admin' }
 
   return (
-    <div className="mx-3 mb-3 rounded-xl bg-white/5 px-3 py-3">
+    <div className="mx-3 mb-3 rounded-control bg-white/5 px-3 py-3">
       <Link href={space === 'admin' ? '/admin/settings' : '/provider/settings'} className="flex items-center gap-3" title="Gérer mon compte">
         <span
           aria-hidden
@@ -44,7 +44,7 @@ export function ShellAccount({ space }: { space: 'admin' | 'provider' }) {
         <div className="min-w-0">
           <p className="truncate text-sm font-medium text-white">{name}</p>
           {user.fullName && <p className="truncate text-[11px] text-white/45">{user.email}</p>}
-          <p className="mt-0.5 inline-block rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-medium text-white/70">
+          <p className="mt-0.5 inline-block rounded-full bg-white/10 px-2 py-0.5 text-xs font-medium text-white/70">
             {ROLE_LABELS[role ?? ''] ?? role}
           </p>
         </div>

@@ -15,8 +15,8 @@ export default async function ProviderDashboard() {
   const { provider } = ctx
 
   const kpis = [
-    { label: 'Réservations ce mois', value: String(stats.bookingsThisMonth), Icon: CalendarDays, color: 'bg-turquoise/10 text-turquoise' },
-    { label: 'Revenu net ce mois', value: eur(stats.netRevenueThisMonthCents), Icon: TrendingUp, color: 'bg-coral/10 text-coral' },
+    { label: 'Réservations ce mois', value: String(stats.bookingsThisMonth), Icon: CalendarDays, color: 'bg-turquoise/10 text-turquoise-text' },
+    { label: 'Revenu net ce mois', value: eur(stats.netRevenueThisMonthCents), Icon: TrendingUp, color: 'bg-coral/10 text-coral-text' },
     { label: 'Services publiés', value: String(stats.publishedServices), hint: stats.pendingServices ? `${stats.pendingServices} en relecture` : '', Icon: Briefcase, color: 'bg-deep-green/10 text-deep-green' },
     { label: 'Note moyenne', value: provider.review_count > 0 ? provider.avg_rating.toFixed(1) : '—', hint: `${provider.review_count} avis`, Icon: Star, color: 'bg-sand text-deep-green' },
   ]
@@ -26,7 +26,7 @@ export default async function ProviderDashboard() {
       <PageHeader title={`Bonjour, ${provider.business_name}`} subtitle="Voici un résumé réel de votre activité." />
       <ApprovalBanner provider={provider} />
       {provider.is_approved && !provider.stripe_onboarded && (
-        <div className="rounded-xl bg-coral/10 text-coral text-xs px-4 py-3">
+        <div className="rounded-control bg-coral/10 text-coral-text text-xs px-4 py-3">
           <strong>Configurez vos paiements</strong> pour pouvoir recevoir des réservations :{' '}
           <Link href="/provider/paiements" className="underline">ouvrir la page Paiements</Link>.
         </div>
@@ -34,8 +34,8 @@ export default async function ProviderDashboard() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {kpis.map(({ label, value, hint, Icon, color }) => (
-          <div key={label} className="bg-coconut rounded-2xl p-4 border border-mist shadow-sm">
-            <div className={`inline-flex items-center justify-center w-9 h-9 rounded-xl mb-3 ${color}`}>
+          <div key={label} className="bg-coconut rounded-card p-4 border border-mist shadow-sm">
+            <div className={`inline-flex items-center justify-center w-9 h-9 rounded-control mb-3 ${color}`}>
               <Icon size={18} />
             </div>
             <p className="text-2xl font-display text-charcoal">{value}</p>
@@ -51,7 +51,7 @@ export default async function ProviderDashboard() {
       </p>
 
       <div className="grid md:grid-cols-2 gap-6">
-        <section className="bg-coconut rounded-2xl border border-mist shadow-sm overflow-hidden">
+        <section className="bg-coconut rounded-card border border-mist shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-mist flex items-center gap-2">
             <Clock size={15} className="text-deep-green" />
             <h2 className="text-sm font-semibold text-charcoal">Prochaines prestations</h2>
@@ -62,7 +62,7 @@ export default async function ProviderDashboard() {
             <ul className="divide-y divide-mist">
               {stats.upcoming.map((b) => (
                 <li key={b.id} className="px-5 py-3.5 flex items-start gap-3">
-                  <CheckCircle size={15} className="text-turquoise mt-0.5" />
+                  <CheckCircle size={15} className="text-turquoise-text mt-0.5" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-charcoal truncate">{b.tourist_first_name || 'Voyageur'} · {b.guests_count} pers.</p>
                     <p className="text-xs text-stone truncate">{b.title_fr}</p>
@@ -74,10 +74,10 @@ export default async function ProviderDashboard() {
           )}
         </section>
 
-        <section className="bg-coconut rounded-2xl border border-mist shadow-sm overflow-hidden">
+        <section className="bg-coconut rounded-card border border-mist shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-mist flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <AlertCircle size={15} className="text-coral" />
+              <AlertCircle size={15} className="text-coral-text" />
               <h2 className="text-sm font-semibold text-charcoal">Paiements en attente</h2>
             </div>
             <Link href="/provider/reservations" className="text-xs text-deep-green hover:underline">Tout voir</Link>

@@ -1,8 +1,9 @@
 import { CalendarDays, TrendingUp, Wallet, Briefcase, Clock, CheckCircle, AlertCircle } from 'lucide-react'
+import { Button } from '@/components/ui/Button'
 
 const KPI = [
-  { label: 'Réservations ce mois', value: '12', delta: '+3 vs mois dernier', Icon: CalendarDays, color: 'bg-turquoise/10 text-turquoise' },
-  { label: 'Revenus nets', value: '4 320 €', delta: '+18%', Icon: TrendingUp, color: 'bg-coral/10 text-coral' },
+  { label: 'Réservations ce mois', value: '12', delta: '+3 vs mois dernier', Icon: CalendarDays, color: 'bg-turquoise/10 text-turquoise-text' },
+  { label: 'Revenus nets', value: '4 320 €', delta: '+18%', Icon: TrendingUp, color: 'bg-coral/10 text-coral-text' },
   { label: 'Panier moyen', value: '360 €', delta: '+12%', Icon: Wallet, color: 'bg-sand text-deep-green' },
   { label: 'Services actifs', value: '3', delta: '', Icon: Briefcase, color: 'bg-deep-green/10 text-deep-green' },
 ]
@@ -29,20 +30,20 @@ export function DemoDashboard() {
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {KPI.map(({ label, value, delta, Icon, color }) => (
-          <div key={label} className="bg-coconut rounded-2xl p-4 border border-mist shadow-sm">
-            <div className={`inline-flex items-center justify-center w-9 h-9 rounded-xl mb-3 ${color}`}>
+          <div key={label} className="bg-coconut rounded-card p-4 border border-mist shadow-sm">
+            <div className={`inline-flex items-center justify-center w-9 h-9 rounded-control mb-3 ${color}`}>
               <Icon size={18} />
             </div>
             <p className="text-2xl font-display text-charcoal">{value}</p>
             <p className="text-xs text-stone mt-0.5">{label}</p>
-            {delta && <p className="text-xs text-turquoise font-medium mt-1">{delta}</p>}
+            {delta && <p className="text-xs text-turquoise-text font-medium mt-1">{delta}</p>}
           </div>
         ))}
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Upcoming */}
-        <div className="bg-coconut rounded-2xl border border-mist shadow-sm overflow-hidden">
+        <div className="bg-coconut rounded-card border border-mist shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-mist flex items-center gap-2">
             <Clock size={15} className="text-deep-green" />
             <h2 className="text-sm font-semibold text-charcoal">Prochaines prestations</h2>
@@ -52,8 +53,8 @@ export function DemoDashboard() {
               <li key={id} className="px-5 py-3.5 flex items-start gap-3">
                 <div className="mt-0.5">
                   {status === 'confirmed'
-                    ? <CheckCircle size={15} className="text-turquoise" />
-                    : <AlertCircle size={15} className="text-[#F5A623]" />}
+                    ? <CheckCircle size={15} className="text-turquoise-text" />
+                    : <AlertCircle size={15} className="text-star" />}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-charcoal truncate">{client}</p>
@@ -66,13 +67,13 @@ export function DemoDashboard() {
         </div>
 
         {/* Pending requests */}
-        <div className="bg-coconut rounded-2xl border border-mist shadow-sm overflow-hidden">
+        <div className="bg-coconut rounded-card border border-mist shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-mist flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <AlertCircle size={15} className="text-coral" />
+              <AlertCircle size={15} className="text-coral-text" />
               <h2 className="text-sm font-semibold text-charcoal">Demandes en attente</h2>
             </div>
-            <span className="text-xs bg-coral/10 text-coral rounded-full px-2 py-0.5 font-medium">{REQUESTS.length} nouvelles</span>
+            <span className="text-xs bg-coral/10 text-coral-text rounded-full px-2 py-0.5 font-medium">{REQUESTS.length} nouvelles</span>
           </div>
           <ul className="divide-y divide-mist">
             {REQUESTS.map(({ id, client, service, date, budget }) => (
@@ -85,9 +86,9 @@ export function DemoDashboard() {
                 <div className="text-right shrink-0">
                   <p className="text-sm font-semibold text-deep-green">{budget}</p>
                   <div className="flex gap-1.5 mt-1.5">
-                    <button className="text-xs bg-deep-green text-coconut px-2.5 py-1 rounded-lg hover:bg-deep-green/90 transition-colors">
+                    <Button size="sm">
                       Accepter
-                    </button>
+                    </Button>
                     <button className="text-xs border border-mist text-stone px-2.5 py-1 rounded-lg hover:bg-sand transition-colors">
                       Refuser
                     </button>

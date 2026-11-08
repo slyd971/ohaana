@@ -3,6 +3,7 @@
 import { useActionState } from 'react'
 import { saveCategoryAction } from '@/app/actions/admin'
 import { Field, inputClass } from '@/components/provider/ui'
+import { Button } from '@/components/ui/Button'
 import type { ActionState } from '@/lib/provider/schemas'
 
 export interface CategoryRow {
@@ -51,11 +52,11 @@ export function CategoryForm({ category, submitLabel }: { category?: CategoryRow
           Visible sur le site
         </label>
       </div>
-      {state.error && <p role="alert" className="text-sm text-[#C0392B]">{state.error}</p>}
+      {state.error && <p role="alert" className="text-sm text-danger">{state.error}</p>}
       {state.message && <p role="status" className="text-sm text-turquoise">{state.message}</p>}
-      <button type="submit" disabled={pending} className="bg-deep-green text-coconut px-5 py-2 rounded-full text-sm font-medium hover:bg-deep-green/90 disabled:opacity-60">
+      <Button type="submit" size="sm" loading={pending} className="rounded-full">
         {pending ? 'Enregistrement…' : submitLabel}
-      </button>
+      </Button>
     </form>
   )
 }

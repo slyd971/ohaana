@@ -3,7 +3,7 @@ import { Users2, Briefcase, CreditCard, TrendingUp, CheckCircle, XCircle, Clock,
 const KPI = [
   { label: 'Utilisateurs total', value: '1 247', delta: '+48 ce mois', Icon: Users2, color: 'text-blue-400' },
   { label: 'Prestataires actifs', value: '63', delta: '5 en attente', Icon: Briefcase, color: 'text-turquoise' },
-  { label: 'Volume transactions', value: '87 400 €', delta: 'Juin 2026', Icon: CreditCard, color: 'text-[#F5A623]' },
+  { label: 'Volume transactions', value: '87 400 €', delta: 'Juin 2026', Icon: CreditCard, color: 'text-star' },
   { label: 'Croissance GMV', value: '+34%', delta: 'vs mai 2026', Icon: TrendingUp, color: 'text-green-400' },
 ]
 
@@ -33,7 +33,7 @@ export function DemoAdminDashboard() {
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {KPI.map(({ label, value, delta, Icon, color }) => (
-          <div key={label} className="bg-white/5 rounded-2xl p-4 border border-white/8 backdrop-blur-sm">
+          <div key={label} className="bg-white/5 rounded-card p-4 border border-white/8 backdrop-blur-sm">
             <Icon size={18} className={`mb-3 ${color}`} />
             <p className="text-2xl font-display text-white">{value}</p>
             <p className="text-xs text-white/40 mt-0.5">{label}</p>
@@ -44,13 +44,13 @@ export function DemoAdminDashboard() {
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Pending provider approvals */}
-        <div className="bg-white/5 rounded-2xl border border-white/8 overflow-hidden">
+        <div className="bg-white/5 rounded-card border border-white/8 overflow-hidden">
           <div className="px-5 py-4 border-b border-white/8 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <AlertTriangle size={15} className="text-[#F5A623]" />
+              <AlertTriangle size={15} className="text-star" />
               <h2 className="text-sm font-semibold text-white">Prestataires à valider</h2>
             </div>
-            <span className="text-xs bg-[#F5A623]/15 text-[#F5A623] rounded-full px-2 py-0.5 font-medium">5 en attente</span>
+            <span className="text-xs bg-star/15 text-star rounded-full px-2 py-0.5 font-medium">5 en attente</span>
           </div>
           <ul className="divide-y divide-white/5">
             {PENDING_PROVIDERS.map(({ id, name, category, location, submitted, docs }) => (
@@ -82,9 +82,9 @@ export function DemoAdminDashboard() {
         </div>
 
         {/* Recent transactions */}
-        <div className="bg-white/5 rounded-2xl border border-white/8 overflow-hidden">
+        <div className="bg-white/5 rounded-card border border-white/8 overflow-hidden">
           <div className="px-5 py-4 border-b border-white/8 flex items-center gap-2">
-            <CreditCard size={15} className="text-[#F5A623]" />
+            <CreditCard size={15} className="text-star" />
             <h2 className="text-sm font-semibold text-white">Transactions récentes</h2>
           </div>
           <ul className="divide-y divide-white/5">
@@ -96,7 +96,7 @@ export function DemoAdminDashboard() {
                 </div>
                 <div className="flex items-center justify-between">
                   <p className="text-xs text-white/35">{date} · Commission: {commission}</p>
-                  <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${status === 'completed' ? 'bg-green-500/15 text-green-400' : 'bg-[#F5A623]/15 text-[#F5A623]'}`}>
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${status === 'completed' ? 'bg-green-500/15 text-green-400' : 'bg-star/15 text-star'}`}>
                     {status === 'completed' ? 'Complété' : 'En attente'}
                   </span>
                 </div>

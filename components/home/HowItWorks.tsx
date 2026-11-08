@@ -52,10 +52,10 @@ export function HowItWorks() {
             className="flex flex-col items-center text-center gap-4"
           >
             <div className="relative">
-              <div className="w-20 h-20 rounded-2xl bg-sand border border-mist flex items-center justify-center shadow-sm">
+              <div className="w-20 h-20 rounded-card bg-sand border border-mist flex items-center justify-center shadow-sm">
                 <Icon size={28} className="text-deep-green" />
               </div>
-              <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-deep-green text-coconut text-[10px] font-bold flex items-center justify-center">
+              <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-deep-green text-coconut text-xs font-bold flex items-center justify-center">
                 {number.slice(1)}
               </span>
             </div>

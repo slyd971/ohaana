@@ -7,7 +7,7 @@ export default function AdminAccountPage() {
         <h1 className="text-2xl font-display text-white">Mon compte</h1>
         <p className="text-white/40 text-sm mt-0.5">Identifiants de connexion de votre compte administrateur.</p>
       </div>
-      <div className="bg-sand rounded-2xl p-3 md:p-4">
+      <div className="bg-sand rounded-card p-3 md:p-4">
         <AccountSecurity returnTo="/admin/settings" />
       </div>
     </div>

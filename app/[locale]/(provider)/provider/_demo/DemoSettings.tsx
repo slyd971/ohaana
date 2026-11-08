@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/Button'
 import { User, MapPin, Bell, Lock, Globe } from 'lucide-react'
 
 const SECTIONS = [
@@ -50,7 +51,7 @@ export function DemoSettings() {
       <h1 className="text-2xl font-display text-deep-green">Paramètres</h1>
 
       {SECTIONS.map(({ title, Icon, fields }) => (
-        <div key={title} className="bg-coconut rounded-2xl border border-mist overflow-hidden">
+        <div key={title} className="bg-coconut rounded-card border border-mist overflow-hidden">
           <div className="flex items-center gap-2.5 px-5 py-4 border-b border-mist">
             <Icon size={15} className="text-deep-green" />
             <h2 className="text-sm font-semibold text-charcoal">{title}</h2>
@@ -64,7 +65,7 @@ export function DemoSettings() {
             ))}
           </div>
           <div className="px-5 py-3 border-t border-mist">
-            <button type="button" className="text-xs text-deep-green hover:underline">Modifier</button>
+            <Button variant="link" size="bare" type="button" className="text-xs">Modifier</Button>
           </div>
         </div>
       ))}

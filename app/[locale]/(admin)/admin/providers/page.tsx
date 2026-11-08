@@ -86,7 +86,7 @@ export default function AdminProvidersPage() {
         </div>
         <Link
           href="/admin/providers/new"
-          className="flex-none text-xs bg-turquoise/20 text-turquoise border border-turquoise/30 px-4 py-2 rounded-xl hover:bg-turquoise/30"
+          className="flex-none text-xs bg-turquoise/20 text-turquoise border border-turquoise/30 px-4 py-2 rounded-control hover:bg-turquoise/30"
         >
           + Nouveau prestataire
         </Link>
@@ -101,7 +101,7 @@ export default function AdminProvidersPage() {
             placeholder="Nom, activité, île…"
             value={query}
             onChange={e => setQuery(e.target.value)}
-            className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-turquoise/50"
+            className="w-full bg-white/5 border border-white/10 rounded-control pl-9 pr-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-turquoise/50"
           />
         </div>
         <div className="flex gap-2">
@@ -110,7 +110,7 @@ export default function AdminProvidersPage() {
               key={f}
               onClick={() => setFilter(f)}
               className={cn(
-                'px-4 py-2 rounded-xl text-xs font-medium transition-colors',
+                'px-4 py-2 rounded-control text-xs font-medium transition-colors',
                 filter === f
                   ? 'bg-turquoise/20 text-turquoise border border-turquoise/30'
                   : 'bg-white/5 text-white/50 border border-white/10 hover:text-white/80'
@@ -123,7 +123,7 @@ export default function AdminProvidersPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white/5 rounded-2xl border border-white/8 overflow-hidden">
+      <div className="bg-white/5 rounded-card border border-white/8 overflow-hidden">
         <div className="hidden md:grid grid-cols-[2fr_1.5fr_1fr_1fr_1fr_auto] gap-4 px-5 py-3 border-b border-white/8 text-xs text-white/30 font-medium uppercase tracking-wider">
           <span>Prestataire</span>
           <span>Activité</span>
@@ -155,7 +155,7 @@ export default function AdminProvidersPage() {
                 <p className="text-sm text-white/60">{p.certifications?.[0] ?? '—'}</p>
                 <p className="text-sm text-white/60">{ISLAND_LABELS[p.island] ?? p.island}</p>
                 <div className="flex items-center gap-1">
-                  <Star size={12} className="text-[#F5A623] fill-[#F5A623]" />
+                  <Star size={12} className="text-star fill-star" />
                   <span className="text-sm text-white/80">{p.avg_rating.toFixed(1)}</span>
                   <span className="text-xs text-white/30">({p.review_count})</span>
                 </div>
@@ -173,7 +173,7 @@ export default function AdminProvidersPage() {
                 <div>
                   {isPending ? (
                     <div className="flex items-center gap-1.5">
-                      <span className="inline-flex items-center gap-1 text-xs text-[#F5A623] bg-[#F5A623]/10 rounded-full px-2 py-0.5">
+                      <span className="inline-flex items-center gap-1 text-xs text-star bg-star/10 rounded-full px-2 py-0.5">
                         <AlertTriangle size={10} /> En attente
                       </span>
                       <button type="button" onClick={() => void setApproval(p.id, true)} aria-label={`Approuver ${p.business_name}`} className="p-1.5 bg-green-500/15 text-green-400 rounded-lg hover:bg-green-500/25 transition-colors" title="Approuver">

@@ -141,7 +141,7 @@ export default function RegisterPage({ searchParams }: RegisterPageProps) {
               role="radio"
               aria-checked={role === r.value}
               onClick={() => setRole(r.value)}
-              className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
+              className={`w-full p-4 rounded-control border-2 text-left transition-all ${
                 role === r.value ? 'border-deep-green bg-deep-green/5' : 'border-mist bg-surface hover:border-stone'
               }`}
             >
@@ -224,10 +224,10 @@ export default function RegisterPage({ searchParams }: RegisterPageProps) {
               })}
             </span>
           </label>
-          {fieldError('acceptTerms') && <p role="alert" className="mt-1 text-xs text-coral">{fieldError('acceptTerms')}</p>}
+          {fieldError('acceptTerms') && <p role="alert" className="mt-1 text-xs text-coral-text">{fieldError('acceptTerms')}</p>}
         </div>
 
-        {formError && <p role="alert" className="text-sm text-coral">{t(`errors.${formError}` as 'errors.generic')}</p>}
+        {formError && <p role="alert" className="text-sm text-coral-text">{t(`errors.${formError}` as 'errors.generic')}</p>}
 
         <Button type="submit" loading={loading} fullWidth size="lg" className="mt-2">{t('register')}</Button>
       </form>

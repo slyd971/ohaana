@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { Button } from '@/components/ui/Button'
 import { generateSlotsAction, setDayBlockedAction } from '@/app/actions/provider'
 import type { SlotDay } from '@/lib/provider/queries'
 import type { ActionState } from '@/lib/provider/schemas'
@@ -58,7 +59,7 @@ export function AvailabilityEditor({
 
   return (
     <div className="space-y-6">
-      <section className="bg-coconut rounded-2xl border border-mist p-5 space-y-4">
+      <section className="bg-coconut rounded-card border border-mist p-5 space-y-4">
         <h2 className="text-sm font-semibold text-deep-green">Générer des créneaux</h2>
         <fieldset>
           <legend className="text-xs font-semibold text-charcoal mb-2">Jours de la semaine</legend>
@@ -119,21 +120,16 @@ export function AvailabilityEditor({
               <option value={180}>180 jours</option>
             </select>
           </label>
-          <button
-            type="button"
-            disabled={pending}
-            onClick={() => run(() => generate({ service_id: serviceId, weekdays, times, horizon_days: horizon }))}
-            className="bg-deep-green text-coconut px-5 py-2.5 rounded-full text-sm font-medium hover:bg-deep-green/90 disabled:opacity-60 transition-colors"
-          >
+          <Button size="sm" type="button" disabled={pending} onClick={() => run(() => generate({ service_id: serviceId, weekdays, times, horizon_days: horizon }))} className="rounded-full">
             {pending ? 'Génération…' : 'Générer les créneaux'}
-          </button>
+          </Button>
         </div>
 
-        {result?.error && <p role="alert" className="text-sm text-[#C0392B]">{result.error}</p>}
-        {result?.message && <p role="status" className="text-sm text-turquoise">{result.message}</p>}
+        {result?.error && <p role="alert" className="text-sm text-danger">{result.error}</p>}
+        {result?.message && <p role="status" className="text-sm text-turquoise-text">{result.message}</p>}
       </section>
 
-      <section className="bg-coconut rounded-2xl border border-mist overflow-hidden">
+      <section className="bg-coconut rounded-card border border-mist overflow-hidden">
         <div className="px-5 py-4 border-b border-mist">
           <h2 className="text-sm font-semibold text-deep-green">Prochains jours</h2>
           <p className="text-[11px] text-stone mt-0.5">Bloquez un jour (congé, indisponibilité). Les créneaux déjà réservés ne sont pas affectés.</p>

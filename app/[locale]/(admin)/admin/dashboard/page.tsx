@@ -40,8 +40,8 @@ export default async function AdminDashboard() {
     { label: 'Utilisateurs', value: String(users.count ?? 0), hint: '', Icon: Users2, color: 'text-blue-400' },
     { label: 'Prestataires approuvés', value: String(providersOk.count ?? 0), hint: `${providersPending.count ?? 0} en attente`, Icon: Briefcase, color: 'text-turquoise' },
     { label: 'Services publiés', value: String(servicesPub.count ?? 0), hint: `${servicesReview.count ?? 0} en relecture`, Icon: Briefcase, color: 'text-green-400' },
-    { label: 'Réservations confirmées', value: String(bookingsDone.count ?? 0), hint: '', Icon: CalendarCheck, color: 'text-[#F5A623]' },
-    { label: 'Volume encaissé (GMV)', value: eur(gmv), hint: `dont ${eur(fees)} de commission Ohaana`, Icon: CreditCard, color: 'text-[#F5A623]' },
+    { label: 'Réservations confirmées', value: String(bookingsDone.count ?? 0), hint: '', Icon: CalendarCheck, color: 'text-star' },
+    { label: 'Volume encaissé (GMV)', value: eur(gmv), hint: `dont ${eur(fees)} de commission Ohaana`, Icon: CreditCard, color: 'text-star' },
     { label: 'Leads à traiter', value: String(leadsNew.count ?? 0), hint: '', Icon: Inbox, color: 'text-coral' },
   ]
 
@@ -54,7 +54,7 @@ export default async function AdminDashboard() {
 
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         {kpis.map(({ label, value, hint, Icon, color }) => (
-          <div key={label} className="bg-white/5 rounded-2xl p-4 border border-white/8">
+          <div key={label} className="bg-white/5 rounded-card p-4 border border-white/8">
             <Icon size={18} className={`mb-3 ${color}`} />
             <p className="text-2xl font-display text-white">{value}</p>
             <p className="text-xs text-white/40 mt-0.5">{label}</p>
@@ -66,7 +66,7 @@ export default async function AdminDashboard() {
       {pendingRefunds.length > 0 && <PendingRefunds rows={pendingRefunds} />}
 
       <div className="grid md:grid-cols-2 gap-6">
-        <section aria-labelledby="todo-title" className="bg-white/5 rounded-2xl border border-white/8 overflow-hidden">
+        <section aria-labelledby="todo-title" className="bg-white/5 rounded-card border border-white/8 overflow-hidden">
           <div className="px-5 py-4 border-b border-white/8 flex items-center justify-between">
             <h2 id="todo-title" className="text-sm font-semibold text-white">Prestataires à valider</h2>
             <Link href="/admin/providers" className="text-xs text-turquoise hover:underline">Tout voir</Link>
@@ -92,7 +92,7 @@ export default async function AdminDashboard() {
           )}
         </section>
 
-        <section aria-labelledby="pay-title" className="bg-white/5 rounded-2xl border border-white/8 overflow-hidden">
+        <section aria-labelledby="pay-title" className="bg-white/5 rounded-card border border-white/8 overflow-hidden">
           <div className="px-5 py-4 border-b border-white/8">
             <h2 id="pay-title" className="text-sm font-semibold text-white">Derniers paiements</h2>
           </div>
