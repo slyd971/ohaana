@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { setBookingStatusAction, setServiceArchivedAction, submitServiceAction } from '@/app/actions/provider'
 import type { ActionState } from '@/lib/provider/schemas'
+import { ConfirmButton } from '@/components/ui/ConfirmButton'
 
 function useRun() {
   const [pending, start] = useTransition()
@@ -38,18 +39,14 @@ export function ServiceActions({ id, status }: { id: string; status: string }) {
           </button>
         )}
         {status !== 'archived' ? (
-          <button
-            type="button"
+          <ConfirmButton
+            label="Archiver"
+            message="Retirer cette fiche du site ? Vous pourrez la remettre en brouillon ensuite."
+            confirmLabel="Archiver"
             disabled={pending}
-            onClick={() => {
-              if (window.confirm('Retirer cette fiche du site ? Vous pourrez la remettre en brouillon ensuite.')) {
-                run(() => setServiceArchivedAction(id, true))
-              }
-            }}
+            onConfirm={() => run(() => setServiceArchivedAction(id, true))}
             className={secondary}
-          >
-            Archiver
-          </button>
+          />
         ) : (
           <button type="button" disabled={pending} onClick={() => run(() => setServiceArchivedAction(id, false))} className={secondary}>
             Remettre en brouillon
@@ -83,18 +80,14 @@ export function BookingActions({
           </button>
         )}
         {canCancel && (
-          <button
-            type="button"
+          <ConfirmButton
+            label="Annuler (remboursement intégral)"
+            message="Annuler cette réservation ? Le voyageur sera remboursé intégralement."
+            confirmLabel="Annuler la réservation"
             disabled={pending}
-            onClick={() => {
-              if (window.confirm('Annuler cette réservation ? Le voyageur sera remboursé intégralement.')) {
-                run(() => setBookingStatusAction(id, 'cancelled_provider'))
-              }
-            }}
+            onConfirm={() => run(() => setBookingStatusAction(id, 'cancelled_provider'))}
             className={secondary}
-          >
-            Annuler (remboursement intégral)
-          </button>
+          />
         )}
       </div>
       <Feedback result={result} />

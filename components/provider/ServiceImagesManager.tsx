@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 import { IMAGE_BUCKET, MAX_PHOTOS, MIN_PHOTOS, type ImageOp, type ServiceImage } from '@/lib/provider/images'
 import type { ActionState } from '@/lib/provider/schemas'
 import { inputClass } from './ui'
+import { ConfirmButton } from '@/components/ui/ConfirmButton'
 
 const MAX_SIDE = 1600
 const MAX_INPUT_BYTES = 25 * 1024 * 1024
@@ -147,16 +148,15 @@ export function ServiceImagesManager({
                       <Star size={12} /> Couverture
                     </button>
                   )}
-                  <button
-                    type="button"
+                  <ConfirmButton
+                    label={<><Trash2 size={12} /> Supprimer</>}
+                    ariaLabel="Supprimer cette photo"
+                    message="Supprimer cette photo ? Cette action est définitive."
+                    confirmLabel="Supprimer"
                     disabled={disabled}
-                    onClick={() => {
-                      if (window.confirm('Supprimer cette photo ?')) run({ op: 'delete', serviceId, imageId: img.id })
-                    }}
+                    onConfirm={() => run({ op: 'delete', serviceId, imageId: img.id })}
                     className="inline-flex items-center gap-1 text-xs border border-mist text-[#C0392B] px-2.5 py-1.5 rounded-lg hover:bg-sand disabled:opacity-40"
-                  >
-                    <Trash2 size={12} /> Supprimer
-                  </button>
+                  />
                 </div>
               </div>
             </li>
