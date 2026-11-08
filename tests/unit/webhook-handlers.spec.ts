@@ -60,12 +60,13 @@ test.describe('handleStripeEvent', () => {
 
   test('charge.refunded distinguishes a full refund from a partial one', async () => {
     const full = makeDeps('refunded')
-    await handleStripeEvent(event('charge.refunded', { id: 'ch_1', payment_intent: 'pi_1', refunded: true }), full.deps)
-    expect(full.calls[0]).toEqual({ fn: 'apply_charge_refunded', args: { p_charge: 'ch_1', p_intent: 'pi_1', p_fully: true } })
+    await handleStripeEvent(event('charge.refunded', { id: 'ch_1', payment_intent: 'pi_1', refunded: true, amount_refunded: 36000 }), full.deps)
+    expect(full.calls[0]).toEqual({ fn: 'apply_charge_refunded', args: { p_charge: 'ch_1', p_intent: 'pi_1', p_fully: true, p_refunded_cents: 36000 } })
 
     const partial = makeDeps('partial')
-    await handleStripeEvent(event('charge.refunded', { id: 'ch_1', payment_intent: 'pi_1', refunded: false }), partial.deps)
+    await handleStripeEvent(event('charge.refunded', { id: 'ch_1', payment_intent: 'pi_1', refunded: false, amount_refunded: 10000 }), partial.deps)
     expect(partial.calls[0].args.p_fully).toBe(false)
+    expect(partial.calls[0].args.p_refunded_cents).toBe(10000)
   })
 
   test('account.updated is "ready" only when charges, payouts and details are all complete', async () => {

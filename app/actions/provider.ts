@@ -6,6 +6,10 @@ import { getProviderContext } from '@/lib/provider/context'
 import { profileSchema, submissionProblems, type ActionState } from '@/lib/provider/schemas'
 import { fieldErrors, formObject, isUuid, parseServiceForm } from '@/lib/provider/service-input'
 import { planSlots } from '@/lib/provider/slots'
+import { refundBookingPayment } from '@/lib/stripe/refunds'
+import { PaymentsNotConfigured, providerOnboardingUrl, syncProviderPaymentsStatus } from '@/lib/stripe/connect-service'
+import type { ConnectState } from '@/lib/stripe/connect-status'
+import { hasServiceRole } from '@/lib/supabase/server'
 import { MIN_PHOTOS, applyImageOp, countServiceImages, type ImageOp } from '@/lib/provider/images'
 import { getProviderService } from '@/lib/provider/queries'
 import { slugify } from '@/lib/utils'
@@ -192,6 +196,25 @@ export async function setBookingStatusAction(
 
   revalidatePath('/provider/reservations')
   revalidatePath('/provider/dashboard')
+
+  if (status === 'cancelled_provider') {
+    // Annulation par le prestataire : remboursement intégral (la base fixe refund_pct = 100).
+    if (!hasServiceRole()) return { ok: true, message: 'Réservation annulée.' }
+    try {
+      const outcome = await refundBookingPayment(bookingId)
+      return {
+        ok: true,
+        message:
+          outcome.status === 'refunded'
+            ? 'Réservation annulée : le voyageur est remboursé intégralement.'
+            : 'Réservation annulée.',
+      }
+    } catch (e) {
+      console.error('[provider-cancel] refund failed for', bookingId, e instanceof Error ? e.message : e)
+      // L'annulation est valable ; le remboursement sera relancé par l'équipe (liste « remboursements à traiter »).
+      return { ok: true, message: 'Réservation annulée. Le remboursement du voyageur est en cours de traitement.' }
+    }
+  }
   return { ok: true }
 }
 
@@ -229,4 +252,38 @@ export async function manageServiceImageAction(input: ImageOp): Promise<ActionSt
     revalidatePath(`/provider/services/${service.id}`)
   }
   return result
+}
+
+// ─── Paiements (Stripe Connect) ──────────────────────────────────────────────
+
+function paymentsError(e: unknown): string {
+  if (e instanceof PaymentsNotConfigured) return 'Les paiements ne sont pas encore configurés sur ce site.'
+  console.error('[payments] Stripe error:', e instanceof Error ? e.message : e)
+  return 'Stripe est momentanément indisponible. Réessayez dans un instant.'
+}
+
+/** Ouvre (ou reprend) la configuration du compte de versement : renvoie le lien à usage unique du formulaire Stripe. */
+export async function startPaymentsOnboardingAction(): Promise<ActionState & { url?: string }> {
+  const s = await session()
+  if ('error' in s) return { error: s.error }
+  if (!s.ctx.provider.is_approved) return { error: 'Votre dossier doit d’abord être approuvé par notre équipe.' }
+  try {
+    return { ok: true, url: await providerOnboardingUrl(s.ctx.provider.id, '/provider/paiements') }
+  } catch (e) {
+    return { error: paymentsError(e) }
+  }
+}
+
+/** Relit l'état du compte chez Stripe (au retour du formulaire, ou à la demande). */
+export async function refreshPaymentsStatusAction(): Promise<ActionState & { state?: ConnectState }> {
+  const s = await session()
+  if ('error' in s) return { error: s.error }
+  try {
+    const status = await syncProviderPaymentsStatus(s.ctx.provider.id)
+    revalidatePath('/provider/paiements')
+    revalidatePath('/provider/dashboard')
+    return { ok: true, state: status.state }
+  } catch (e) {
+    return { error: paymentsError(e) }
+  }
 }

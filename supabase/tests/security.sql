@@ -396,6 +396,77 @@ begin
 end $$;
 
 -- ─────────────────────────────────────────────────────────────
+-- 2f. Remboursements d'annulation (migration 011)
+-- ─────────────────────────────────────────────────────────────
+do $$
+declare
+  A constant uuid := 'aaaaaaaa-0000-4000-8000-000000000001';
+  ADMIN constant uuid := 'aaaaaaaa-0000-4000-8000-000000000004';
+  v_service uuid; v_slot uuid; v_b uuid; v_pct integer;
+begin
+  select s.id into v_service from public.services s where s.title_fr like 'Dîner de chef%' limit 1;
+  select id into v_slot from public.availability_slots where service_id = v_service and date = current_date + 40 and start_time = '09:00';
+
+  -- réservation payée puis annulée longtemps à l'avance
+  perform t.as_user(A);
+  v_b := t.scalar(format($q$select (public.create_booking(%L, %L, 2)).id::text$q$, v_service, v_slot))::uuid;
+  perform t.reset();
+  perform t.run(format($q$insert into public.payments (booking_id, stripe_payment_intent_id, status, total_cents, platform_fee_cents, provider_amount_cents)
+    values (%L, 'pi_refund_1', 'pending', 36000, 7200, 28800)$q$, v_b));
+  perform t.eq('payment is confirmed', t.scalar($q$select public.apply_payment_succeeded('pi_refund_1', 'ch_refund_1')$q$), 'confirmed');
+
+  perform t.as_user(A);
+  perform t.run(format($q$select public.cancel_booking(%L, 'test')$q$, v_b));
+  perform t.reset();
+  v_pct := t.scalar(format($q$select refund_pct::text from public.bookings where id = %L$q$, v_b))::int;
+  perform t.eq('a far-ahead cancellation is fully refundable under the default policy', v_pct::text, '100');
+
+  -- la liste « à traiter » : visible par l'admin seulement
+  perform t.as_user(ADMIN);
+  perform t.eq('admin sees the cancelled, paid booking as a pending refund',
+    t.scalar(format($q$select expected_cents::text || '/' || refunded_cents::text from public.admin_pending_refunds() where booking_id = %L$q$, v_b)), '36000/0');
+  perform t.reset();
+  perform t.as_user(A);
+  perform t.fails('a traveler cannot list pending refunds', $q$select * from public.admin_pending_refunds()$q$, '42501');
+  perform t.reset();
+  perform t.as_anon();
+  perform t.fails('anon cannot list pending refunds', $q$select * from public.admin_pending_refunds()$q$, '42501');
+  perform t.reset();
+
+  -- remboursement partiel : le cumul est enregistré, le paiement reste « encaissé »
+  perform t.eq('a partial refund is recorded', t.scalar($q$select public.apply_charge_refunded('ch_refund_1', 'pi_refund_1', false, 10000)$q$), 'partial');
+  perform t.eq('refunded_cents holds the partial amount and the payment stays succeeded',
+    t.scalar($q$select refunded_cents::text || ':' || status::text from public.payments where stripe_payment_intent_id = 'pi_refund_1'$q$), '10000:succeeded');
+  perform t.run($q$select public.apply_charge_refunded('ch_refund_1', 'pi_refund_1', false, 4000)$q$);   -- événement en retard
+  perform t.eq('a late event can never lower the refunded amount',
+    t.scalar($q$select refunded_cents::text from public.payments where stripe_payment_intent_id = 'pi_refund_1'$q$), '10000');
+  perform t.as_user(ADMIN);
+  perform t.eq('the pending refund shrinks to what is still due',
+    t.scalar(format($q$select refunded_cents::text from public.admin_pending_refunds() where booking_id = %L$q$, v_b)), '10000');
+  perform t.reset();
+
+  -- remboursement total : plus rien à traiter
+  perform t.run($q$select public.apply_charge_refunded('ch_refund_1', 'pi_refund_1', true, 36000)$q$);
+  perform t.eq('a full refund sets the payment to refunded with the full amount',
+    t.scalar($q$select status::text || ':' || refunded_cents::text from public.payments where stripe_payment_intent_id = 'pi_refund_1'$q$), 'refunded:36000');
+  perform t.as_user(ADMIN);
+  perform t.eq('the booking disappears from the pending list once refunded',
+    t.scalar(format($q$select count(*)::text from public.admin_pending_refunds() where booking_id = %L$q$, v_b)), '0');
+  perform t.reset();
+
+  -- le cumul ne dépasse jamais le total payé
+  perform t.run($q$select public.apply_charge_refunded('ch_refund_1', 'pi_refund_1', true, 99999)$q$);
+  perform t.eq('refunded_cents is capped at the amount paid',
+    t.scalar($q$select refunded_cents::text from public.payments where stripe_payment_intent_id = 'pi_refund_1'$q$), '36000');
+
+  -- nettoyage
+  perform t.run(format($q$delete from public.notifications where (payload->>'booking_id')::uuid = %L$q$, v_b));
+  perform t.run(format($q$delete from public.payments where booking_id = %L$q$, v_b));
+  perform t.run(format($q$delete from public.bookings where id = %L$q$, v_b));
+  perform t.run(format($q$update public.availability_slots set is_available = true where id = %L$q$, v_slot));
+end $$;
+
+-- ─────────────────────────────────────────────────────────────
 -- 2d. Commission (migration 009) : lecture publique bornée, écriture admin validée
 -- ─────────────────────────────────────────────────────────────
 do $$
