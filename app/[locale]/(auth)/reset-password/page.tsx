@@ -79,7 +79,7 @@ export default function ResetPasswordPage() {
           leftIcon={<Mail size={16} />}
           error={errors.email ? t(`validation.${errors.email}` as 'validation.required') : undefined}
         />
-        {formError && <p role="alert" className="text-sm text-coral">{t(`errors.${formError}` as 'errors.generic')}</p>}
+        {formError && <p role="alert" className="text-sm text-coral-text">{t(`errors.${formError}` as 'errors.generic')}</p>}
         <Button type="submit" fullWidth variant="primary" loading={loading}>{t('sendResetLink')}</Button>
       </form>
 

@@ -23,7 +23,7 @@ export default async function AdminCategoriesPage() {
         </p>
       </div>
 
-      <details className="bg-white/5 rounded-2xl border border-white/8">
+      <details className="bg-white/5 rounded-card border border-white/8">
         <summary className="cursor-pointer px-5 py-4 text-sm font-semibold text-turquoise">+ Nouvelle catégorie</summary>
         <div className="bg-sand rounded-b-2xl p-4">
           <CategoryForm submitLabel="Créer la catégorie" />
@@ -33,14 +33,14 @@ export default async function AdminCategoriesPage() {
       <ul className="space-y-3">
         {categories.map((c) => (
           <li key={c.id}>
-            <details className="bg-white/5 rounded-2xl border border-white/8">
+            <details className="bg-white/5 rounded-card border border-white/8">
               <summary className="cursor-pointer px-5 py-4 flex items-center justify-between gap-3 text-sm text-white">
                 <span>
                   <span aria-hidden className="mr-2">{c.icon}</span>
                   {c.name_fr}
                   <span className="ml-2 text-xs text-white/40">{c.slug} · ordre {c.sort_order}</span>
                 </span>
-                {!c.is_active && <span className="text-[10px] rounded-full bg-white/10 text-white/60 px-2 py-0.5">Masquée</span>}
+                {!c.is_active && <span className="text-xs rounded-full bg-white/10 text-white/60 px-2 py-0.5">Masquée</span>}
               </summary>
               <div className="bg-sand rounded-b-2xl p-4">
                 <CategoryForm category={c} submitLabel="Enregistrer" />

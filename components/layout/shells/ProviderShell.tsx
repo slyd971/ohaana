@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { IconButton } from '@/components/ui/IconButton'
 import { usePathname } from 'next/navigation'
 import { Link } from '@/lib/i18n/navigation'
 import { useAuth } from '@/lib/auth/AuthProvider'
@@ -51,7 +52,7 @@ export function ProviderShell({ children }: { children: React.ReactNode }) {
                 href={href}
                 onClick={() => setOpen(false)}
                 className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors',
+                  'flex items-center gap-3 px-3 py-2.5 rounded-control text-sm font-medium transition-colors',
                   active
                     ? 'bg-coconut/15 text-coconut'
                     : 'text-coconut/55 hover:text-coconut hover:bg-coconut/10'
@@ -70,7 +71,7 @@ export function ProviderShell({ children }: { children: React.ReactNode }) {
         <div className="px-3 pb-4">
           <Link
             href="/"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-coconut/55 hover:text-coconut hover:bg-coconut/10 transition-colors"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-control text-sm text-coconut/55 hover:text-coconut hover:bg-coconut/10 transition-colors"
           >
             <ArrowLeft size={17} />
             Retour au site
@@ -78,7 +79,7 @@ export function ProviderShell({ children }: { children: React.ReactNode }) {
           <button
             type="button"
             onClick={() => void signOut()}
-            className="mt-1 flex w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/40 hover:text-white hover:bg-white/5 transition-colors"
+            className="mt-1 flex w-full items-center gap-3 px-3 py-2.5 rounded-control text-sm text-white/40 hover:text-white hover:bg-white/5 transition-colors"
           >
             <LogOut size={17} />
             {isDemo ? 'Quitter la démo' : 'Se déconnecter'}
@@ -92,9 +93,9 @@ export function ProviderShell({ children }: { children: React.ReactNode }) {
 
       <div className="flex-1 flex flex-col min-w-0">
         <header className="md:hidden flex items-center justify-between px-4 py-3 bg-coconut border-b border-mist">
-          <button onClick={() => setOpen(true)} className="p-1.5 text-charcoal">
+          <IconButton label="Menu" onClick={() => setOpen(true)} className="-m-1.5 text-charcoal">
             <Menu size={22} />
-          </button>
+          </IconButton>
           <OhaanaLogo size="sm" />
           <div className="w-8" />
         </header>

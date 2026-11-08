@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 
-type BadgeVariant = 'default' | 'green' | 'coral' | 'turquoise' | 'stone'
+type BadgeVariant = 'default' | 'green' | 'coral' | 'turquoise' | 'stone' | 'warning' | 'danger'
 
 interface BadgeProps {
   children: React.ReactNode
@@ -11,9 +11,11 @@ interface BadgeProps {
 const variantStyles: Record<BadgeVariant, string> = {
   default: 'bg-sand text-charcoal',
   green: 'bg-deep-green/10 text-deep-green',
-  coral: 'bg-coral/10 text-coral',
-  turquoise: 'bg-turquoise/10 text-turquoise',
+  coral: 'bg-coral/10 text-coral-text',
+  turquoise: 'bg-turquoise/10 text-turquoise-text',
   stone: 'bg-mist text-stone',
+  warning: 'bg-star/15 text-[#8A5A00]',
+  danger: 'bg-danger/10 text-danger',
 }
 
 export function Badge({ children, variant = 'default', className }: BadgeProps) {

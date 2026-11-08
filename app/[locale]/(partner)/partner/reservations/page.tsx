@@ -9,7 +9,7 @@ const RESERVATIONS = [
 ]
 
 const STATUS_STYLE: Record<string, string> = {
-  'payé':       'bg-turquoise/10 text-turquoise',
+  'payé':       'bg-turquoise/10 text-turquoise-text',
   'en attente': 'bg-sand text-stone',
 }
 
@@ -21,7 +21,7 @@ export default function PartnerReservationsPage() {
         <p className="text-stone text-sm mt-0.5">Réservations générées via votre lien affilié</p>
       </div>
 
-      <div className="bg-coconut rounded-2xl border border-mist overflow-hidden">
+      <div className="bg-coconut rounded-card border border-mist overflow-hidden">
         <div className="flex items-center gap-2 px-5 py-3.5 border-b border-mist text-xs text-stone">
           <TrendingUp size={12} />
           34 réservations générées au total · 1 870 € de commissions perçues
@@ -39,7 +39,7 @@ export default function PartnerReservationsPage() {
               </div>
               <div className="text-right flex-none space-y-1.5">
                 <p className="text-sm font-semibold text-charcoal">{r.commission}</p>
-                <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_STYLE[r.status]}`}>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_STYLE[r.status]}`}>
                   {r.status}
                 </span>
               </div>

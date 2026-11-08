@@ -193,7 +193,7 @@ export default function LoginPage() {
         )}
 
         {errorMessage && (
-          <p role="alert" className="text-sm text-coral">{errorMessage}</p>
+          <p role="alert" className="text-sm text-coral-text">{errorMessage}</p>
         )}
 
         <Button type="submit" loading={loading} disabled={locked} fullWidth size="lg" className="mt-2">
@@ -221,14 +221,14 @@ export default function LoginPage() {
           <p className="text-center text-[11px] text-stone uppercase tracking-widest">Accès démo</p>
           {[
             { role: 'client' as const, href: '/voyages', title: 'Parcours Client', sub: 'Réservations · Carnet · Favoris', Icon: User, tone: 'bg-deep-green/10 text-deep-green' },
-            { role: 'provider' as const, href: '/provider/dashboard', title: 'Parcours Prestataire', sub: 'Dashboard · Services · Paiements', Icon: Briefcase, tone: 'bg-coral/10 text-coral' },
-            { role: 'partner' as const, href: '/partner/dashboard', title: 'Parcours Partenaire', sub: 'Commissions · Apports · Lien affilié', Icon: Handshake, tone: 'bg-turquoise/10 text-turquoise' },
+            { role: 'provider' as const, href: '/provider/dashboard', title: 'Parcours Prestataire', sub: 'Dashboard · Services · Paiements', Icon: Briefcase, tone: 'bg-coral/10 text-coral-text' },
+            { role: 'partner' as const, href: '/partner/dashboard', title: 'Parcours Partenaire', sub: 'Commissions · Apports · Lien affilié', Icon: Handshake, tone: 'bg-turquoise/10 text-turquoise-text' },
           ].map(({ role, href, title, sub, Icon, tone }) => (
             <button
               key={role}
               type="button"
               onClick={() => { setDemoRole(role); i18nRouter.push(href) }}
-              className="w-full flex items-center gap-3 h-12 rounded-xl border border-mist bg-sand hover:bg-mist px-4 text-sm font-medium text-charcoal transition-colors"
+              className="w-full flex items-center gap-3 h-12 rounded-control border border-mist bg-sand hover:bg-mist px-4 text-sm font-medium text-charcoal transition-colors"
             >
               <span className={`w-8 h-8 rounded-full flex items-center justify-center flex-none ${tone}`}>
                 <Icon size={15} />

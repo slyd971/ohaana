@@ -1,6 +1,3 @@
-/* ─── Google Fonts — must precede all other rules ───────────── */
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Inter:wght@300;400;500;600;700&display=swap');
-
 @import "tailwindcss";
 
 /* ─── Design Tokens ────────────────────────────────────────── */
@@ -16,7 +13,11 @@
   --turquoise-light: #45D4CD;
   --charcoal: #1C1C1E;
   --charcoal-soft: #3A3A3C;
-  --stone: #8E8E93;
+  --stone: #6B6B70;          /* AA 5.2:1 sur coconut */
+  --turquoise-text: #0E7C77; /* texte turquoise AA (4.9:1) */
+  --coral-text: #C8422D;     /* texte corail AA (4.6:1) */
+  --star: #F5A623;
+  --danger: #C0392B;
   --mist: #E8E2D5;
 
   /* Semantic */
@@ -33,6 +34,10 @@
   --shadow-elevated: 0 8px 32px rgba(28, 28, 30, 0.10);
   --shadow-modal: 0 20px 60px rgba(28, 28, 30, 0.18);
 
+  /* Radii sémantiques (carte = 2xl, contrôle = xl, pastille = full) */
+  --radius-card: 1rem;
+  --radius-control: 0.75rem;
+
   /* Radii */
   --radius-sm: 8px;
   --radius-md: 14px;
@@ -41,8 +46,8 @@
   --radius-full: 9999px;
 
   /* Typography */
-  --font-display: 'Fraunces', Georgia, serif;
-  --font-body: 'Inter', system-ui, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
 }
 
 /* ─── Tailwind v4 Theme Extension ──────────────────────────── */
@@ -59,6 +64,10 @@
   --color-charcoal: var(--charcoal);
   --color-charcoal-soft: var(--charcoal-soft);
   --color-stone: var(--stone);
+  --color-turquoise-text: var(--turquoise-text);
+  --color-coral-text: var(--coral-text);
+  --color-star: var(--star);
+  --color-danger: var(--danger);
   --color-mist: var(--mist);
   --color-surface: var(--surface);
 
@@ -72,6 +81,8 @@
   --font-sans: var(--font-body);
 
   /* Border radius */
+  --radius-card: 1rem;
+  --radius-control: 0.75rem;
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);

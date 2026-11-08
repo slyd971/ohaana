@@ -29,21 +29,21 @@ export default function NotFound() {
         <div className="space-y-3">
           <Link
             href="/"
-            className="flex items-center justify-center gap-2 w-full py-3 px-5 rounded-2xl bg-deep-green text-coconut font-medium text-sm hover:bg-deep-green/90 transition-colors"
+            className="flex items-center justify-center gap-2 w-full py-3 px-5 rounded-card bg-deep-green text-coconut font-medium text-sm hover:bg-deep-green/90 transition-colors"
           >
             <Home size={16} />
             Retour à l&apos;accueil
           </Link>
           <Link
             href="/search"
-            className="flex items-center justify-center gap-2 w-full py-3 px-5 rounded-2xl border border-mist text-charcoal font-medium text-sm hover:bg-sand transition-colors"
+            className="flex items-center justify-center gap-2 w-full py-3 px-5 rounded-card border border-mist text-charcoal font-medium text-sm hover:bg-sand transition-colors"
           >
             <Search size={16} />
             Explorer les expériences
           </Link>
           <Link
             href="/concierge"
-            className="flex items-center justify-center gap-2 w-full py-3 px-5 rounded-2xl text-deep-green font-medium text-sm hover:text-coral transition-colors"
+            className="flex items-center justify-center gap-2 w-full py-3 px-5 rounded-card text-deep-green font-medium text-sm hover:text-coral transition-colors"
           >
             <MessageCircle size={16} />
             Contacter le concierge

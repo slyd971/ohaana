@@ -37,8 +37,8 @@ export default async function ProviderPaiementsPage() {
   const refunded = payments.filter((p) => p.status === 'refunded').reduce((sum, p) => sum + p.provider_amount_cents, 0)
 
   const summary = [
-    { label: 'Encaissé (net)', value: eur(received), Icon: TrendingUp, color: 'bg-turquoise/10 text-turquoise' },
-    { label: 'En attente', value: eur(pending), Icon: Clock, color: 'bg-[#F5A623]/15 text-[#B7791F]' },
+    { label: 'Encaissé (net)', value: eur(received), Icon: TrendingUp, color: 'bg-turquoise/10 text-turquoise-text' },
+    { label: 'En attente', value: eur(pending), Icon: Clock, color: 'bg-star/15 text-[#B7791F]' },
     { label: 'Remboursé', value: eur(refunded), Icon: Wallet, color: 'bg-sand text-deep-green' },
   ]
 
@@ -48,8 +48,8 @@ export default async function ProviderPaiementsPage() {
 
       <div className="grid grid-cols-3 gap-3 sm:gap-4">
         {summary.map(({ label, value, Icon, color }) => (
-          <div key={label} className="bg-coconut rounded-2xl p-4 border border-mist">
-            <div className={`inline-flex items-center justify-center w-8 h-8 rounded-xl mb-2 ${color}`}><Icon size={16} /></div>
+          <div key={label} className="bg-coconut rounded-card p-4 border border-mist">
+            <div className={`inline-flex items-center justify-center w-8 h-8 rounded-control mb-2 ${color}`}><Icon size={16} /></div>
             <p className="text-lg sm:text-xl font-display text-charcoal">{value}</p>
             <p className="text-[11px] text-stone">{label}</p>
           </div>
@@ -61,7 +61,7 @@ export default async function ProviderPaiementsPage() {
       {payments.length === 0 ? (
         <EmptyState title="Aucun paiement pour l’instant" />
       ) : (
-        <div className="bg-coconut rounded-2xl border border-mist overflow-hidden">
+        <div className="bg-coconut rounded-card border border-mist overflow-hidden">
           <ul className="divide-y divide-mist">
             {payments.map((p) => (
               <li key={`${p.booking_id}-${p.created_at}`} className="px-5 py-3.5 flex items-center justify-between gap-3">

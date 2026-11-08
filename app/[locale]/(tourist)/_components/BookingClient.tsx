@@ -62,14 +62,14 @@ function InlineCalendar({ selected, onChange, availableDates }: { selected: Date
       {/* Month navigation */}
       <div className="flex items-center justify-between mb-3">
         <button type="button" onClick={prevMonth}
-          className="p-2 rounded-xl hover:bg-mist transition-colors text-stone hover:text-charcoal">
+          className="p-2 rounded-control hover:bg-mist transition-colors text-stone hover:text-charcoal">
           <ChevronLeft size={18} />
         </button>
         <span className="text-sm font-semibold text-charcoal capitalize">
           {MONTHS_FR[viewMonth]} {viewYear}
         </span>
         <button type="button" onClick={nextMonth}
-          className="p-2 rounded-xl hover:bg-mist transition-colors text-stone hover:text-charcoal">
+          className="p-2 rounded-control hover:bg-mist transition-colors text-stone hover:text-charcoal">
           <ChevronRight size={18} />
         </button>
       </div>
@@ -77,7 +77,7 @@ function InlineCalendar({ selected, onChange, availableDates }: { selected: Date
       {/* Weekday headers */}
       <div className="grid grid-cols-7 mb-1">
         {DAYS_FR.map((d, i) => (
-          <div key={i} className="text-center text-[10px] font-medium text-stone py-1">{d}</div>
+          <div key={i} className="text-center text-xs font-medium text-stone py-1">{d}</div>
         ))}
       </div>
 
@@ -351,7 +351,7 @@ export function BookingClient({ service, slots }: BookingClientProps) {
           >
             <Heart
               size={20}
-              className={cn(isFav ? 'fill-coral text-coral' : 'text-stone')}
+              className={cn(isFav ? 'fill-coral text-coral-text' : 'text-stone')}
             />
           </button>
         </div>
@@ -363,7 +363,7 @@ export function BookingClient({ service, slots }: BookingClientProps) {
         {/* ── Activity summary ──────────────────────────────── */}
         <div className="px-4 pt-4 pb-5 border-b border-mist">
           <div className="flex gap-3 items-start">
-            <div className="relative w-20 h-20 rounded-2xl overflow-hidden flex-none">
+            <div className="relative w-20 h-20 rounded-card overflow-hidden flex-none">
               <Image
                 src={cover?.url ?? ''}
                 alt={svcTitle}
@@ -411,7 +411,7 @@ export function BookingClient({ service, slots }: BookingClientProps) {
           /* Récap compact quand date+heure déjà choisies */
           <div className="px-4 py-4 border-b border-mist flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-deep-green/10 flex items-center justify-center flex-none">
+              <div className="w-10 h-10 rounded-control bg-deep-green/10 flex items-center justify-center flex-none">
                 <CheckCircle2 size={18} className="text-deep-green" />
               </div>
               <div>
@@ -469,7 +469,7 @@ export function BookingClient({ service, slots }: BookingClientProps) {
                           invalidatePayment()
                         }}
                         className={cn(
-                          'py-3 rounded-xl border-2 text-sm font-medium transition-all',
+                          'py-3 rounded-control border-2 text-sm font-medium transition-all',
                           selectedTime === t
                             ? 'border-deep-green bg-deep-green text-white'
                             : 'border-mist bg-surface text-charcoal hover:border-deep-green/40',
@@ -569,7 +569,7 @@ export function BookingClient({ service, slots }: BookingClientProps) {
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Allergies, préférences, occasion particulière…"
               rows={3}
-              className="w-full mt-3 rounded-xl border border-mist bg-surface px-4 py-3 text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green resize-none"
+              className="w-full mt-3 rounded-control border border-mist bg-surface px-4 py-3 text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green resize-none"
             />
           )}
         </div>
@@ -588,12 +588,12 @@ export function BookingClient({ service, slots }: BookingClientProps) {
                 <h2 className="text-base font-semibold text-charcoal mb-4">Paiement sécurisé</h2>
 
                 {DEMO_MODE && (
-                  <p className="mb-4 rounded-xl border border-[#F5A623]/40 bg-[#F5A623]/10 px-3.5 py-2.5 text-xs leading-relaxed text-charcoal">
+                  <p className="mb-4 rounded-control border border-star/40 bg-star/10 px-3.5 py-2.5 text-xs leading-relaxed text-charcoal">
                     <strong>Version de démonstration.</strong> Le paiement se fait en mode test Stripe : aucun prestataire n’est sollicité et aucune carte réelle n’est débitée.
                   </p>
                 )}
                 {STRIPE_TEST_MODE && (
-                  <div className="mb-4 rounded-xl border border-mist bg-sand px-3.5 py-3 text-xs leading-relaxed text-charcoal-soft">
+                  <div className="mb-4 rounded-control border border-mist bg-sand px-3.5 py-3 text-xs leading-relaxed text-charcoal-soft">
                     <p className="font-semibold text-charcoal">Carte de test</p>
                     <p className="mt-1">
                       <span className="font-mono">4242 4242 4242 4242</span> · date future · CVC au choix · code postal au choix.
@@ -603,11 +603,11 @@ export function BookingClient({ service, slots }: BookingClientProps) {
                 )}
 
                 {!STRIPE_CONFIGURED ? (
-                  <p role="status" className="rounded-xl border border-mist bg-sand p-4 text-sm text-stone">
+                  <p role="status" className="rounded-control border border-mist bg-sand p-4 text-sm text-stone">
                     Le paiement en ligne sera disponible très bientôt. Contactez notre concierge pour réserver dès maintenant.
                   </p>
                 ) : !DEMO_MODE && !authLoading && !isLoggedIn ? (
-                  <div className="rounded-xl border border-mist bg-sand p-4 space-y-3">
+                  <div className="rounded-control border border-mist bg-sand p-4 space-y-3">
                     <p className="text-sm text-charcoal">Connectez-vous pour finaliser votre réservation. Votre sélection sera conservée.</p>
                     <Link href={`/login?redirectTo=${encodeURIComponent(typeof window === 'undefined' ? '/' : window.location.pathname + window.location.search)}`}>
                       <Button fullWidth variant="primary">Se connecter</Button>
@@ -615,11 +615,11 @@ export function BookingClient({ service, slots }: BookingClientProps) {
                   </div>
                 ) : intentLoading || !clientSecret ? (
                   <div className="space-y-3" aria-busy="true" role="status" aria-label="Préparation du paiement">
-                    <div className="h-12 animate-pulse rounded-xl bg-mist/70" />
-                    <div className="h-12 animate-pulse rounded-xl bg-mist/70" />
+                    <div className="h-12 animate-pulse rounded-control bg-mist/70" />
+                    <div className="h-12 animate-pulse rounded-control bg-mist/70" />
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="h-12 animate-pulse rounded-xl bg-mist/70" />
-                      <div className="h-12 animate-pulse rounded-xl bg-mist/70" />
+                      <div className="h-12 animate-pulse rounded-control bg-mist/70" />
+                      <div className="h-12 animate-pulse rounded-control bg-mist/70" />
                     </div>
                   </div>
                 ) : (
@@ -634,7 +634,7 @@ export function BookingClient({ service, slots }: BookingClientProps) {
                   />
                 )}
 
-                {payError && <p role="alert" className="mt-3 text-sm text-coral">{payError}</p>}
+                {payError && <p role="alert" className="mt-3 text-sm text-coral-text">{payError}</p>}
 
                 <ul className="mt-5 space-y-1.5 text-xs text-stone">
                   <li className="flex items-center gap-2"><Lock size={12} className="flex-none text-deep-green" /> Paiement chiffré et traité par Stripe — Ohaana ne voit ni ne stocke votre carte.</li>

@@ -17,8 +17,8 @@ function useRun() {
 
 function Feedback({ result }: { result: ActionState | null }) {
   if (!result) return null
-  if (result.error) return <p role="alert" className="text-[11px] text-[#C0392B] mt-1">{result.error}</p>
-  if (result.message) return <p role="status" className="text-[11px] text-turquoise mt-1">{result.message}</p>
+  if (result.error) return <p role="alert" className="text-[11px] text-danger mt-1">{result.error}</p>
+  if (result.message) return <p role="status" className="text-[11px] text-turquoise-text mt-1">{result.message}</p>
   return null
 }
 

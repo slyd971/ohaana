@@ -53,12 +53,12 @@ export default async function AdminModerationPage() {
       <section aria-labelledby="pending-title" className="space-y-3">
         <h2 id="pending-title" className="text-sm font-semibold text-white/80">À relire</h2>
         {pending.length === 0 ? (
-          <p className="bg-white/5 border border-white/8 rounded-2xl px-5 py-6 text-sm text-white/40">Aucune fiche en attente.</p>
+          <p className="bg-white/5 border border-white/8 rounded-card px-5 py-6 text-sm text-white/40">Aucune fiche en attente.</p>
         ) : (
           pending.map((s) => {
             const provider = s.provider_profiles
             return (
-              <article key={s.id} className="bg-white/5 rounded-2xl border border-white/8 p-5 space-y-3">
+              <article key={s.id} className="bg-white/5 rounded-card border border-white/8 p-5 space-y-3">
                 <div>
                   <p className="text-sm font-semibold text-white">{s.title_fr}</p>
                   <p className="text-xs text-white/40 mt-0.5">
@@ -66,7 +66,7 @@ export default async function AdminModerationPage() {
                     {provider?.is_approved ? (
                       <span className="text-green-400">approuvé</span>
                     ) : (
-                      <span className="text-[#F5A623]">non approuvé</span>
+                      <span className="text-star">non approuvé</span>
                     )}
                   </p>
                 </div>
@@ -85,9 +85,9 @@ export default async function AdminModerationPage() {
       <section aria-labelledby="published-title" className="space-y-3">
         <h2 id="published-title" className="text-sm font-semibold text-white/80">Publiées</h2>
         {published.length === 0 ? (
-          <p className="bg-white/5 border border-white/8 rounded-2xl px-5 py-6 text-sm text-white/40">Aucune fiche publiée.</p>
+          <p className="bg-white/5 border border-white/8 rounded-card px-5 py-6 text-sm text-white/40">Aucune fiche publiée.</p>
         ) : (
-          <ul className="bg-white/5 rounded-2xl border border-white/8 divide-y divide-white/5">
+          <ul className="bg-white/5 rounded-card border border-white/8 divide-y divide-white/5">
             {published.map((s) => (
               <li key={s.id} className="px-5 py-3.5 flex items-center justify-between gap-3">
                 <div className="min-w-0">

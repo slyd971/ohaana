@@ -9,9 +9,9 @@ const RESERVATIONS = [
 ]
 
 const STATUS_CONFIG = {
-  confirmed: { label: 'Confirmé',   Icon: CheckCircle, style: 'text-turquoise' },
+  confirmed: { label: 'Confirmé',   Icon: CheckCircle, style: 'text-turquoise-text' },
   pending:   { label: 'En attente', Icon: AlertCircle, style: 'text-amber-500'  },
-  cancelled: { label: 'Annulé',     Icon: XCircle,     style: 'text-coral'      },
+  cancelled: { label: 'Annulé',     Icon: XCircle,     style: 'text-coral-text'      },
 }
 
 export function DemoReservations() {
@@ -22,13 +22,13 @@ export function DemoReservations() {
         <p className="text-stone text-sm mt-0.5">5 réservations à venir</p>
       </div>
 
-      <div className="bg-coconut rounded-2xl border border-mist overflow-hidden">
+      <div className="bg-coconut rounded-card border border-mist overflow-hidden">
         <div className="divide-y divide-mist">
           {RESERVATIONS.map((r) => {
             const { label, Icon, style } = STATUS_CONFIG[r.status as keyof typeof STATUS_CONFIG]
             return (
               <div key={`${r.client}-${r.date}`} className="p-4 flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-sand flex items-center justify-center flex-none">
+                <div className="w-10 h-10 rounded-control bg-sand flex items-center justify-center flex-none">
                   <CalendarDays size={17} className="text-deep-green" />
                 </div>
                 <div className="flex-1 min-w-0 space-y-1">

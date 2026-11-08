@@ -22,7 +22,7 @@ export default function PartnerReferralsPage() {
         </div>
       </div>
 
-      <div className="bg-coconut rounded-2xl border border-mist overflow-hidden">
+      <div className="bg-coconut rounded-card border border-mist overflow-hidden">
         <div className="px-5 py-3.5 border-b border-mist grid grid-cols-4 gap-3 text-[11px] font-semibold text-stone uppercase tracking-wider">
           <span className="col-span-2">Client</span>
           <span>Réservations</span>
@@ -42,7 +42,7 @@ export default function PartnerReferralsPage() {
                 <Users size={12} className="text-stone" />
                 {c.bookings}
               </div>
-              <p className="text-sm font-semibold text-turquoise text-right">{c.total}</p>
+              <p className="text-sm font-semibold text-turquoise-text text-right">{c.total}</p>
             </div>
           ))}
         </div>

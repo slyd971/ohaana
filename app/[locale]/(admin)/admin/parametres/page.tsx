@@ -19,7 +19,7 @@ export default async function AdminSettingsPage() {
         <h1 className="text-2xl font-display text-white">Paramètres</h1>
         <p className="text-white/40 text-sm mt-0.5">Réglages de la plateforme. Chaque changement est journalisé.</p>
       </div>
-      <div className="bg-sand rounded-2xl p-3 md:p-4">
+      <div className="bg-sand rounded-card p-3 md:p-4">
         <CommissionForm current={current} />
       </div>
     </div>

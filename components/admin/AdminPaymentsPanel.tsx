@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { Button } from '@/components/ui/Button'
 import { adminOnboardingLinkAction, adminRefreshPaymentsStatusAction } from '@/app/actions/admin'
 import type { ConnectState } from '@/lib/stripe/connect-status'
 
@@ -19,7 +20,7 @@ export function AdminPaymentsPanel({ providerId, initialState }: { providerId: s
   const [pending, start] = useTransition()
 
   return (
-    <div className="bg-white/5 rounded-2xl border border-white/8 p-5 space-y-3">
+    <div className="bg-white/5 rounded-card border border-white/8 p-5 space-y-3">
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="text-sm font-semibold text-white">Paiements du prestataire (Stripe)</p>
@@ -44,7 +45,9 @@ export function AdminPaymentsPanel({ providerId, initialState }: { providerId: s
 
       {state !== 'active' && state !== 'closed' && (
         <div className="space-y-2">
-          <button
+          <Button
+            variant="soft"
+            size="bare"
             type="button"
             disabled={pending}
             onClick={() =>
@@ -55,10 +58,10 @@ export function AdminPaymentsPanel({ providerId, initialState }: { providerId: s
                 else setMessage(res.error ?? 'Lien indisponible.')
               })
             }
-            className="text-xs bg-turquoise/20 text-turquoise border border-turquoise/30 px-3 py-1.5 rounded-lg hover:bg-turquoise/30 disabled:opacity-40"
+            className="text-xs px-3 py-1.5 rounded-lg"
           >
             Générer le lien d’inscription
-          </button>
+          </Button>
           <p className="text-[11px] text-white/40">
             Pour accompagner le prestataire pendant un appel. Le lien est à usage unique et ouvre la saisie de son identité et de son IBAN : il doit
             être ouvert par lui (partage d’écran), jamais envoyé par message ni par e-mail.

@@ -50,7 +50,7 @@ export default async function ProviderReservationsPage({ searchParams }: { searc
       ) : (
         <ul className="space-y-3">
           {bookings.map((b) => (
-            <li key={b.id} className="bg-coconut rounded-2xl border border-mist p-5 space-y-3">
+            <li key={b.id} className="bg-coconut rounded-card border border-mist p-5 space-y-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-charcoal truncate">{b.title_fr}</p>

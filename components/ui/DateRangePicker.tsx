@@ -124,7 +124,7 @@ function CalendarGrid({
       {/* Weekday headers */}
       <div className="grid grid-cols-7 mb-1">
         {DAYS_FR.map((d, i) => (
-          <div key={i} className="text-center text-[10px] font-medium text-stone py-1">{d}</div>
+          <div key={i} className="text-center text-xs font-medium text-stone py-1">{d}</div>
         ))}
       </div>
 
@@ -277,7 +277,7 @@ export function DateRangePicker({
         bare
           ? 'h-6 bg-transparent focus:outline-none'
           : cn(
-              'h-11 rounded-xl border bg-coconut px-3',
+              'h-11 rounded-control border bg-coconut px-3',
               open ? 'border-deep-green ring-2 ring-deep-green/15' : 'border-mist',
             ),
         displayValue ? 'text-charcoal' : 'text-stone',
@@ -348,14 +348,14 @@ export function DateRangePicker({
           <button
             type="button"
             onClick={handleClear}
-            className="flex-1 h-12 rounded-xl border border-mist text-charcoal text-sm font-medium hover:border-deep-green/40 transition-colors"
+            className="flex-1 h-12 rounded-control border border-mist text-charcoal text-sm font-medium hover:border-deep-green/40 transition-colors"
           >
             Effacer
           </button>
           <button
             type="button"
             onClick={handleConfirm}
-            className="flex-1 h-12 rounded-xl bg-deep-green text-coconut text-sm font-semibold hover:bg-deep-green/90 transition-colors"
+            className="flex-1 h-12 rounded-control bg-deep-green text-coconut text-sm font-semibold hover:bg-deep-green/90 transition-colors"
           >
             {startDate && endDate ? 'Confirmer' : 'Fermer'}
           </button>
@@ -367,7 +367,7 @@ export function DateRangePicker({
 
   // Desktop: standard floating dropdown
   const desktopDropdown = !isMobile && open ? (
-    <div className="absolute top-full left-0 mt-2 z-50 bg-surface rounded-2xl border border-mist shadow-elevated p-4 w-72">
+    <div className="absolute top-full left-0 mt-2 z-50 bg-surface rounded-card border border-mist shadow-elevated p-4 w-72">
       <CalendarGrid
         startDate={startDate}
         endDate={endDate}

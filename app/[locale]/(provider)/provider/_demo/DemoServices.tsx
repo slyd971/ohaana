@@ -1,4 +1,5 @@
 import { Plus, Star, Clock, Users } from 'lucide-react'
+import { Button } from '@/components/ui/Button'
 
 const SERVICES = [
   {
@@ -37,7 +38,7 @@ const SERVICES = [
 ]
 
 const STATUS_STYLE: Record<string, string> = {
-  actif:      'bg-turquoise/10 text-turquoise',
+  actif:      'bg-turquoise/10 text-turquoise-text',
   brouillon:  'bg-sand text-stone',
   inactif:    'bg-mist text-stone',
 }
@@ -50,29 +51,26 @@ export function DemoServices() {
           <h1 className="text-2xl font-display text-deep-green">Mes services</h1>
           <p className="text-stone text-sm mt-0.5">{SERVICES.length} services enregistrés</p>
         </div>
-        <button
-          type="button"
-          className="flex items-center gap-2 bg-deep-green text-coconut px-4 py-2.5 rounded-full text-sm font-medium hover:bg-deep-green/90 transition-colors"
-        >
+        <Button size="sm" type="button" className="rounded-full">
           <Plus size={15} />
           Ajouter un service
-        </button>
+        </Button>
       </div>
 
       <div className="space-y-3">
         {SERVICES.map((s) => (
-          <div key={s.title} className="bg-coconut rounded-2xl border border-mist p-5 space-y-3">
+          <div key={s.title} className="bg-coconut rounded-card border border-mist p-5 space-y-3">
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap mb-1">
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_STYLE[s.status]}`}>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_STYLE[s.status]}`}>
                     {s.status}
                   </span>
-                  <span className="text-[10px] text-stone">{s.category}</span>
+                  <span className="text-xs text-stone">{s.category}</span>
                 </div>
                 <h2 className="text-sm font-semibold text-charcoal leading-snug">{s.title}</h2>
               </div>
-              <button type="button" className="text-xs text-deep-green hover:underline flex-none">Modifier</button>
+              <Button variant="link" size="bare" type="button" className="text-xs flex-none">Modifier</Button>
             </div>
 
             <div className="flex flex-wrap gap-4 text-xs text-stone">

@@ -1,7 +1,8 @@
+import { Button } from '@/components/ui/Button'
 import { Wallet, TrendingUp, ArrowDownLeft, Clock } from 'lucide-react'
 
 const SUMMARY = [
-  { label: 'Solde disponible',   value: '2 140 €', Icon: Wallet,      color: 'bg-turquoise/10 text-turquoise' },
+  { label: 'Solde disponible',   value: '2 140 €', Icon: Wallet,      color: 'bg-turquoise/10 text-turquoise-text' },
   { label: 'En attente',         value: '660 €',   Icon: Clock,       color: 'bg-sand text-stone'             },
   { label: 'Total ce mois',      value: '4 320 €', Icon: TrendingUp,  color: 'bg-deep-green/10 text-deep-green'},
 ]
@@ -15,7 +16,7 @@ const TRANSACTIONS = [
 ]
 
 const STATUS_STYLE: Record<string, string> = {
-  'versé':      'text-turquoise',
+  'versé':      'text-turquoise-text',
   'en attente': 'text-amber-500',
   'virement':   'text-stone',
 }
@@ -30,8 +31,8 @@ export function DemoPaiements() {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {SUMMARY.map(({ label, value, Icon, color }) => (
-          <div key={label} className="bg-coconut rounded-2xl border border-mist p-5">
-            <div className={`inline-flex items-center justify-center w-9 h-9 rounded-xl mb-3 ${color}`}>
+          <div key={label} className="bg-coconut rounded-card border border-mist p-5">
+            <div className={`inline-flex items-center justify-center w-9 h-9 rounded-control mb-3 ${color}`}>
               <Icon size={18} />
             </div>
             <p className="text-2xl font-display text-charcoal">{value}</p>
@@ -40,16 +41,13 @@ export function DemoPaiements() {
         ))}
       </div>
 
-      <div className="bg-coconut rounded-2xl border border-mist overflow-hidden">
+      <div className="bg-coconut rounded-card border border-mist overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-mist">
           <h2 className="text-sm font-semibold text-charcoal">Historique</h2>
-          <button
-            type="button"
-            className="flex items-center gap-1.5 text-xs text-deep-green hover:underline"
-          >
+          <Button variant="link" size="bare" type="button" className="text-xs">
             <ArrowDownLeft size={12} />
             Demander un virement
-          </button>
+          </Button>
         </div>
         <div className="divide-y divide-mist">
           {TRANSACTIONS.map((t) => (
@@ -60,7 +58,7 @@ export function DemoPaiements() {
               </div>
               <div className="text-right flex-none">
                 <p className="text-sm font-semibold text-charcoal">{t.amount}</p>
-                <p className={`text-[10px] font-medium ${STATUS_STYLE[t.status]}`}>{t.status}</p>
+                <p className={`text-xs font-medium ${STATUS_STYLE[t.status]}`}>{t.status}</p>
               </div>
             </div>
           ))}

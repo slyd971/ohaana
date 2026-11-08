@@ -37,7 +37,7 @@ export default async function ProviderServicesPage() {
       ) : (
         <div className="space-y-3">
           {services.map((s) => (
-            <article key={s.id} className="bg-coconut rounded-2xl border border-mist p-5 space-y-3">
+            <article key={s.id} className="bg-coconut rounded-card border border-mist p-5 space-y-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="mb-1"><StatusBadge status={s.status} /></div>
@@ -52,7 +52,7 @@ export default async function ProviderServicesPage() {
               </div>
 
               {s.status === 'rejected' && s.rejection_reason && (
-                <p className="text-xs bg-coral/10 text-coral rounded-lg px-3 py-2">Refusée : {s.rejection_reason}</p>
+                <p className="text-xs bg-coral/10 text-coral-text rounded-lg px-3 py-2">Refusée : {s.rejection_reason}</p>
               )}
 
               <div className="flex flex-wrap gap-4 text-xs text-stone">

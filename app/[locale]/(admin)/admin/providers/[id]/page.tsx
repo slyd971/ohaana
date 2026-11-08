@@ -45,7 +45,7 @@ export default async function AdminProviderPage({ params }: { params: Promise<{ 
 
       <section aria-labelledby="profile-title" className="space-y-3">
         <h2 id="profile-title" className="text-sm font-semibold text-white/80">Profil</h2>
-        <div className="bg-sand rounded-2xl p-3 md:p-4">
+        <div className="bg-sand rounded-card p-3 md:p-4">
           <ProfileForm
             provider={{ ...provider, languages: provider.languages ?? [] }}
             action={saveProviderAsAdminAction}
@@ -65,11 +65,11 @@ export default async function AdminProviderPage({ params }: { params: Promise<{ 
           </Link>
         </div>
         {services.length === 0 ? (
-          <p className="bg-white/5 border border-white/8 rounded-2xl px-5 py-6 text-sm text-white/40">Aucun service pour ce prestataire.</p>
+          <p className="bg-white/5 border border-white/8 rounded-card px-5 py-6 text-sm text-white/40">Aucun service pour ce prestataire.</p>
         ) : (
           <ul className="space-y-3">
             {services.map((s) => (
-              <li key={s.id} className="bg-white/5 rounded-2xl border border-white/8 p-5 space-y-3">
+              <li key={s.id} className="bg-white/5 rounded-card border border-white/8 p-5 space-y-3">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="mb-1"><StatusBadge status={s.status} /></div>

@@ -97,7 +97,7 @@ export default function OnboardingPage() {
             type="button"
             onClick={() => setTraveler(t.value)}
             className={cn(
-              'relative p-5 rounded-2xl border-2 text-left transition-all active:scale-[0.97]',
+              'relative p-5 rounded-card border-2 text-left transition-all active:scale-[0.97]',
               traveler === t.value
                 ? 'border-deep-green bg-deep-green/5'
                 : 'border-mist bg-surface hover:border-stone'
@@ -139,7 +139,7 @@ export default function OnboardingPage() {
               type="button"
               onClick={() => toggleInterest(interest.value)}
               className={cn(
-                'relative rounded-2xl overflow-hidden h-28 transition-all active:scale-[0.97]',
+                'relative rounded-card overflow-hidden h-28 transition-all active:scale-[0.97]',
                 selected ? 'ring-2 ring-deep-green ring-offset-2' : ''
               )}
             >

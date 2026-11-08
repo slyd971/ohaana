@@ -74,7 +74,7 @@ export function ServiceCard({
       className={cn('relative flex-none cursor-pointer group', widths[size], className)}
     >
       <Link href={`/prestataires/${service.id}`} className="block">
-        <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-sand">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-card bg-sand">
           <Image
             src={cover?.url ?? ''}
             alt={coverAlt ?? title}
@@ -87,12 +87,12 @@ export function ServiceCard({
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); onToggleFavorite(service.id) }}
-              className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm transition-transform hover:scale-110"
+              className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm transition-transform hover:scale-110 before:absolute before:-inset-1.5 before:content-['']"
               aria-label={isFavorite ? removeFav : addFav}
             >
               <Heart
                 size={15}
-                className={cn(isFavorite ? 'fill-coral text-coral' : 'fill-transparent text-charcoal')}
+                className={cn(isFavorite ? 'fill-coral text-coral-text' : 'fill-transparent text-charcoal')}
               />
             </button>
           )}
@@ -110,7 +110,7 @@ export function ServiceCard({
               {title}
             </h3>
             {primaryTag && (
-              <span className="flex-none rounded-full bg-sand px-2 py-0.5 text-[10px] font-medium text-charcoal-soft">
+              <span className="flex-none rounded-full bg-sand px-2 py-0.5 text-xs font-medium text-charcoal-soft">
                 {TAG_BADGES[primaryTag][lang as 'fr' | 'en' | 'es']}
               </span>
             )}

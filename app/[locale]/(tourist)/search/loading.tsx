@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/Skeleton'
 
 function SearchCardSkeleton() {
   return (
-    <div className="rounded-2xl overflow-hidden bg-surface border border-mist shadow-card">
+    <div className="rounded-card overflow-hidden bg-surface border border-mist shadow-card">
       <Skeleton className="h-48 w-full rounded-none" />
       <div className="p-4 space-y-2.5">
         <Skeleton className="h-4 w-4/5" />
@@ -21,7 +21,7 @@ export default function SearchLoading() {
     <div className="min-h-dvh bg-coconut">
       {/* Search bar skeleton */}
       <div className="sticky top-0 z-30 bg-coconut/95 backdrop-blur-md border-b border-mist px-4 py-3 space-y-2">
-        <Skeleton className="h-11 w-full rounded-2xl" />
+        <Skeleton className="h-11 w-full rounded-card" />
         <div className="flex gap-2 overflow-x-auto pb-0.5">
           {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className="h-8 w-20 rounded-full flex-none" />

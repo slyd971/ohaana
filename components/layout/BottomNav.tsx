@@ -41,7 +41,7 @@ export function BottomNav() {
               <Link
                 href={href}
                 className={cn(
-                  'flex flex-col items-center justify-center gap-1 py-2 rounded-xl transition-colors',
+                  'flex flex-col items-center justify-center gap-1 py-2 rounded-control transition-colors',
                   active ? 'text-deep-green' : 'text-stone hover:text-charcoal-soft'
                 )}
                 aria-current={active ? 'page' : undefined}
@@ -50,13 +50,13 @@ export function BottomNav() {
                   {active && (
                     <motion.div
                       layoutId="nav-indicator"
-                      className="absolute inset-0 -m-1.5 rounded-xl bg-deep-green/10"
+                      className="absolute inset-0 -m-1.5 rounded-control bg-deep-green/10"
                       transition={{ type: 'spring', stiffness: 400, damping: 35 }}
                     />
                   )}
                   <Icon size={22} strokeWidth={active ? 2 : 1.5} className="relative" />
                 </div>
-                <span className="text-[10px] font-medium leading-none">{t(key)}</span>
+                <span className="text-xs font-medium leading-none">{t(key)}</span>
               </Link>
             </li>
           )

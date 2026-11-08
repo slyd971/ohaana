@@ -5,7 +5,7 @@ import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-
 import type { Appearance } from '@stripe/stripe-js'
 import { getStripePromise } from '@/lib/stripe/browser'
 
-// Matches the Ohaana design tokens (deep green primary, coconut surfaces, rounded-xl controls).
+// Matches the Ohaana design tokens (deep green primary, coconut surfaces, rounded-control controls).
 const APPEARANCE: Appearance = {
   theme: 'stripe',
   variables: {

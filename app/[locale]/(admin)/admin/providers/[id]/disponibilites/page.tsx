@@ -35,7 +35,7 @@ export default async function AdminAvailabilityPage({
         <h1 className="text-2xl font-display text-white mt-2">Disponibilités</h1>
       </div>
       {!current ? (
-        <p className="bg-white/5 border border-white/8 rounded-2xl px-5 py-6 text-sm text-white/40">Ajoutez d’abord un service.</p>
+        <p className="bg-white/5 border border-white/8 rounded-card px-5 py-6 text-sm text-white/40">Ajoutez d’abord un service.</p>
       ) : (
         <>
           <nav aria-label="Choisir un service" className="flex flex-wrap gap-2">
@@ -52,7 +52,7 @@ export default async function AdminAvailabilityPage({
               </Link>
             ))}
           </nav>
-          <div className="bg-sand rounded-2xl p-3 md:p-4">
+          <div className="bg-sand rounded-card p-3 md:p-4">
             <AvailabilityEditor
               key={current.id}
               serviceId={current.id}

@@ -29,7 +29,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={cn(
-              'w-full h-12 rounded-xl border bg-surface px-4 text-charcoal placeholder:text-stone',
+              'w-full h-12 rounded-control border bg-surface px-4 text-charcoal placeholder:text-stone',
               'transition-colors duration-150',
               'border-mist focus:border-deep-green focus:outline-none focus:ring-2 focus:ring-deep-green/20',
               error && 'border-coral focus:border-coral focus:ring-coral/20',
@@ -39,7 +39,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
         </div>
-        {error && <p className="text-sm text-coral">{error}</p>}
+        {error && <p className="text-sm text-coral-text">{error}</p>}
         {hint && !error && <p className="text-sm text-stone">{hint}</p>}
       </div>
     )

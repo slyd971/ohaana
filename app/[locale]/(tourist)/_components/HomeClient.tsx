@@ -254,13 +254,13 @@ export function HomeClient({ services, rows }: HomeClientProps) {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-40px' }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="w-[calc(100vw-2.5rem)] flex-none snap-center flex items-start gap-4 rounded-2xl bg-white p-4 shadow-card sm:w-auto sm:min-w-0 sm:rounded-none sm:bg-transparent sm:p-0 sm:shadow-none"
+                  className="w-[calc(100vw-2.5rem)] flex-none snap-center flex items-start gap-4 rounded-card bg-white p-4 shadow-card sm:w-auto sm:min-w-0 sm:rounded-none sm:bg-transparent sm:p-0 sm:shadow-none"
                 >
                   <div className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-deep-green">
                     <Icon size={20} strokeWidth={1.7} className="text-coconut" />
                   </div>
                   <div className="min-w-0">
-                    <h3 className="text-[15px] font-semibold text-deep-green">{title}</h3>
+                    <p className="text-[15px] font-semibold text-deep-green">{title}</p>
                     <p className="mt-0.5 text-xs leading-relaxed text-charcoal/70">{text}</p>
                   </div>
                 </motion.div>
@@ -477,7 +477,7 @@ export function HomeClient({ services, rows }: HomeClientProps) {
       {/* '- -' 6. B2B partenaires '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
       <section id="partner" className="mx-5 md:mx-8 mb-10 rounded-3xl bg-sand border border-mist p-8 md:p-12">
         <div className="max-w-2xl mx-auto flex flex-col md:flex-row items-center gap-8">
-          <div className="w-14 h-14 rounded-2xl bg-deep-green flex items-center justify-center flex-none">
+          <div className="w-14 h-14 rounded-card bg-deep-green flex items-center justify-center flex-none">
             <Building2 size={24} className="text-coconut" />
           </div>
           <div className="flex-1 text-center md:text-left space-y-3">
@@ -552,12 +552,12 @@ export function HomeClient({ services, rows }: HomeClientProps) {
                 placeholder="votre@email.com"
                 value={leadEmail}
                 onChange={(e) => setLeadEmail(e.target.value)}
-                className="w-full h-12 rounded-xl bg-white/10 border border-coconut/20 px-4 text-sm text-coconut placeholder:text-coconut/40 focus:outline-none focus:border-turquoise transition-colors"
+                className="w-full h-12 rounded-control bg-white/10 border border-coconut/20 px-4 text-sm text-coconut placeholder:text-coconut/40 focus:outline-none focus:border-turquoise transition-colors"
               />
               <select
                 value={leadDest}
                 onChange={(e) => setLeadDest(e.target.value)}
-                className="w-full h-12 rounded-xl bg-white/10 border border-coconut/20 px-4 text-sm text-coconut focus:outline-none focus:border-turquoise transition-colors"
+                className="w-full h-12 rounded-control bg-white/10 border border-coconut/20 px-4 text-sm text-coconut focus:outline-none focus:border-turquoise transition-colors"
                 style={{ colorScheme: 'dark' }}
               >
                 <option value="" className="text-charcoal bg-coconut">
@@ -572,11 +572,11 @@ export function HomeClient({ services, rows }: HomeClientProps) {
                 placeholder={L('WhatsApp (optionnel)', 'WhatsApp (optional)', 'WhatsApp (opcional)')}
                 value={leadWA}
                 onChange={(e) => setLeadWA(e.target.value)}
-                className="w-full h-12 rounded-xl bg-white/10 border border-coconut/20 px-4 text-sm text-coconut placeholder:text-coconut/40 focus:outline-none focus:border-turquoise transition-colors"
+                className="w-full h-12 rounded-control bg-white/10 border border-coconut/20 px-4 text-sm text-coconut placeholder:text-coconut/40 focus:outline-none focus:border-turquoise transition-colors"
               />
               <button
                 type="submit"
-                className="w-full h-12 rounded-xl bg-coral text-coconut font-medium text-sm hover:bg-coral-light transition-colors shadow-sm"
+                className="w-full h-12 rounded-control bg-coral text-coconut font-medium text-sm hover:bg-coral-light transition-colors shadow-sm"
               >
                 {L('Me prévenir du lancement', 'Notify me at launch', 'Avisarme del lanzamiento')}
               </button>

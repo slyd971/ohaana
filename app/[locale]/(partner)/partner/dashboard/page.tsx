@@ -1,9 +1,10 @@
 import { Link } from '@/lib/i18n/navigation'
 import { Link2, TrendingUp, Wallet, Users, CalendarDays, ChevronRight, ExternalLink } from 'lucide-react'
+import { Button } from '@/components/ui/Button'
 
 const KPI = [
-  { label: 'Réservations générées',  value: '34',       delta: '+8 ce mois',  Icon: CalendarDays, color: 'bg-turquoise/10 text-turquoise' },
-  { label: 'Commissions perçues',    value: '1 870 €',  delta: '+22%',        Icon: Wallet,       color: 'bg-coral/10 text-coral'         },
+  { label: 'Réservations générées',  value: '34',       delta: '+8 ce mois',  Icon: CalendarDays, color: 'bg-turquoise/10 text-turquoise-text' },
+  { label: 'Commissions perçues',    value: '1 870 €',  delta: '+22%',        Icon: Wallet,       color: 'bg-coral/10 text-coral-text'         },
   { label: 'Clients référencés',     value: '21',       delta: '+5 ce mois',  Icon: Users,        color: 'bg-sand text-deep-green'        },
   { label: 'Taux de conversion',     value: '18 %',     delta: '+3 pts',      Icon: TrendingUp,   color: 'bg-deep-green/10 text-deep-green'},
 ]
@@ -16,7 +17,7 @@ const RECENT = [
 ]
 
 const STATUS_STYLE: Record<string, string> = {
-  'payé':       'bg-turquoise/10 text-turquoise',
+  'payé':       'bg-turquoise/10 text-turquoise-text',
   'en attente': 'bg-sand text-stone',
 }
 
@@ -32,31 +33,28 @@ export default function PartnerDashboard() {
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {KPI.map(({ label, value, delta, Icon, color }) => (
-          <div key={label} className="bg-coconut rounded-2xl p-4 border border-mist shadow-sm">
-            <div className={`inline-flex items-center justify-center w-9 h-9 rounded-xl mb-3 ${color}`}>
+          <div key={label} className="bg-coconut rounded-card p-4 border border-mist shadow-sm">
+            <div className={`inline-flex items-center justify-center w-9 h-9 rounded-control mb-3 ${color}`}>
               <Icon size={18} />
             </div>
             <p className="text-2xl font-display text-charcoal">{value}</p>
             <p className="text-xs text-stone mt-0.5">{label}</p>
-            {delta && <p className="text-xs text-turquoise font-medium mt-1">{delta}</p>}
+            {delta && <p className="text-xs text-turquoise-text font-medium mt-1">{delta}</p>}
           </div>
         ))}
       </div>
 
       {/* Lien affilié */}
-      <div className="bg-coconut rounded-2xl border border-mist p-5 space-y-3">
+      <div className="bg-coconut rounded-card border border-mist p-5 space-y-3">
         <div className="flex items-center gap-2">
           <Link2 size={16} className="text-deep-green" />
           <h2 className="text-sm font-semibold text-charcoal">Mon lien affilié</h2>
         </div>
-        <div className="flex items-center gap-2 bg-sand rounded-xl px-4 py-3">
+        <div className="flex items-center gap-2 bg-sand rounded-control px-4 py-3">
           <span className="text-sm text-stone flex-1 truncate font-mono">ohaana.fr/?ref=iles-dorees</span>
-          <button
-            type="button"
-            className="text-xs bg-deep-green text-coconut px-3 py-1.5 rounded-full font-medium hover:bg-deep-green/90 transition-colors flex-none"
-          >
+          <Button size="sm" type="button" className="rounded-full flex-none">
             Copier
-          </button>
+          </Button>
         </div>
         <p className="text-xs text-stone">
           Partagez ce lien à vos clients. Vous touchez <span className="font-semibold text-charcoal">12 %</span> de commission sur chaque réservation générée.
@@ -64,7 +62,7 @@ export default function PartnerDashboard() {
       </div>
 
       {/* Dernières réservations générées */}
-      <div className="bg-coconut rounded-2xl border border-mist overflow-hidden">
+      <div className="bg-coconut rounded-card border border-mist overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-mist">
           <h2 className="text-sm font-semibold text-charcoal">Réservations récentes</h2>
           <Link href="/partner/reservations" className="text-xs text-deep-green flex items-center gap-1 hover:underline">
@@ -80,7 +78,7 @@ export default function PartnerDashboard() {
               </div>
               <div className="text-right flex-none space-y-1">
                 <p className="text-sm font-semibold text-charcoal">{r.commission}</p>
-                <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_STYLE[r.status]}`}>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_STYLE[r.status]}`}>
                   {r.status}
                 </span>
               </div>
@@ -91,7 +89,7 @@ export default function PartnerDashboard() {
 
       {/* CTA programme partenaire */}
       <div
-        className="rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center gap-5"
+        className="rounded-card p-6 flex flex-col md:flex-row items-start md:items-center gap-5"
         style={{ background: 'linear-gradient(135deg, #1a3a5c 0%, #0f2233 100%)' }}
       >
         <div className="flex-1 space-y-1">

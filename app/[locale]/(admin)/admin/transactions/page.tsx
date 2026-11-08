@@ -23,7 +23,7 @@ const TRANSACTIONS: { id: string; from: string; to: string; service: string; amo
 
 const STATUS_CONFIG = {
   completed: { label: 'Réglée',   Icon: CheckCircle, color: 'text-green-400 bg-green-400/10' },
-  pending:   { label: 'En attente', Icon: Clock,     color: 'text-[#F5A623] bg-[#F5A623]/10' },
+  pending:   { label: 'En attente', Icon: Clock,     color: 'text-star bg-star/10' },
   refunded:  { label: 'Remboursée', Icon: XCircle,   color: 'text-red-400 bg-red-400/10'     },
 }
 
@@ -56,18 +56,18 @@ export default function AdminTransactionsPage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="bg-white/5 rounded-2xl p-4 border border-white/8">
+        <div className="bg-white/5 rounded-card p-4 border border-white/8">
           <CreditCard size={16} className="text-turquoise mb-2" />
           <p className="text-xl font-display text-white">{fmt(totalVolume)}</p>
           <p className="text-xs text-white/40 mt-0.5">Volume réglé</p>
         </div>
-        <div className="bg-white/5 rounded-2xl p-4 border border-white/8">
+        <div className="bg-white/5 rounded-card p-4 border border-white/8">
           <Percent size={16} className="text-green-400 mb-2" />
           <p className="text-xl font-display text-white">{fmt(totalCommissions)}</p>
           <p className="text-xs text-white/40 mt-0.5">Commissions Ohaana</p>
         </div>
-        <div className="bg-white/5 rounded-2xl p-4 border border-white/8">
-          <TrendingUp size={16} className="text-[#F5A623] mb-2" />
+        <div className="bg-white/5 rounded-card p-4 border border-white/8">
+          <TrendingUp size={16} className="text-star mb-2" />
           <p className="text-xl font-display text-white">{pendingCount}</p>
           <p className="text-xs text-white/40 mt-0.5">En attente</p>
         </div>
@@ -82,7 +82,7 @@ export default function AdminTransactionsPage() {
             placeholder="Client, prestataire, service…"
             value={query}
             onChange={e => setQuery(e.target.value)}
-            className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-turquoise/50"
+            className="w-full bg-white/5 border border-white/10 rounded-control pl-9 pr-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-turquoise/50"
           />
         </div>
         <div className="flex gap-2">
@@ -91,7 +91,7 @@ export default function AdminTransactionsPage() {
               key={s}
               onClick={() => setStatusFilter(s)}
               className={cn(
-                'px-3 py-2 rounded-xl text-xs font-medium transition-colors',
+                'px-3 py-2 rounded-control text-xs font-medium transition-colors',
                 statusFilter === s
                   ? 'bg-turquoise/20 text-turquoise border border-turquoise/30'
                   : 'bg-white/5 text-white/50 border border-white/10 hover:text-white/80'
@@ -104,7 +104,7 @@ export default function AdminTransactionsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white/5 rounded-2xl border border-white/8 overflow-hidden">
+      <div className="bg-white/5 rounded-card border border-white/8 overflow-hidden">
         <div className="hidden md:grid grid-cols-[auto_2fr_2fr_2fr_1fr_1fr_auto] gap-4 px-5 py-3 border-b border-white/8 text-xs text-white/30 font-medium uppercase tracking-wider">
           <span>ID</span>
           <span>Client</span>

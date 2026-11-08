@@ -85,7 +85,7 @@ export function ConciergeClient({ recommendations: RECOMMENDATIONS }: ConciergeC
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.1 }}
-            className="flex items-center gap-4 bg-[#25D366] text-white rounded-2xl p-4 mb-6 hover:bg-[#20C05C] transition-colors shadow-sm"
+            className="flex items-center gap-4 bg-[#25D366] text-white rounded-card p-4 mb-6 hover:bg-[#20C05C] transition-colors shadow-sm"
           >
             <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center flex-none">
               <MessageCircle size={24} />
@@ -116,7 +116,7 @@ export function ConciergeClient({ recommendations: RECOMMENDATIONS }: ConciergeC
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Ex: massage à domicile demain, chef privé vendredi soir, baby-sitter pour deux enfants..."
                 rows={4}
-                className="w-full rounded-2xl border border-mist bg-surface px-4 py-3 text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green focus:ring-2 focus:ring-deep-green/15 resize-none"
+                className="w-full rounded-card border border-mist bg-surface px-4 py-3 text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green focus:ring-2 focus:ring-deep-green/15 resize-none"
               />
             </div>
 
@@ -130,7 +130,7 @@ export function ConciergeClient({ recommendations: RECOMMENDATIONS }: ConciergeC
                   value={stayDates}
                   onChange={(e) => setStayDates(e.target.value)}
                   placeholder="Ex: 12–18 août"
-                  className="w-full h-12 rounded-2xl border border-mist bg-surface px-4 text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green focus:ring-2 focus:ring-deep-green/15"
+                  className="w-full h-12 rounded-card border border-mist bg-surface px-4 text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green focus:ring-2 focus:ring-deep-green/15"
                 />
               </label>
               <label className="block">
@@ -142,7 +142,7 @@ export function ConciergeClient({ recommendations: RECOMMENDATIONS }: ConciergeC
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   placeholder="Ex: villa à Deshaies, Airbnb au Diamant"
-                  className="w-full h-12 rounded-2xl border border-mist bg-surface px-4 text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green focus:ring-2 focus:ring-deep-green/15"
+                  className="w-full h-12 rounded-card border border-mist bg-surface px-4 text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green focus:ring-2 focus:ring-deep-green/15"
                 />
               </label>
             </div>
@@ -208,9 +208,9 @@ export function ConciergeClient({ recommendations: RECOMMENDATIONS }: ConciergeC
               <Link
                 key={service.id}
                 href={`/prestataires/${service.id}`}
-                className="flex items-center gap-3 rounded-2xl border border-mist bg-surface p-3 hover:border-deep-green/40 transition-colors"
+                className="flex items-center gap-3 rounded-card border border-mist bg-surface p-3 hover:border-deep-green/40 transition-colors"
               >
-                <div className="relative h-14 w-14 rounded-xl overflow-hidden flex-none">
+                <div className="relative h-14 w-14 rounded-control overflow-hidden flex-none">
                   <Image
                     src={(service.images.find((image) => image.is_cover) ?? service.images[0])?.url ?? ''}
                     alt={service.title_fr}
