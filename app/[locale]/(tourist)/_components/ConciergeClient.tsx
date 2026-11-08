@@ -3,160 +3,181 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { MessageCircle, Send, ExternalLink, CalendarDays, MapPin, Sparkles, Clock } from 'lucide-react'
-import { Link } from '@/lib/i18n/navigation'
-import { Button } from '@/components/ui/Button'
+import { useLocale } from 'next-intl'
+import { MessageCircle, Search, CalendarDays, MapPin, ChevronRight } from 'lucide-react'
+import { Link, useRouter } from '@/lib/i18n/navigation'
 import type { ServiceView } from '@/lib/data/types'
 import { WHATSAPP_NUMBER } from '@/lib/site'
 
-const WHATSAPP_DEFAULT_MSG = encodeURIComponent(
-  "Bonjour, je séjourne en hébergement privatif et je souhaite réserver un service local avec Ohaana. Pouvez-vous m'aider ?"
-)
 const CONCIERGE_PHOTO = '/photos/concierge-antillaise.png'
 
-const SUGGESTIONS = [
-  'Je cherche un massage à domicile',
-  'Je veux réserver un chef privé',
-  'Je voyage avec deux enfants',
-  'Un DJ pour notre soirée en terrasse',
-  'Un photographe près de notre villa',
-  'Un service sur mesure pendant le séjour',
-]
+type Lang = 'fr' | 'en' | 'es'
+
+const COPY = {
+  eyebrow: { fr: 'Concierge Ohaana', en: 'Ohaana concierge', es: 'Concierge Ohaana' },
+  title: {
+    fr: 'Dites-nous ce qu\'il vous faut, on s\'occupe du reste.',
+    en: 'Tell us what you need, we take care of the rest.',
+    es: 'Dinos qué necesitas, nosotros nos ocupamos del resto.',
+  },
+  subtitle: {
+    fr: 'Services locaux vérifiés, adaptés à votre hébergement et à vos dates.',
+    en: 'Verified local services, matched to your accommodation and dates.',
+    es: 'Servicios locales verificados, adaptados a tu alojamiento y a tus fechas.',
+  },
+  what: { fr: 'Quel service souhaitez-vous réserver ?', en: 'Which service would you like to book?', es: '¿Qué servicio quieres reservar?' },
+  whatPh: {
+    fr: 'Ex : massage à domicile demain, chef privé vendredi soir, baby-sitter pour deux enfants…',
+    en: 'E.g. a massage tomorrow, a private chef on Friday night, a babysitter for two kids…',
+    es: 'Ej.: masaje mañana, chef privado el viernes por la noche, niñera para dos niños…',
+  },
+  dates: { fr: 'Dates du séjour', en: 'Stay dates', es: 'Fechas de la estancia' },
+  datesPh: { fr: 'Ex : 12–18 août', en: 'E.g. Aug 12–18', es: 'Ej.: 12–18 agosto' },
+  place: { fr: 'Lieu de séjour', en: 'Where you stay', es: 'Lugar de estancia' },
+  placePh: { fr: 'Ex : villa à Deshaies', en: 'E.g. villa in Deshaies', es: 'Ej.: villa en Deshaies' },
+  ideas: { fr: 'Idées populaires', en: 'Popular ideas', es: 'Ideas populares' },
+  suggestions: {
+    fr: ['Un massage à domicile', 'Un chef privé', 'Je voyage avec deux enfants', 'Un DJ pour notre soirée en terrasse', 'Un photographe près de notre villa'],
+    en: ['A massage at home', 'A private chef', 'I\'m travelling with two kids', 'A DJ for our terrace party', 'A photographer near our villa'],
+    es: ['Un masaje a domicilio', 'Un chef privado', 'Viajo con dos niños', 'Un DJ para nuestra fiesta en la terraza', 'Un fotógrafo cerca de nuestra villa'],
+  },
+  ctaWhatsApp: { fr: 'Envoyer à Camille sur WhatsApp', en: 'Send to Camille on WhatsApp', es: 'Enviar a Camille por WhatsApp' },
+  ctaSearch: { fr: 'Voir les services', en: 'See services', es: 'Ver servicios' },
+  orSearch: { fr: 'Ou parcourir directement les services', en: 'Or browse the services directly', es: 'O explorar los servicios directamente' },
+  reply: { fr: 'Réponse en moins de 2h', en: 'Reply within 2 hours', es: 'Respuesta en menos de 2 h' },
+  popular: { fr: 'Services populaires', en: 'Popular services', es: 'Servicios populares' },
+  seeAll: { fr: 'Voir tout', en: 'See all', es: 'Ver todo' },
+  how: { fr: 'Comment ça marche', en: 'How it works', es: 'Cómo funciona' },
+  steps: {
+    fr: [
+      ['Décrivez votre envie', 'Plus c\'est précis, mieux c\'est.'],
+      ['On trouve les bons prestataires', 'Disponibilités, lieu, profil voyageur.'],
+      ['Réservez en quelques minutes', 'Le service vient directement à vous.'],
+    ],
+    en: [
+      ['Describe what you want', 'The more precise, the better.'],
+      ['We find the right providers', 'Availability, location, traveller profile.'],
+      ['Book in a few minutes', 'The service comes straight to you.'],
+    ],
+    es: [
+      ['Describe lo que quieres', 'Cuanto más preciso, mejor.'],
+      ['Encontramos a los prestadores adecuados', 'Disponibilidad, lugar, perfil del viajero.'],
+      ['Reserva en unos minutos', 'El servicio va directamente a ti.'],
+    ],
+  },
+} as const
 
 interface ConciergeClientProps {
   recommendations: ServiceView[]
 }
 
-export function ConciergeClient({ recommendations: RECOMMENDATIONS }: ConciergeClientProps) {
+export function ConciergeClient({ recommendations }: ConciergeClientProps) {
+  const locale = useLocale()
+  const lang: Lang = locale === 'en' || locale === 'es' ? locale : 'fr'
+  const c = <K extends keyof typeof COPY>(k: K) => COPY[k][lang] as (typeof COPY)[K][Lang]
+  const router = useRouter()
+
   const [message, setMessage] = useState('')
   const [stayDates, setStayDates] = useState('')
   const [location, setLocation] = useState('')
-  const [sent, setSent] = useState(false)
 
-  function handleSend(e: React.SubmitEvent<HTMLFormElement>) {
+  const fullMessage = [
+    message.trim(),
+    stayDates.trim() && `${c('dates')} : ${stayDates.trim()}`,
+    location.trim() && `${c('place')} : ${location.trim()}`,
+  ].filter(Boolean).join('\n')
+
+  function openSearch() {
+    const q = message.trim()
+    router.push(q ? `/search?q=${encodeURIComponent(q)}` : '/search')
+  }
+
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!message.trim()) return
-    // In production: send to backend / notify concierge team
-    setSent(true)
+    if (WHATSAPP_NUMBER) {
+      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(fullMessage)}`, '_blank', 'noopener,noreferrer')
+    } else {
+      openSearch()
+    }
   }
 
-  function applySuggestion(s: string) {
-    setMessage(s)
-  }
-
-  const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${
-    message.trim()
-      ? encodeURIComponent(message)
-      : WHATSAPP_DEFAULT_MSG
-  }`
+  const field =
+    'w-full rounded-2xl border border-mist bg-white px-4 text-sm text-charcoal placeholder:text-stone focus:border-deep-green focus:outline-none focus:ring-2 focus:ring-deep-green/15'
+  const steps = c('steps')
+  const title = (s: ServiceView) => (lang === 'en' ? s.title_en : lang === 'es' ? s.title_es : s.title_fr) || s.title_fr
 
   return (
     <div className="min-h-screen bg-coconut pt-16">
-      <div className="max-w-lg mx-auto px-4 pt-6 pb-24">
-        {/* Hero */}
+      <div className="mx-auto max-w-6xl px-5 pb-24 pt-10 md:px-8 md:pt-16">
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center space-y-4 mb-8"
+          className="mx-auto mb-10 max-w-2xl text-center md:mb-14"
         >
-          <div className="relative w-24 h-24 rounded-full overflow-hidden mx-auto border-4 border-coconut shadow-elevated">
-            <Image
-              src={CONCIERGE_PHOTO}
-              alt="Concierge antillaise Ohaana"
-              fill
-              className="object-cover"
-              sizes="96px"
-            />
-            <div className="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-turquoise border-2 border-coconut" />
-          </div>
-
-          <div>
-            <h1 className="text-2xl font-display text-charcoal">Concierge digital Ohaana</h1>
-            <p className="text-stone text-sm mt-1">Services locaux vérifiés, adaptés à votre hébergement et à vos dates.</p>
-          </div>
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-turquoise-text">{c('eyebrow')}</p>
+          <h1 className="mt-4 font-display text-3xl leading-[1.15] text-deep-green md:text-5xl">{c('title')}</h1>
+          <p className="mx-auto mt-4 max-w-xl text-base text-charcoal/70 md:text-lg">{c('subtitle')}</p>
         </motion.div>
 
-        {/* WhatsApp CTA — hidden until NEXT_PUBLIC_WHATSAPP_NUMBER is set */}
-        {WHATSAPP_NUMBER && (
-          <motion.a
-            href={waLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.1 }}
-            className="flex items-center gap-4 bg-[#25D366] text-white rounded-card p-4 mb-6 hover:bg-[#20C05C] transition-colors shadow-sm"
-          >
-            <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center flex-none">
-              <MessageCircle size={24} />
-            </div>
-            <div className="flex-1">
-              <p className="font-semibold">Trouver un service local</p>
-              <p className="text-sm text-white/80">Villa, bungalow, Airbnb ou maison de vacances</p>
-            </div>
-            <ExternalLink size={18} className="flex-none opacity-70" />
-          </motion.a>
-        )}
-
-        {/* Request form */}
-        {!sent ? (
+        <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
+          {/* Request form */}
           <motion.form
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            onSubmit={handleSend}
-            className="space-y-4"
+            transition={{ delay: 0.1 }}
+            onSubmit={handleSubmit}
+            className="space-y-5 rounded-3xl border border-mist bg-white p-6 shadow-card md:p-8 lg:col-span-7"
           >
-            <div>
-              <label className="block text-sm font-medium text-charcoal mb-2">
-                Quel service souhaitez-vous réserver ?
-              </label>
+            <div className="flex items-center gap-3">
+              <div className="relative h-12 w-12 flex-none overflow-hidden rounded-full border-2 border-coconut shadow-card">
+                <Image src={CONCIERGE_PHOTO} alt="Camille, concierge Ohaana" fill className="object-cover" sizes="48px" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-deep-green">Camille</p>
+                <p className="flex items-center gap-1.5 text-xs text-charcoal/70">
+                  <span className="h-1.5 w-1.5 rounded-full bg-turquoise" aria-hidden="true" />
+                  {c('reply')}
+                </p>
+              </div>
+            </div>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium text-charcoal">{c('what')}</span>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="Ex: massage à domicile demain, chef privé vendredi soir, baby-sitter pour deux enfants..."
+                placeholder={c('whatPh')}
                 rows={4}
-                className="w-full rounded-card border border-mist bg-surface px-4 py-3 text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green focus:ring-2 focus:ring-deep-green/15 resize-none"
+                required
+                className={`${field} resize-none py-3`}
               />
-            </div>
+            </label>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid gap-4 sm:grid-cols-2">
               <label className="block">
-                <span className="flex items-center gap-1.5 text-sm font-medium text-charcoal mb-2">
-                  <CalendarDays size={14} />
-                  Dates du séjour
+                <span className="mb-2 flex items-center gap-1.5 text-sm font-medium text-charcoal">
+                  <CalendarDays size={14} /> {c('dates')}
                 </span>
-                <input
-                  value={stayDates}
-                  onChange={(e) => setStayDates(e.target.value)}
-                  placeholder="Ex: 12–18 août"
-                  className="w-full h-12 rounded-card border border-mist bg-surface px-4 text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green focus:ring-2 focus:ring-deep-green/15"
-                />
+                <input value={stayDates} onChange={(e) => setStayDates(e.target.value)} placeholder={c('datesPh')} className={`${field} h-12`} />
               </label>
               <label className="block">
-                <span className="flex items-center gap-1.5 text-sm font-medium text-charcoal mb-2">
-                  <MapPin size={14} />
-                  Lieu de séjour
+                <span className="mb-2 flex items-center gap-1.5 text-sm font-medium text-charcoal">
+                  <MapPin size={14} /> {c('place')}
                 </span>
-                <input
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="Ex: villa à Deshaies, Airbnb au Diamant"
-                  className="w-full h-12 rounded-card border border-mist bg-surface px-4 text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green focus:ring-2 focus:ring-deep-green/15"
-                />
+                <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder={c('placePh')} className={`${field} h-12`} />
               </label>
             </div>
 
-            {/* Suggestions */}
             <div>
-              <p className="text-xs text-stone mb-2">Idées populaires :</p>
+              <p className="mb-2 text-xs text-charcoal/70">{c('ideas')}</p>
               <div className="flex flex-wrap gap-2">
-                {SUGGESTIONS.map((s) => (
+                {c('suggestions').map((s) => (
                   <button
                     key={s}
                     type="button"
-                    onClick={() => applySuggestion(s)}
-                    className="text-xs px-3 py-1.5 rounded-full bg-sand border border-mist text-charcoal-soft hover:border-deep-green hover:text-deep-green transition-colors"
+                    onClick={() => setMessage(s)}
+                    className="min-h-9 rounded-full border border-mist bg-coconut px-3.5 text-xs text-charcoal transition-colors hover:border-deep-green hover:text-deep-green"
                   >
                     {s}
                   </button>
@@ -164,98 +185,79 @@ export function ConciergeClient({ recommendations: RECOMMENDATIONS }: ConciergeC
               </div>
             </div>
 
-            <Button type="submit" fullWidth size="lg" disabled={!message.trim()}>
-              <Send size={16} />
-              Recevoir mes recommandations
-            </Button>
-          </motion.form>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.94 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="text-center py-10 space-y-4 bg-sand rounded-3xl px-6"
-          >
-            <div className="text-4xl">✅</div>
-            <h2 className="text-xl font-display text-charcoal">Demande envoyée !</h2>
-            <p className="text-sm text-stone max-w-xs mx-auto">
-              Nous préparons une proposition avec les prestataires et créneaux compatibles avec votre lieu de séjour.
-            </p>
-            <Button
-              variant="outline"
-              onClick={() => { setMessage(''); setSent(false) }}
-            >
-              Nouvelle demande
-            </Button>
-          </motion.div>
-        )}
-
-        {/* Recommendations */}
-        <motion.section
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.24 }}
-          className="mt-8 space-y-3"
-        >
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="text-sm font-semibold text-charcoal">Services disponibles pour votre séjour</h2>
-            <span className="inline-flex items-center gap-1 text-[11px] text-stone">
-              <Clock size={11} />
-              Créneaux filtrés
-            </span>
-          </div>
-          <div className="space-y-2">
-            {RECOMMENDATIONS.slice(0, 4).map((service) => (
-              <Link
-                key={service.id}
-                href={`/prestataires/${service.id}`}
-                className="flex items-center gap-3 rounded-card border border-mist bg-surface p-3 hover:border-deep-green/40 transition-colors"
+            <div className="space-y-3 pt-1">
+              <button
+                type="submit"
+                disabled={!message.trim()}
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-deep-green text-sm font-medium text-coconut transition-colors hover:bg-coral disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <div className="relative h-14 w-14 rounded-control overflow-hidden flex-none">
-                  <Image
-                    src={(service.images.find((image) => image.is_cover) ?? service.images[0])?.url ?? ''}
-                    alt={service.title_fr}
-                    fill
-                    className="object-cover"
-                    sizes="56px"
-                  />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-charcoal truncate">{service.title_fr}</p>
-                  <p className="text-xs text-stone truncate">{service.provider.business_name}</p>
-                </div>
-                <span className="inline-flex items-center gap-1 rounded-full bg-turquoise/10 px-2 py-1 text-[11px] font-medium text-deep-green">
-                  <Sparkles size={11} />
-                  Compatible
-                </span>
-              </Link>
-            ))}
-          </div>
-        </motion.section>
-
-        {/* How it works */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="mt-8 space-y-3"
-        >
-          <h3 className="text-sm font-semibold text-charcoal">Comment ça marche</h3>
-          {[
-            { step: '1', title: 'Décrivez votre envie', desc: 'Plus c\'est précis, mieux c\'est.' },
-            { step: '2', title: 'Nous trouvons les bons prestataires', desc: 'Disponibilités, lieu, profil voyageur.' },
-            { step: '3', title: 'Réservez en quelques minutes', desc: 'Le service vient directement à vous.' },
-          ].map(({ step, title, desc }) => (
-            <div key={step} className="flex items-center gap-4">
-              <div className="w-8 h-8 rounded-full bg-deep-green/10 text-deep-green flex items-center justify-center text-sm font-semibold flex-none">
-                {step}
-              </div>
-              <div>
-                <p className="text-sm font-medium text-charcoal">{title}</p>
-                <p className="text-xs text-stone">{desc}</p>
-              </div>
+                {WHATSAPP_NUMBER ? <MessageCircle size={18} /> : <Search size={18} />}
+                {WHATSAPP_NUMBER ? c('ctaWhatsApp') : c('ctaSearch')}
+              </button>
+              {WHATSAPP_NUMBER && (
+                <button
+                  type="button"
+                  onClick={openSearch}
+                  className="flex min-h-11 w-full items-center justify-center text-sm text-charcoal/70 underline-offset-4 hover:text-deep-green hover:underline"
+                >
+                  {c('orSearch')}
+                </button>
+              )}
             </div>
-          ))}
-        </motion.div>
+          </motion.form>
+
+          {/* Side column */}
+          <div className="space-y-8 lg:col-span-5">
+            <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="font-display text-xl text-deep-green">{c('popular')}</h2>
+                <Link href="/search" className="flex min-h-11 items-center gap-0.5 text-sm font-medium text-deep-green">
+                  {c('seeAll')} <ChevronRight size={15} />
+                </Link>
+              </div>
+              <div className="space-y-2.5">
+                {recommendations.slice(0, 4).map((service) => {
+                  const img = (service.images.find((i) => i.is_cover) ?? service.images[0])?.url
+                  return (
+                    <Link
+                      key={service.id}
+                      href={`/prestataires/${service.id}`}
+                      className="flex items-center gap-3 rounded-2xl border border-mist bg-white p-3 transition-colors hover:border-deep-green/40"
+                    >
+                      <div className="relative h-16 w-16 flex-none overflow-hidden rounded-xl bg-sand">
+                        {img && <Image src={img} alt={title(service)} fill className="object-cover" sizes="64px" />}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-charcoal">{title(service)}</p>
+                        <p className="truncate text-xs text-charcoal/70">{service.provider.business_name}</p>
+                      </div>
+                      <span className="flex-none text-sm font-semibold text-deep-green">
+                        {Math.round(service.price_cents / 100)} €
+                      </span>
+                    </Link>
+                  )
+                })}
+              </div>
+            </motion.section>
+
+            <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+              <h2 className="mb-4 font-display text-xl text-deep-green">{c('how')}</h2>
+              <ol className="space-y-4">
+                {steps.map(([t, d], i) => (
+                  <li key={t} className="flex items-start gap-4">
+                    <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-deep-green text-sm font-semibold text-coconut">
+                      {i + 1}
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold text-deep-green">{t}</p>
+                      <p className="text-xs text-charcoal/70">{d}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </motion.section>
+          </div>
+        </div>
       </div>
     </div>
   )
