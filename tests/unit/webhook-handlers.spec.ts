@@ -7,14 +7,14 @@ import { handleStripeEvent, type WebhookDeps } from '@/lib/stripe/webhook-handle
 
 function makeDeps(result: unknown = 'ok', error: { message: string } | null = null) {
   const calls: { fn: string; args: Record<string, unknown> }[] = []
-  const refunds: string[] = []
+  const refunds: { id: string; account: string | null }[] = []
   const deps: WebhookDeps = {
     rpc: async (fn, args) => {
       calls.push({ fn, args })
       return { data: result, error }
     },
-    refundLatePayment: async (id) => {
-      refunds.push(id)
+    refundLatePayment: async (id, account) => {
+      refunds.push({ id, account })
     },
   }
   return { deps, calls, refunds }
@@ -41,7 +41,14 @@ test.describe('handleStripeEvent', () => {
     const { deps, refunds } = makeDeps('needs_refund')
     const out = await handleStripeEvent(event('payment_intent.succeeded', { id: 'pi_late', latest_charge: null }), deps)
     expect(out.result).toBe('needs_refund')
-    expect(refunds).toEqual(['pi_late'])
+    expect(refunds).toEqual([{ id: 'pi_late', account: null }])
+  })
+
+  test('a late payment taken on a connected account is refunded on that account', async () => {
+    const { deps, refunds } = makeDeps('needs_refund')
+    const ev = { ...event('payment_intent.succeeded', { id: 'pi_late', latest_charge: null }), account: 'acct_1ABC' } as Stripe.Event
+    await handleStripeEvent(ev, deps)
+    expect(refunds).toEqual([{ id: 'pi_late', account: 'acct_1ABC' }])
   })
 
   test('no refund for an unknown or already processed payment', async () => {

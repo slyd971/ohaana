@@ -7,6 +7,7 @@ import { getServiceByIdOrSlug } from '@/lib/data/services'
 import { DEMO_MODE } from '@/lib/demo-mode'
 import { computeCommission } from '@/lib/utils'
 import { getCommissionPct } from '@/lib/commission'
+import { buildDirectChargeIntent, isStripeAccountId } from '@/lib/stripe/direct-charge'
 
 const bodySchema = z.object({
   serviceId: z.uuid(),
@@ -24,7 +25,8 @@ const fail = (error: string, status: number) => NextResponse.json({ error }, { s
  *
  *  - Demo mode (NEXT_PUBLIC_DEMO_MODE=true): no account, no booking row; only Stripe TEST keys are accepted.
  *  - Real mode: the signed-in user's session calls the create_booking RPC (slot lock, server-side price),
- *    then the PaymentIntent is tied to that booking; the Stripe webhook confirms it.
+ *    then a DIRECT CHARGE is created on the provider's connected account (Ohaana's commission is the
+ *    application fee); the Stripe webhook confirms it. A provider whose payments are not set up cannot be booked.
  */
 export async function POST(request: Request) {
   const secret = process.env.STRIPE_SECRET_KEY
@@ -66,6 +68,17 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return fail('auth_required', 401)
 
+  // Le prestataire doit pouvoir encaisser : vérifié AVANT de bloquer le créneau.
+  const admin = await createAdminClient()
+  const { data: payee } = await admin
+    .from('provider_profiles')
+    .select('stripe_account_id, stripe_onboarded')
+    .eq('id', service.provider_id)
+    .maybeSingle()
+  const target = payee as { stripe_account_id: string | null; stripe_onboarded: boolean } | null
+  if (!target?.stripe_onboarded || !isStripeAccountId(target.stripe_account_id)) return fail('provider_not_ready', 409)
+  const connectedAccount = target.stripe_account_id
+
   const { data: booking, error: bookingError } = await supabase.rpc('create_booking', {
     p_service_id: serviceId, p_slot_id: slotId, p_guests: guests, p_notes: notes ?? null, p_address: address ?? null,
   })
@@ -85,19 +98,18 @@ export async function POST(request: Request) {
   const { platformFee, providerAmount } = computeCommission(amount, await getCommissionPct())
 
   try {
-    const intent = await stripe.paymentIntents.create(
-      {
-        amount,
-        currency: 'eur',
-        automatic_payment_methods: { enabled: true },
-        receipt_email: user.email ?? undefined,
-        description: `Ohaana — ${service.title_fr}`.slice(0, 200),
-        metadata: { booking_id: booking.id, service_id: serviceId, tourist_id: user.id },
-      },
-      { idempotencyKey: `booking-${booking.id}` },
-    )
+    const { params, options } = buildDirectChargeIntent({
+      amountCents: amount,
+      platformFeeCents: platformFee,
+      providerAccountId: connectedAccount,
+      bookingId: booking.id,
+      serviceId,
+      touristId: user.id,
+      title: service.title_fr,
+      receiptEmail: user.email ?? undefined,
+    })
+    const intent = await stripe.paymentIntents.create(params, options)
 
-    const admin = await createAdminClient()
     const { error: paymentError } = await admin.from('payments').insert({
       booking_id: booking.id,
       stripe_payment_intent_id: intent.id,
@@ -109,7 +121,13 @@ export async function POST(request: Request) {
     })
     if (paymentError) throw new Error(paymentError.message)
 
-    return NextResponse.json({ clientSecret: intent.client_secret, amount, bookingId: booking.id, demo: false })
+    return NextResponse.json({
+      clientSecret: intent.client_secret,
+      amount,
+      bookingId: booking.id,
+      stripeAccount: connectedAccount, // le navigateur doit initialiser Stripe.js sur ce compte
+      demo: false,
+    })
   } catch (error) {
     console.error('[checkout] payment setup failed:', error instanceof Error ? error.message : error)
     await supabase.rpc('cancel_booking', { p_booking_id: booking.id, p_reason: 'payment_setup_failed' }) // release the slot

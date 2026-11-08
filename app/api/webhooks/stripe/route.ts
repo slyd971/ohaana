@@ -7,14 +7,16 @@ import { handleStripeEvent, type WebhookDeps } from '@/lib/stripe/webhook-handle
 
 /**
  * Stripe webhook. Order of operations:
- *  1. verify the signature on the raw body;
+ *  1. verify the signature on the raw body (platform secret, or connected-accounts secret);
  *  2. claim the event id in webhook_events (a processed event is acknowledged and ignored);
  *  3. apply it through atomic SQL functions (replayable);
  *  4. mark it processed, or store the error and answer 500 so Stripe retries.
  */
 export async function POST(request: Request) {
-  const secret = process.env.STRIPE_WEBHOOK_SECRET
-  if (!process.env.STRIPE_SECRET_KEY || !secret || !hasServiceRole()) {
+  // Deux endpoints Stripe possibles, chacun avec son secret : celui de la plateforme et celui des comptes connectés
+  // (les paiements directs arrivent par ce dernier, avec event.account).
+  const secrets = [process.env.STRIPE_WEBHOOK_SECRET, process.env.STRIPE_CONNECT_WEBHOOK_SECRET].filter((s): s is string => Boolean(s))
+  if (!process.env.STRIPE_SECRET_KEY || secrets.length === 0 || !hasServiceRole()) {
     return NextResponse.json({ error: 'webhook_not_configured' }, { status: 503 })
   }
 
@@ -23,12 +25,16 @@ export async function POST(request: Request) {
   if (!signature) return NextResponse.json({ error: 'missing_signature' }, { status: 400 })
 
   const stripe = getStripe()
-  let event: Stripe.Event
-  try {
-    event = stripe.webhooks.constructEvent(body, signature, secret)
-  } catch {
-    return NextResponse.json({ error: 'invalid_signature' }, { status: 400 })
+  let event: Stripe.Event | null = null
+  for (const secret of secrets) {
+    try {
+      event = stripe.webhooks.constructEvent(body, signature, secret)
+      break
+    } catch {
+      /* essaie le secret suivant */
+    }
   }
+  if (!event) return NextResponse.json({ error: 'invalid_signature' }, { status: 400 })
 
   const supabase = await createAdminClient()
 
@@ -49,11 +55,18 @@ export async function POST(request: Request) {
       const { data, error } = await supabase.rpc(fn, args)
       return { data, error: error ? { message: error.message } : null }
     },
-    refundLatePayment: async (intentId) => {
+    refundLatePayment: async (intentId, connectedAccount) => {
       // The idempotency key makes a replayed event reuse the same refund instead of creating another.
       await stripe.refunds.create(
-        { payment_intent: intentId, reason: 'requested_by_customer', metadata: { cause: 'payment_after_booking_expired' } },
-        { idempotencyKey: `late-payment-refund-${intentId}` },
+        {
+          payment_intent: intentId,
+          reason: 'requested_by_customer',
+          metadata: { cause: 'payment_after_booking_expired' },
+          ...(connectedAccount ? { refund_application_fee: true } : {}),
+        },
+        connectedAccount
+          ? { idempotencyKey: `late-payment-refund-${intentId}`, stripeAccount: connectedAccount }
+          : { idempotencyKey: `late-payment-refund-${intentId}` },
       )
     },
   }

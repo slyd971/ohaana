@@ -26,13 +26,18 @@ export interface PaymentForRefund {
   total_cents: number
   refunded_cents: number
   stripe_payment_intent_id: string | null
+  /** Compte connecté sur lequel le paiement a été encaissé (null = encaissement de la plateforme, ex. anciens paiements de test). */
+  stripe_account_id: string | null
 }
 
 export interface RefundDeps {
   loadBooking(bookingId: string): Promise<BookingForRefund | null>
   loadPayment(bookingId: string): Promise<PaymentForRefund | null>
   /** Appel Stripe. La clé d'idempotence garantit qu'un rejeu ne crée jamais un second remboursement. */
-  createRefund(args: { paymentIntent: string; amountCents: number; bookingId: string }, idempotencyKey: string): Promise<void>
+  createRefund(
+    args: { paymentIntent: string; amountCents: number; bookingId: string; stripeAccount: string | null },
+    idempotencyKey: string,
+  ): Promise<void>
   /** Écrit le cumul remboursé en base (payments.refunded_cents, et le statut si c'est total). */
   recordRefund(args: { paymentIntent: string; refundedCents: number; fully: boolean }): Promise<void>
 }
@@ -56,7 +61,7 @@ export async function refundCancelledBooking(bookingId: string, deps: RefundDeps
   // La clé dépend du montant dû : si Stripe a déjà remboursé mais que l'écriture en base a échoué, le rejeu
   // retombe sur le même remboursement au lieu d'en créer un autre.
   await deps.createRefund(
-    { paymentIntent: payment.stripe_payment_intent_id, amountCents: remaining, bookingId },
+    { paymentIntent: payment.stripe_payment_intent_id, amountCents: remaining, bookingId, stripeAccount: payment.stripe_account_id },
     `booking-refund-${bookingId}-${payment.refunded_cents}-${remaining}`,
   )
 

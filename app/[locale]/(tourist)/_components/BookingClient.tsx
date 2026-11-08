@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/Button'
 import { StripeCheckout } from '@/components/checkout/StripeCheckout'
 import { STRIPE_CONFIGURED, STRIPE_TEST_MODE, getStripePromise } from '@/lib/stripe/browser'
+import { isStripeAccountId } from '@/lib/stripe/direct-charge'
 import { useAuth } from '@/lib/auth/AuthProvider'
 import { DEMO_MODE } from '@/lib/demo-mode'
 import type { ServiceView, SlotView } from '@/lib/data/types'
@@ -241,6 +242,7 @@ export function BookingClient({ service, slots }: BookingClientProps) {
   const [confirmed, setConfirmed] = useState(false)
   const { isLoggedIn, loading: authLoading } = useAuth()
   const [clientSecret, setClientSecret] = useState<string | null>(null)
+  const [stripeAccount, setStripeAccount] = useState<string | null>(null)
   const [intentLoading, setIntentLoading] = useState(false)
   const [payError, setPayError] = useState('')
   const [payBusy, setPayBusy] = useState(false)
@@ -258,12 +260,13 @@ export function BookingClient({ service, slots }: BookingClientProps) {
     : null
   const returnUrl = typeof window === 'undefined' || !selectedDate || !selectedTime
     ? ''
-    : `${window.location.origin}${window.location.pathname}?date=${isoOf(selectedDate)}&time=${selectedTime}&guests=${guests}`
+    : `${window.location.origin}${window.location.pathname}?date=${isoOf(selectedDate)}&time=${selectedTime}&guests=${guests}${stripeAccount ? `&acct=${stripeAccount}` : ''}`
 
   // Any change to the order invalidates the PaymentIntent: it is recreated (server-priced) on the next "Réserver".
   function invalidatePayment() {
     setShowPayment(false)
     setClientSecret(null)
+    setStripeAccount(null)
     setPayError('')
   }
 
@@ -286,11 +289,13 @@ export function BookingClient({ service, slots }: BookingClientProps) {
           auth_required: 'Connectez-vous pour finaliser votre réservation.',
           payments_not_configured: 'Le paiement en ligne n’est pas encore disponible.',
           invalid_guests: 'Le nombre de participants n’est pas valide pour ce service.',
+          provider_not_ready: 'Ce prestataire ne peut pas encore encaisser de réservation en ligne. Contactez-nous ou choisissez un autre service.',
         }
         setPayError(messages[data.error as string] ?? 'Impossible de préparer le paiement. Réessayez dans un instant.')
         setShowPayment(data.error !== 'slot_unavailable')
         return
       }
+      setStripeAccount(typeof data.stripeAccount === 'string' ? data.stripeAccount : null)
       setClientSecret(data.clientSecret as string)
     } catch {
       setPayError('Connexion impossible. Vérifiez votre réseau et réessayez.')
@@ -301,17 +306,19 @@ export function BookingClient({ service, slots }: BookingClientProps) {
 
   // Back from a redirect (3-D Secure, wallets): Stripe appends payment_intent_client_secret to the URL.
   const returnedSecret = searchParams.get('payment_intent_client_secret')
+  const returnedAccount = searchParams.get('acct')
   useEffect(() => {
     if (!returnedSecret) return
     let active = true
-    getStripePromise()?.then((stripe) => stripe?.retrievePaymentIntent(returnedSecret)).then((result) => {
+    const account = returnedAccount && isStripeAccountId(returnedAccount) ? returnedAccount : null
+    getStripePromise(account)?.then((stripe) => stripe?.retrievePaymentIntent(returnedSecret)).then((result) => {
       if (!active || !result) return
       const status = result.paymentIntent?.status
       if (status === 'succeeded' || status === 'processing') setConfirmed(true)
       else setPayError('Le paiement n’a pas abouti. Aucun montant n’a été débité.')
     })
     return () => { active = false }
-  }, [returnedSecret])
+  }, [returnedSecret, returnedAccount])
 
   if (confirmed) {
     return (
@@ -618,6 +625,7 @@ export function BookingClient({ service, slots }: BookingClientProps) {
                 ) : (
                   <StripeCheckout
                     clientSecret={clientSecret}
+                    stripeAccount={stripeAccount}
                     returnUrl={returnUrl}
                     registerPay={registerPay}
                     onSuccess={handleSuccess}
