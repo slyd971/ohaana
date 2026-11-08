@@ -33,7 +33,7 @@ function formatRange(start: Date | null, end: Date | null): string {
   if (!start) return ''
   const opts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' }
   const s = start.toLocaleDateString('fr-FR', opts)
-  if (!end) return s
+  if (!end || isSameDay(start, end)) return s
   const e = end.toLocaleDateString('fr-FR', opts)
   return `${s} – ${e}`
 }
@@ -250,7 +250,9 @@ export function DateRangePicker({
       if (day < startDate) {
         onChange(day, null)
       } else if (isSameDay(day, startDate)) {
-        onChange(null, null)
+        // Second click on the same day = a one-day stay (clear with the X button).
+        onChange(startDate, day)
+        if (!isMobile) setOpen(false)
       } else {
         onChange(startDate, day)
         if (!isMobile) setOpen(false)

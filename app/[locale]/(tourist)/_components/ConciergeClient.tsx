@@ -92,7 +92,7 @@ export function ConciergeClient({ recommendations }: ConciergeClientProps) {
   const [contact, setContact] = useState('')
 
   const fmt = (d: Date) => d.toLocaleDateString(lang === 'fr' ? 'fr-FR' : lang === 'es' ? 'es-ES' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
-  const stayDates = stayStart ? (stayEnd ? `${fmt(stayStart)} → ${fmt(stayEnd)}` : fmt(stayStart)) : ''
+  const stayDates = stayStart ? (stayEnd && stayEnd.getTime() !== stayStart.getTime() ? `${fmt(stayStart)} → ${fmt(stayEnd)}` : fmt(stayStart)) : ''
 
   const fullMessage = [
     message.trim(),
