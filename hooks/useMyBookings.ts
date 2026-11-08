@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/lib/auth/AuthProvider'
+import { cancelMyBookingAction } from '@/app/actions/bookings'
+import type { CancelResult } from '@/lib/bookings/types'
 
 export type BookingDisplayStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled'
 
@@ -115,10 +117,11 @@ export function useMyBookings() {
     return () => { active = false }
   }, [authLoading, enabled, version])
 
-  const cancel = useCallback(async (bookingId: string, reason?: string) => {
-    const { error } = await createClient().rpc('cancel_booking', { p_booking_id: bookingId, p_reason: reason ?? null })
-    if (!error) setVersion((v) => v + 1)
-    return !error
+  // L'annulation passe par le serveur : c'est lui qui rembourse (Stripe) après que la base a validé l'annulation.
+  const cancel = useCallback(async (bookingId: string, reason?: string): Promise<CancelResult> => {
+    const result = await cancelMyBookingAction(bookingId, reason)
+    if (result.ok) setVersion((v) => v + 1)
+    return result
   }, [])
 
   return { ...state, cancel }

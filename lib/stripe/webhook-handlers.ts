@@ -45,6 +45,7 @@ export async function handleStripeEvent(event: Stripe.Event, deps: WebhookDeps):
           p_charge: charge.id,
           p_intent: idOf(charge.payment_intent as string | { id: string } | null),
           p_fully: charge.refunded === true,
+          p_refunded_cents: typeof charge.amount_refunded === 'number' ? charge.amount_refunded : null,
         }),
       }
     }

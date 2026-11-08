@@ -6,6 +6,8 @@ import { getProviderContext } from '@/lib/provider/context'
 import { profileSchema, submissionProblems, type ActionState } from '@/lib/provider/schemas'
 import { fieldErrors, formObject, isUuid, parseServiceForm } from '@/lib/provider/service-input'
 import { planSlots } from '@/lib/provider/slots'
+import { refundBookingPayment } from '@/lib/stripe/refunds'
+import { hasServiceRole } from '@/lib/supabase/server'
 import { MIN_PHOTOS, applyImageOp, countServiceImages, type ImageOp } from '@/lib/provider/images'
 import { getProviderService } from '@/lib/provider/queries'
 import { slugify } from '@/lib/utils'
@@ -192,6 +194,25 @@ export async function setBookingStatusAction(
 
   revalidatePath('/provider/reservations')
   revalidatePath('/provider/dashboard')
+
+  if (status === 'cancelled_provider') {
+    // Annulation par le prestataire : remboursement intégral (la base fixe refund_pct = 100).
+    if (!hasServiceRole()) return { ok: true, message: 'Réservation annulée.' }
+    try {
+      const outcome = await refundBookingPayment(bookingId)
+      return {
+        ok: true,
+        message:
+          outcome.status === 'refunded'
+            ? 'Réservation annulée : le voyageur est remboursé intégralement.'
+            : 'Réservation annulée.',
+      }
+    } catch (e) {
+      console.error('[provider-cancel] refund failed for', bookingId, e instanceof Error ? e.message : e)
+      // L'annulation est valable ; le remboursement sera relancé par l'équipe (liste « remboursements à traiter »).
+      return { ok: true, message: 'Réservation annulée. Le remboursement du voyageur est en cours de traitement.' }
+    }
+  }
   return { ok: true }
 }
 

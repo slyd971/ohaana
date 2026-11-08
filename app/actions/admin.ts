@@ -9,6 +9,7 @@ import { fieldErrors, formObject, isUuid, parseServiceForm } from '@/lib/provide
 import { planSlots } from '@/lib/provider/slots'
 import { slugify } from '@/lib/utils'
 import { applyImageOp, type ImageOp } from '@/lib/provider/images'
+import { refundBookingPayment } from '@/lib/stripe/refunds'
 import { SETTINGS_TAG } from '@/lib/commission'
 import { LEAD_STATUSES, USER_ROLES, categorySchema, type AssignableRole } from '@/lib/admin/schemas'
 
@@ -416,6 +417,32 @@ export async function setLeadStatusAction(leadId: string, status: (typeof LEAD_S
   await log(a.ctx, 'lead.set_status', 'lead', leadId, { status })
   revalidatePath('/admin/leads')
   return { ok: true }
+}
+
+// ─── Remboursements ──────────────────────────────────────────────────────────
+
+/**
+ * Relance le remboursement d'une annulation dont l'envoi a échoué (liste « remboursements à traiter »).
+ * Sans risque de doublon : le montant restant dû est recalculé et la clé d'idempotence de Stripe protège
+ * contre un remboursement déjà parti.
+ */
+export async function retryRefundAction(bookingId: string): Promise<ActionState> {
+  const a = await admin()
+  if ('error' in a) return { error: a.error }
+  if (!isUuid(bookingId)) return { error: 'Réservation invalide.' }
+
+  try {
+    const outcome = await refundBookingPayment(bookingId)
+    await log(a.ctx, 'refund.retry', 'booking', bookingId, { outcome: outcome.status })
+    revalidatePath('/admin/dashboard')
+    if (outcome.status === 'refunded') return { ok: true, message: 'Remboursement envoyé.' }
+    if (outcome.status === 'not_cancelled') return { error: 'Cette réservation n’est pas annulée.' }
+    return { ok: true, message: 'Rien à rembourser : déjà réglé ou non dû.' }
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'erreur inconnue'
+    console.error('[admin] refund retry failed for', bookingId, message)
+    return { error: message === 'refunds_not_configured' ? 'Remboursements non configurés (clés Stripe / service_role).' : 'Stripe a refusé le remboursement. Réessayez ou vérifiez le paiement dans Stripe.' }
+  }
 }
 
 // ─── Paramètres ──────────────────────────────────────────────────────────────
