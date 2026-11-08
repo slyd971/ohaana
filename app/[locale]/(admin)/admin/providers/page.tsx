@@ -28,9 +28,11 @@ interface ProviderRow {
 
 async function fetchProviders(): Promise<{ rows: ProviderRow[]; error: boolean }> {
   // RLS: only admins can read every provider profile.
+  // provider_profiles a deux liens vers users (user_id et created_by_admin_id, migration 003) : sans l'indice de
+  // relation, PostgREST répond PGRST201 (« more than one relationship ») et la page restait vide.
   const { data, error } = await createClient()
     .from('provider_profiles')
-    .select('id, business_name, island, certifications, avg_rating, review_count, stripe_onboarded, is_approved, users ( full_name, avatar_url )')
+    .select('id, business_name, island, certifications, avg_rating, review_count, stripe_onboarded, is_approved, users!provider_profiles_user_id_fkey ( full_name, avatar_url )')
     .order('created_at', { ascending: false })
   return { rows: (data ?? []) as unknown as ProviderRow[], error: Boolean(error) }
 }
