@@ -32,7 +32,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-lg font-semibold text-charcoal mb-3">4. Réservation et paiement</h2>
-            <p>Toute réservation effectuée via Ohaana est soumise à confirmation par le Prestataire. Le paiement est sécurisé via Stripe et débité uniquement après confirmation. Des frais de service de 10% sont appliqués sur chaque transaction.</p>
+            <p>Toute réservation effectuée via Ohaana est soumise à confirmation par le Prestataire. Le prix affiché est le prix total payé par le Voyageur, sans frais supplémentaires. Le paiement est sécurisé via Stripe ; le montant est débité au moment du paiement et remboursé selon la politique d&apos;annulation du service. Ohaana prélève une commission sur la part du Prestataire.</p>
           </section>
 
           <section>
