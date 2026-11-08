@@ -1,43 +1,46 @@
 'use client'
 
-import { useRef } from 'react'
-import Image from 'next/image'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { useState } from 'react'
+import { motion } from 'framer-motion'
 import { useLocale } from 'next-intl'
-import { Link } from '@/lib/i18n/navigation'
+import { useRouter } from '@/lib/i18n/navigation'
 import { Search } from 'lucide-react'
 import { IslandSelector, type IslandFilter } from '@/components/home/IslandSelector'
 import { DateRangePicker } from '@/components/ui/DateRangePicker'
 
-const HERO_IMG = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1600&h=900&fit=crop&q=90'
-
 const COPY = {
   fr: {
-    alt: 'Villa caribéenne — lagon turquoise et nature tropicale',
-    placeholder: 'Quand ?',
+    eyebrow: 'Guadeloupe · Martinique · Saint-Martin',
     title: 'Ce soir, le chef vient chez vous.',
-    subtitle: 'Massage en bord de piscine, chef créole, photographe ou DJ : les meilleurs prestataires de Guadeloupe, Martinique et Saint-Martin, réservés en quelques clics.',
-    mobileSubtitle: 'Massage, chef créole, DJ — les meilleurs prestataires des Antilles, à deux clics de chez vous.',
-    search: 'Massage, chef privé, DJ, photographe...',
-    explore: 'Réserver',
+    subtitle: 'Massage, chef créole, photographe ou DJ : les meilleurs prestataires des Antilles, réservés en quelques clics.',
+    where: 'Où',
+    when: 'Quand',
+    what: 'Quoi',
+    placeholder: 'Ajouter des dates',
+    search: 'Massage, chef privé, DJ...',
+    cta: 'Rechercher',
   },
   en: {
-    alt: 'Caribbean villa with a turquoise lagoon and tropical nature',
-    placeholder: 'When?',
+    eyebrow: 'Guadeloupe · Martinique · Saint-Martin',
     title: 'Tonight, the chef comes to you.',
-    subtitle: 'Poolside massage, Creole chef, photographer or DJ: the best providers in Guadeloupe, Martinique and Saint-Martin, booked in a few clicks.',
-    mobileSubtitle: 'Massage, Creole chef, DJ — the best Caribbean providers, two clicks from home.',
-    search: 'Massage, private chef, DJ, photographer...',
-    explore: 'Book',
+    subtitle: 'Massage, Creole chef, photographer or DJ: the best providers in the Caribbean, booked in a few clicks.',
+    where: 'Where',
+    when: 'When',
+    what: 'What',
+    placeholder: 'Add dates',
+    search: 'Massage, private chef, DJ...',
+    cta: 'Search',
   },
   es: {
-    alt: 'Villa caribeña con laguna turquesa y naturaleza tropical',
-    placeholder: '¿Cuándo?',
+    eyebrow: 'Guadalupe · Martinica · Saint-Martin',
     title: 'Esta noche, el chef viene a ti.',
-    subtitle: 'Masaje junto a la piscina, chef criollo, fotógrafo o DJ: los mejores prestadores de Guadalupe, Martinica y Saint-Martin, reservados en pocos clics.',
-    mobileSubtitle: 'Masaje, chef criollo, DJ — los mejores prestadores del Caribe, a dos clics de donde estás.',
-    search: 'Masaje, chef privado, DJ, fotógrafo...',
-    explore: 'Reservar',
+    subtitle: 'Masaje, chef criollo, fotógrafo o DJ: los mejores prestadores del Caribe, reservados en pocos clics.',
+    where: 'Dónde',
+    when: 'Cuándo',
+    what: 'Qué',
+    placeholder: 'Añadir fechas',
+    search: 'Masaje, chef privado, DJ...',
+    cta: 'Buscar',
   },
 } as const
 
@@ -49,6 +52,8 @@ interface HeroSectionProps {
   onDatesChange: (start: Date | null, end: Date | null) => void
 }
 
+const EASE = [0.16, 1, 0.3, 1] as [number, number, number, number]
+
 export function HeroSection({
   island,
   onIslandChange,
@@ -56,80 +61,95 @@ export function HeroSection({
   stayEnd,
   onDatesChange,
 }: HeroSectionProps) {
-  const ref = useRef<HTMLDivElement>(null)
   const locale = useLocale()
+  const router = useRouter()
   const copy = COPY[(locale in COPY ? locale : 'fr') as keyof typeof COPY]
-  const { scrollY } = useScroll()
-  const y = useTransform(scrollY, [0, 500], [0, 140])
+  const [query, setQuery] = useState('')
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault()
+    const params = new URLSearchParams()
+    const q = query.trim()
+    if (q) params.set('q', q)
+    if (island !== 'all') params.set('island', island)
+    const qs = params.toString()
+    router.push(qs ? `/search?${qs}` : '/search')
+  }
+
+  const label = 'text-[11px] font-semibold uppercase tracking-wider text-charcoal'
 
   return (
-    <div ref={ref} className="relative h-[56dvh] min-h-[420px] md:h-[72dvh] md:min-h-[580px] overflow-hidden">
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div className="absolute inset-0 scale-110" style={{ y }}>
-          <Image
-            src={HERO_IMG}
-            alt={copy.alt}
-            fill
-            priority
-            className="object-cover object-center"
-            sizes="100vw"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10" />
-        </motion.div>
-      </div>
-
-      <div className="relative h-full flex flex-col justify-end pb-4 md:pb-12 px-4 md:px-12 md:items-center">
+    <section className="relative bg-coconut pt-16">
+      <div className="mx-auto max-w-4xl px-5 md:px-8 pt-12 pb-14 md:pt-20 md:pb-24 text-center">
         <motion.div
-          initial={{ opacity: 0, y: 32 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
-          className="w-full max-w-sm md:max-w-xl"
+          transition={{ duration: 0.8, ease: EASE }}
         >
-          <div className="rounded-2xl md:rounded-3xl border border-white/60 bg-coconut/92 backdrop-blur-lg p-4 md:p-6 shadow-elevated space-y-3 md:space-y-4">
-
-            <div>
-              <h1 className="text-xl md:text-[2.05rem] font-display leading-tight text-deep-green">
-                {copy.title}
-              </h1>
-              <p className="hidden md:block mt-2 text-sm leading-relaxed text-charcoal/75">
-                {copy.subtitle}
-              </p>
-              <p className="md:hidden mt-1 text-xs leading-relaxed text-charcoal/70">
-                {copy.mobileSubtitle}
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <IslandSelector value={island} onChange={onIslandChange} />
-              <div className="flex-1 min-w-0">
-                <DateRangePicker
-                  startDate={stayStart}
-                  endDate={stayEnd}
-                  onChange={onDatesChange}
-                  placeholder={copy.placeholder}
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-              <Link
-                href="/search"
-                className="flex flex-1 items-center gap-2 rounded-xl border border-mist bg-white px-3 py-2.5 transition-colors hover:border-deep-green/40"
-              >
-                <Search size={15} className="flex-none text-deep-green" />
-                <span className="min-w-0 flex-1 truncate text-sm text-stone">{copy.search}</span>
-              </Link>
-              <Link
-                href="/search"
-                className="flex items-center justify-center rounded-xl bg-deep-green px-4 py-2.5 text-sm font-medium text-coconut transition-colors hover:bg-coral sm:flex-none"
-              >
-                {copy.explore}
-              </Link>
-            </div>
-
-          </div>
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-turquoise">
+            {copy.eyebrow}
+          </p>
+          <h1 className="mt-4 font-display text-4xl leading-[1.1] text-deep-green md:text-6xl">
+            {copy.title}
+          </h1>
+          <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-charcoal/70 md:text-lg">
+            {copy.subtitle}
+          </p>
         </motion.div>
+
+        {/* Floating search — overlaps the next section */}
+        <motion.form
+          onSubmit={submit}
+          role="search"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.15, ease: EASE }}
+          className="relative z-30 mx-auto mt-10 md:mt-12  flex w-full max-w-3xl flex-col gap-1 rounded-3xl border border-mist/70 bg-white p-2 text-left shadow-modal md:flex-row md:items-stretch md:rounded-full md:p-2.5"
+        >
+          <div className="rounded-2xl px-5 py-3 md:rounded-full md:flex-none md:w-44 hover:bg-sand/50 transition-colors">
+            <div className={label}>{copy.where}</div>
+            <div className="mt-1">
+              <IslandSelector value={island} onChange={onIslandChange} variant="bare" />
+            </div>
+          </div>
+
+          <span className="hidden md:block my-3 w-px bg-mist" aria-hidden="true" />
+
+          <div className="rounded-2xl px-5 py-3 md:rounded-full md:flex-none md:w-44 hover:bg-sand/50 transition-colors">
+            <div className={label}>{copy.when}</div>
+            <div className="mt-1">
+              <DateRangePicker
+                startDate={stayStart}
+                endDate={stayEnd}
+                onChange={onDatesChange}
+                placeholder={copy.placeholder}
+                bare
+              />
+            </div>
+          </div>
+
+          <span className="hidden md:block my-3 w-px bg-mist" aria-hidden="true" />
+
+          <label className="flex flex-1 min-w-0 cursor-text flex-col rounded-2xl px-5 py-3 md:rounded-full hover:bg-sand/50 transition-colors">
+            <span className={label}>{copy.what}</span>
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={copy.search}
+              className="mt-1 w-full min-w-0 bg-transparent text-sm text-charcoal placeholder:text-stone focus:outline-none"
+            />
+          </label>
+
+          <button
+            type="submit"
+            className="m-1 flex items-center justify-center gap-2 rounded-full bg-deep-green px-6 py-3.5 text-sm font-medium text-coconut transition-colors hover:bg-coral md:flex-none"
+          >
+            <Search size={18} />
+            <span className="md:sr-only lg:not-sr-only">{copy.cta}</span>
+          </button>
+        </motion.form>
       </div>
-    </div>
+    </section>
   )
 }

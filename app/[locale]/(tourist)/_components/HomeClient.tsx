@@ -15,7 +15,7 @@ import type { HomeRow, ServiceView } from '@/lib/data/types'
 import { useFavorites } from '@/hooks/useFavorites'
 import { WHATSAPP_NUMBER } from '@/lib/site'
 import {
-  Clock, Sparkles, Leaf, MessageCircle,
+  Clock, Leaf, MessageCircle,
   Building2, ChevronRight, Mail, CheckCircle,
 } from 'lucide-react'
 
@@ -29,11 +29,6 @@ const WHY_ITEMS = [
     icon: Clock,
     title: 'Gain de temps',
     text: 'Réservez en quelques minutes, nous nous occupons du reste.',
-  },
-  {
-    icon: Sparkles,
-    title: 'Expériences premium',
-    text: 'Des prestations soigneusement sélectionnées pour rendre votre séjour inoubliable.',
   },
   {
     icon: MessageCircle,
@@ -52,11 +47,6 @@ const WHY_ITEMS_EN = [
     icon: Clock,
     title: 'Time saved',
     text: 'Book in just a few minutes, and we take care of the rest.',
-  },
-  {
-    icon: Sparkles,
-    title: 'Premium experiences',
-    text: 'Carefully selected services designed to make your stay unforgettable.',
   },
   {
     icon: MessageCircle,
@@ -85,11 +75,6 @@ const WHY_ITEMS_ES = [
     icon: Clock,
     title: 'Tiempo ganado',
     text: 'Reserva en pocos minutos y nosotros nos encargamos del resto.',
-  },
-  {
-    icon: Sparkles,
-    title: 'Experiencias premium',
-    text: 'Servicios cuidadosamente seleccionados para que tu estancia sea inolvidable.',
   },
   {
     icon: MessageCircle,
@@ -235,31 +220,13 @@ export function HomeClient({ services, rows }: HomeClientProps) {
       />
 
       {/* '- -' 2. Pourquoi Ohaana '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
-      <section className="border-y border-mist/70 bg-[#F7F7F4]">
-        <div className="max-w-7xl mx-auto px-5 md:px-8 py-10 md:py-12">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.6 }}
-            className="mb-6 md:mb-8"
-          >
-            <h2 className="text-2xl md:text-3xl font-display text-charcoal">
-              {L('Pourquoi réserver avec Ohaana ?', 'Why book with Ohaana?', '¿Por qué reservar con Ohaana?')}
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm md:text-base text-stone leading-relaxed">
-              {L(
-                'La simplicité pensée pour les voyageurs en villa, bungalow, Airbnb ou maison de vacances.',
-                'The simplicity designed for travelers staying in villas, bungalows, Airbnbs, or vacation homes.',
-                'La facilidad pensada para viajeros en villas, bungalows, Airbnb o casas de vacaciones.'
-              )}
-            </p>
-          </motion.div>
+      <section className="border-y border-mist/70 bg-white">
+        <div className="max-w-7xl mx-auto px-5 md:px-8 py-6 md:py-8">
           <div className="space-y-4 sm:space-y-0">
             <div
               ref={whyScrollRef}
               onScroll={handleWhyScroll}
-              className="-mx-5 flex gap-4 overflow-x-auto px-5 pb-1 snap-x snap-mandatory sm:mx-0 sm:grid sm:grid-cols-4 sm:gap-8 sm:overflow-visible sm:px-0 sm:pb-0 scrollbar-hide"
+              className="-mx-5 flex gap-4 overflow-x-auto px-5 pb-1 snap-x snap-mandatory sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-8 sm:overflow-visible sm:px-0 sm:pb-0 scrollbar-hide"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               {whyItems.map(({ icon: Icon, title, text }, i) => (
@@ -269,13 +236,15 @@ export function HomeClient({ services, rows }: HomeClientProps) {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-40px' }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="w-[calc(100vw-2.5rem)] flex-none snap-center rounded-2xl border border-mist/80 bg-white p-5 text-center shadow-card space-y-3 sm:w-auto sm:min-w-0 sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none"
+                  className="w-[calc(100vw-2.5rem)] flex-none snap-center flex items-start gap-4 rounded-2xl border border-mist bg-coconut p-4 sm:w-auto sm:min-w-0 sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0"
                 >
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center sm:h-11 sm:w-11">
-                    <Icon size={34} strokeWidth={1.7} className="text-charcoal sm:size-8" />
+                  <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-sand">
+                    <Icon size={20} strokeWidth={1.6} className="text-deep-green" />
                   </div>
-                  <h3 className="font-semibold text-charcoal text-base sm:text-sm">{title}</h3>
-                  <p className="text-sm text-stone leading-relaxed">{text}</p>
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-semibold text-charcoal">{title}</h3>
+                    <p className="mt-0.5 text-xs leading-relaxed text-stone">{text}</p>
+                  </div>
                 </motion.div>
               ))}
               <div className="w-1 flex-none sm:hidden" />
@@ -285,7 +254,7 @@ export function HomeClient({ services, rows }: HomeClientProps) {
                 <span
                   key={item.title}
                   className={`h-1.5 rounded-full transition-all duration-300 ${
-                    i === whyActiveIdx ? 'w-4 bg-charcoal' : 'w-1.5 bg-charcoal/30'
+                    i === whyActiveIdx ? 'w-4 bg-deep-green' : 'w-1.5 bg-deep-green/25'
                   }`}
                 />
               ))}
@@ -358,29 +327,72 @@ export function HomeClient({ services, rows }: HomeClientProps) {
         </motion.div>
       </div>
 
-      {/* Rappel concierge */}
-      <div className="px-5 md:px-8 pb-16 md:pb-20 max-w-7xl mx-auto">
-        <div className="rounded-2xl border border-deep-green/15 bg-deep-green/5 px-5 py-4 flex items-center gap-4">
-          <span className="relative flex h-2.5 w-2.5 flex-none">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-turquoise opacity-75" />
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-turquoise" />
-          </span>
-          <p className="text-sm text-deep-green flex-1 leading-snug">
-            <span className="font-semibold">{L('Vous ne savez pas quoi choisir ?', 'Not sure what to choose?', '¿No sabes qué elegir?')}</span>{' '}
-            {L(
-              'Décrivez votre séjour, nous vous orientons vers les bons prestataires locaux.',
-              'Tell us about your stay, and we will point you to the right local providers.',
-              'Cuéntanos tu estancia y te orientamos hacia los proveedores locales adecuados.'
-            )}
-          </p>
-          <Link
-            href="/concierge"
-            className="flex-none text-xs font-medium bg-deep-green text-coconut px-3.5 py-2 rounded-full hover:bg-coral transition-colors whitespace-nowrap"
-          >
-            {L('Demander conseil', 'Ask for advice', 'Pedir consejo')}
-          </Link>
+      {/* '- -' 7. Concierge  - filet de sécurité '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
+      <section className="mx-5 md:mx-8 mt-6 mb-16 md:mb-20 rounded-3xl overflow-hidden relative"
+        style={{ background: 'linear-gradient(135deg, var(--deep-green) 0%, #0F2B1D 100%)' }}
+      >
+        <div className="absolute inset-0 opacity-10" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23FDFAF4' fill-opacity='0.4' fill-rule='evenodd'%3E%3Ccircle cx='7' cy='7' r='1'/%3E%3Ccircle cx='37' cy='37' r='1'/%3E%3C/g%3E%3C/svg%3E")`
+        }} />
+        <div className="relative grid min-h-[34rem] md:min-h-[28rem] md:grid-cols-[minmax(0,1fr)_minmax(20rem,0.95fr)]">
+          <div className="flex flex-col justify-center px-6 py-10 text-center md:px-10 md:py-14 md:text-left lg:px-14">
+            <div className="mx-auto max-w-xl space-y-5 md:mx-0">
+              <span className="inline-flex items-center gap-2 bg-coconut/10 border border-coconut/15 text-coconut/80 text-xs px-3 py-1 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-turquoise animate-pulse" />
+                {L('Réponse en moins de 2h · 7j/7', 'Reply in under 2 hours · 7 days a week', 'Respuesta en menos de 2h · 7 días a la semana')}
+              </span>
+              <h2 className="text-2xl md:text-3xl font-display text-coconut leading-snug">
+                {locale === 'en'
+                  ? <>Still unsure or did not<br />find what you need?</>
+                  : locale === 'es'
+                  ? <>¿Dudas o no encontraste<br />lo que buscas?</>
+                  : <>Vous hésitez ou vous n&apos;avez<br />pas trouvé ce que vous cherchez&nbsp;?</>}
+              </h2>
+              <p className="text-coconut/70 text-sm md:text-base leading-relaxed max-w-sm mx-auto md:mx-0">
+                {L(
+                  'Dîner privé, massage, baby-sitter, photographe, DJ ou programme complet : Camille vous aide à trouver les bons services autour de votre lieu de séjour.',
+                  'Private dinner, massage, babysitter, photographer, DJ, or a full itinerary: Camille helps you find the right services near your place of stay.',
+                  'Cena privada, masaje, canguro, fotógrafo, DJ o programa completo: Camille te ayuda a encontrar los servicios adecuados cerca de tu alojamiento.'
+                )}
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:justify-start">
+                {WHATSAPP_NUMBER && (
+                  <a
+                    href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-coral text-coconut px-6 py-3 rounded-full font-medium text-sm hover:bg-coral-light transition-colors shadow-sm"
+                  >
+                    <MessageCircle size={16} />
+                    {L('Parler à Camille', 'Talk to Camille', 'Hablar con Camille')}
+                  </a>
+                )}
+                <Link
+                  href="/concierge"
+                  className="inline-flex items-center gap-2 bg-coconut/10 text-coconut border border-coconut/20 px-6 py-3 rounded-full font-medium text-sm hover:bg-coconut/20 transition-colors"
+                >
+                  {L('Créer mon programme', 'Create my program', 'Crear mi programa')}
+                  <ChevronRight size={14} />
+                </Link>
+              </div>
+            </div>
+          </div>
+          <div className="relative min-h-[20rem] md:min-h-full">
+            <Image
+              src="/photos/concierge-antillaise.png"
+              alt={L(
+                'Concierge antillaise accueillant des voyageurs dans une villa',
+                'Antillean concierge welcoming travelers in a villa',
+                'Conserje antillana recibiendo viajeros en una villa'
+              )}
+              fill
+              className="object-cover object-center"
+              sizes="(max-width: 768px) 100vw, 45vw"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-deep-green/55 via-transparent to-transparent md:bg-gradient-to-r md:from-deep-green/25 md:via-transparent md:to-transparent" />
+          </div>
         </div>
-      </div>
+      </section>
 
       {/* '- -' Zone 2 : Ce soir '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
       {rowTonight && (
@@ -446,73 +458,6 @@ export function HomeClient({ services, rows }: HomeClientProps) {
 
       {/* '- -' 5. Témoignages '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
       <Testimonials />
-
-      {/* '- -' 7. Concierge  - filet de sécurité '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
-      <section className="mx-5 md:mx-8 mb-10 rounded-3xl overflow-hidden relative"
-        style={{ background: 'linear-gradient(135deg, var(--deep-green) 0%, #0F2B1D 100%)' }}
-      >
-        <div className="absolute inset-0 opacity-10" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23FDFAF4' fill-opacity='0.4' fill-rule='evenodd'%3E%3Ccircle cx='7' cy='7' r='1'/%3E%3Ccircle cx='37' cy='37' r='1'/%3E%3C/g%3E%3C/svg%3E")`
-        }} />
-        <div className="relative grid min-h-[34rem] md:min-h-[28rem] md:grid-cols-[minmax(0,1fr)_minmax(20rem,0.95fr)]">
-          <div className="flex flex-col justify-center px-6 py-10 text-center md:px-10 md:py-14 md:text-left lg:px-14">
-            <div className="mx-auto max-w-xl space-y-5 md:mx-0">
-              <span className="inline-flex items-center gap-2 bg-coconut/10 border border-coconut/15 text-coconut/80 text-xs px-3 py-1 rounded-full">
-                <span className="w-1.5 h-1.5 rounded-full bg-turquoise animate-pulse" />
-                {L('Réponse en moins de 2h · 7j/7', 'Reply in under 2 hours · 7 days a week', 'Respuesta en menos de 2h · 7 días a la semana')}
-              </span>
-              <h2 className="text-2xl md:text-3xl font-display text-coconut leading-snug">
-                {locale === 'en'
-                  ? <>Still unsure or did not<br />find what you need?</>
-                  : locale === 'es'
-                  ? <>¿Dudas o no encontraste<br />lo que buscas?</>
-                  : <>Vous hésitez ou vous n&apos;avez<br />pas trouvé ce que vous cherchez&nbsp;?</>}
-              </h2>
-              <p className="text-coconut/70 text-sm md:text-base leading-relaxed max-w-sm mx-auto md:mx-0">
-                {L(
-                  'Dîner privé, massage, baby-sitter, photographe, DJ ou programme complet : Camille vous aide à trouver les bons services autour de votre lieu de séjour.',
-                  'Private dinner, massage, babysitter, photographer, DJ, or a full itinerary: Camille helps you find the right services near your place of stay.',
-                  'Cena privada, masaje, canguro, fotógrafo, DJ o programa completo: Camille te ayuda a encontrar los servicios adecuados cerca de tu alojamiento.'
-                )}
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:justify-start">
-                {WHATSAPP_NUMBER && (
-                  <a
-                    href={`https://wa.me/${WHATSAPP_NUMBER}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-coral text-coconut px-6 py-3 rounded-full font-medium text-sm hover:bg-coral-light transition-colors shadow-sm"
-                  >
-                    <MessageCircle size={16} />
-                    {L('Parler à Camille', 'Talk to Camille', 'Hablar con Camille')}
-                  </a>
-                )}
-                <Link
-                  href="/concierge"
-                  className="inline-flex items-center gap-2 bg-coconut/10 text-coconut border border-coconut/20 px-6 py-3 rounded-full font-medium text-sm hover:bg-coconut/20 transition-colors"
-                >
-                  {L('Créer mon programme', 'Create my program', 'Crear mi programa')}
-                  <ChevronRight size={14} />
-                </Link>
-              </div>
-            </div>
-          </div>
-          <div className="relative min-h-[20rem] md:min-h-full">
-            <Image
-              src="/photos/concierge-antillaise.png"
-              alt={L(
-                'Concierge antillaise accueillant des voyageurs dans une villa',
-                'Antillean concierge welcoming travelers in a villa',
-                'Conserje antillana recibiendo viajeros en una villa'
-              )}
-              fill
-              className="object-cover object-center"
-              sizes="(max-width: 768px) 100vw, 45vw"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-deep-green/55 via-transparent to-transparent md:bg-gradient-to-r md:from-deep-green/25 md:via-transparent md:to-transparent" />
-          </div>
-        </div>
-      </section>
 
       {/* '- -' 6. B2B partenaires '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
       <section id="partner" className="mx-5 md:mx-8 mb-10 rounded-3xl bg-sand border border-mist p-8 md:p-12">

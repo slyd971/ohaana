@@ -33,9 +33,11 @@ export function Header({ transparent = false }: HeaderProps) {
     <header
       className={cn(
         'fixed top-0 inset-x-0 z-50 transition-all duration-300',
-        isOpaque
-          ? 'bg-coconut/95 backdrop-blur-md border-b border-mist shadow-sm'
-          : 'bg-transparent'
+        !isOpaque
+          ? 'bg-transparent'
+          : scrolled
+            ? 'bg-coconut/95 backdrop-blur-md border-b border-mist shadow-sm'
+            : 'bg-coconut'
       )}
     >
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -45,17 +47,21 @@ export function Header({ transparent = false }: HeaderProps) {
         </Link>
 
         {/* Desktop nav — hidden on mobile */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-          {['home', 'search'].map((key) => (
+        <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
+          {([
+            { key: 'search', href: '/search' },
+            { key: 'concierge', href: '/concierge' },
+            { key: 'becomeProvider', href: '/register?role=provider' },
+          ] as const).map(({ key, href }) => (
             <Link
               key={key}
-              href={key === 'home' ? '/' : `/${key}`}
+              href={href}
               className={cn(
                 'transition-colors hover:text-deep-green',
                 isOpaque ? 'text-charcoal-soft' : 'text-coconut/80 hover:text-coconut'
               )}
             >
-              {t(key as 'home' | 'search')}
+              {t(key)}
             </Link>
           ))}
         </nav>

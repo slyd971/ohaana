@@ -23,9 +23,11 @@ const SOON: Record<Lang, string> = { fr: 'bientôt', en: 'soon', es: 'pronto' }
 interface IslandSelectorProps {
   value: IslandFilter
   onChange: (island: IslandFilter) => void
+  /** Borderless trigger for embedding in a composite search bar. */
+  variant?: 'pill' | 'bare'
 }
 
-export function IslandSelector({ value, onChange }: IslandSelectorProps) {
+export function IslandSelector({ value, onChange, variant = 'pill' }: IslandSelectorProps) {
   const [open, setOpen] = useState(false)
   const locale = useLocale()
   const lang: Lang = (['fr', 'en', 'es'] as Lang[]).includes(locale as Lang) ? (locale as Lang) : 'fr'
@@ -37,10 +39,14 @@ export function IslandSelector({ value, onChange }: IslandSelectorProps) {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 px-3.5 py-2 bg-coconut rounded-full border border-mist shadow-sm text-sm font-medium text-charcoal hover:border-deep-green transition-colors"
+        className={
+          variant === 'bare'
+            ? 'flex h-6 w-full items-center justify-between gap-2 text-sm text-charcoal focus:outline-none'
+            : 'flex items-center gap-2 px-3.5 py-2 bg-coconut rounded-full border border-mist shadow-sm text-sm font-medium text-charcoal hover:border-deep-green transition-colors'
+        }
       >
-        <MapPin size={14} className="text-deep-green" />
-        {currentLabel}
+        {variant === 'pill' && <MapPin size={14} className="text-deep-green" />}
+        <span className="truncate">{currentLabel}</span>
         <span className="text-stone text-xs">▾</span>
       </button>
 
