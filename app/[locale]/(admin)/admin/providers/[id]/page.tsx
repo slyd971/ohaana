@@ -7,6 +7,8 @@ import { ProfileForm } from '@/components/provider/ProfileForm'
 import { ServiceStatusActions } from '@/components/admin/ServiceStatusActions'
 import { StatusBadge, eur } from '@/components/provider/ui'
 import { isUuid } from '@/lib/provider/service-input'
+import { AdminPaymentsPanel } from '@/components/admin/AdminPaymentsPanel'
+import type { ConnectState } from '@/lib/stripe/connect-status'
 
 export default async function AdminProviderPage({ params }: { params: Promise<{ locale: string; id: string }> }) {
   const { id } = await params
@@ -19,7 +21,7 @@ export default async function AdminProviderPage({ params }: { params: Promise<{ 
 
   const { data: provider } = await ctx.supabase
     .from('provider_profiles')
-    .select('id, business_name, bio, languages, island, phone, whatsapp, is_approved, user_id, claimed')
+    .select('id, business_name, bio, languages, island, phone, whatsapp, is_approved, user_id, claimed, stripe_account_id, stripe_onboarded')
     .eq('id', id)
     .maybeSingle()
   if (!provider) notFound()
@@ -35,6 +37,11 @@ export default async function AdminProviderPage({ params }: { params: Promise<{ 
           {provider.is_approved ? 'approuvé' : 'non approuvé'}
         </p>
       </div>
+
+      <AdminPaymentsPanel
+        providerId={id}
+        initialState={(provider.stripe_onboarded ? 'active' : provider.stripe_account_id ? 'incomplete' : 'none') as ConnectState}
+      />
 
       <section aria-labelledby="profile-title" className="space-y-3">
         <h2 id="profile-title" className="text-sm font-semibold text-white/80">Profil</h2>
