@@ -238,8 +238,8 @@ export function HomeClient({ services, rows }: HomeClientProps) {
       />
 
       {/* '- -' 2. Pourquoi Ohaana '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
-      <section className="border-y border-mist/70 bg-white">
-        <div className="max-w-7xl mx-auto px-5 md:px-8 py-6 md:py-8">
+      <section className="bg-sand">
+        <div className="max-w-7xl mx-auto px-5 md:px-8 py-7 md:py-9">
           <div className="space-y-4 sm:space-y-0">
             <div
               ref={whyScrollRef}
@@ -254,14 +254,14 @@ export function HomeClient({ services, rows }: HomeClientProps) {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-40px' }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="w-[calc(100vw-2.5rem)] flex-none snap-center flex items-start gap-4 rounded-2xl border border-mist bg-coconut p-4 sm:w-auto sm:min-w-0 sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0"
+                  className="w-[calc(100vw-2.5rem)] flex-none snap-center flex items-start gap-4 rounded-2xl bg-white p-4 shadow-card sm:w-auto sm:min-w-0 sm:rounded-none sm:bg-transparent sm:p-0 sm:shadow-none"
                 >
-                  <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-sand">
-                    <Icon size={20} strokeWidth={1.6} className="text-deep-green" />
+                  <div className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-deep-green">
+                    <Icon size={20} strokeWidth={1.7} className="text-coconut" />
                   </div>
                   <div className="min-w-0">
-                    <h3 className="text-sm font-semibold text-charcoal">{title}</h3>
-                    <p className="mt-0.5 text-xs leading-relaxed text-stone">{text}</p>
+                    <h3 className="text-[15px] font-semibold text-deep-green">{title}</h3>
+                    <p className="mt-0.5 text-xs leading-relaxed text-charcoal/70">{text}</p>
                   </div>
                 </motion.div>
               ))}
