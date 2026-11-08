@@ -16,7 +16,7 @@ import { STRIPE_CONFIGURED, STRIPE_TEST_MODE, getStripePromise } from '@/lib/str
 import { useAuth } from '@/lib/auth/AuthProvider'
 import { DEMO_MODE } from '@/lib/demo-mode'
 import type { ServiceView, SlotView } from '@/lib/data/types'
-import { formatPrice, computeFees, formatDuration, cn } from '@/lib/utils'
+import { formatPrice, formatDuration, cn } from '@/lib/utils'
 
 const isoOf = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -123,7 +123,6 @@ function ConfirmationScreen({
   selectedTime,
   guests,
   total,
-  platformFee,
   demo,
 }: {
   service: ServiceView
@@ -132,7 +131,6 @@ function ConfirmationScreen({
   selectedTime: string
   guests: number
   total: number
-  platformFee: number
   demo: boolean
 }) {
   const cover = service.images.find((i) => i.is_cover) ?? service.images[0]
@@ -183,7 +181,7 @@ function ConfirmationScreen({
           </div>
           <div className="flex justify-between font-semibold pt-2.5 border-t border-mist">
             <span className="text-charcoal">Total payé</span>
-            <span className="text-charcoal">{formatPrice(total + platformFee)}</span>
+            <span className="text-charcoal">{formatPrice(total)}</span>
           </div>
         </div>
       </div>
@@ -253,7 +251,6 @@ export function BookingClient({ service, slots }: BookingClientProps) {
   const cover = service.images.find((i) => i.is_cover) ?? service.images[0]
   const total = service.price_unit === 'flat' ? service.price_cents : service.price_cents * guests
   const times = selectedDate ? slots.filter((sl) => sl.date === isoOf(selectedDate)).map((sl) => sl.start_time.slice(0, 5)) : []
-  const { platformFee } = computeFees(total)
   const canBook = !!selectedDate && !!selectedTime
 
   const selectedSlotId = selectedDate && selectedTime
@@ -325,7 +322,6 @@ export function BookingClient({ service, slots }: BookingClientProps) {
         selectedTime={selectedTime!}
         guests={guests}
         total={total}
-        platformFee={platformFee}
         demo={DEMO_MODE}
       />
     )
@@ -526,16 +522,9 @@ export function BookingClient({ service, slots }: BookingClientProps) {
               </span>
               <span>{formatPrice(total)}</span>
             </div>
-            <div className="flex justify-between text-charcoal-soft">
-              <span className="flex items-center gap-1">
-                Frais de service
-                <Info size={12} className="text-stone" />
-              </span>
-              <span>{formatPrice(platformFee)}</span>
-            </div>
             <div className="flex justify-between font-semibold text-charcoal pt-2.5 border-t border-mist text-base">
               <span>Total</span>
-              <span>{formatPrice(total + platformFee)}</span>
+              <span>{formatPrice(total)}</span>
             </div>
           </div>
         </div>
@@ -658,7 +647,7 @@ export function BookingClient({ service, slots }: BookingClientProps) {
             {canBook ? (
               <>
                 <p className="text-base font-semibold text-charcoal leading-tight">
-                  {formatPrice(total + platformFee)}
+                  {formatPrice(total)}
                 </p>
                 <p className="text-[11px] text-stone">
                   {guests} pers. · {selectedTime}
@@ -696,7 +685,7 @@ export function BookingClient({ service, slots }: BookingClientProps) {
                 disabled={!clientSecret || intentLoading}
                 onClick={() => void payRef.current?.()}
               >
-                Payer {formatPrice(total + platformFee)}
+                Payer {formatPrice(total)}
               </Button>
             )}
           </div>

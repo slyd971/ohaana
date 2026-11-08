@@ -36,7 +36,7 @@ export default async function AdminDashboard() {
     { label: 'Prestataires approuvés', value: String(providersOk.count ?? 0), hint: `${providersPending.count ?? 0} en attente`, Icon: Briefcase, color: 'text-turquoise' },
     { label: 'Services publiés', value: String(servicesPub.count ?? 0), hint: `${servicesReview.count ?? 0} en relecture`, Icon: Briefcase, color: 'text-green-400' },
     { label: 'Réservations confirmées', value: String(bookingsDone.count ?? 0), hint: '', Icon: CalendarCheck, color: 'text-[#F5A623]' },
-    { label: 'Volume encaissé (GMV)', value: eur(gmv), hint: `dont ${eur(fees)} de frais de service`, Icon: CreditCard, color: 'text-[#F5A623]' },
+    { label: 'Volume encaissé (GMV)', value: eur(gmv), hint: `dont ${eur(fees)} de commission Ohaana`, Icon: CreditCard, color: 'text-[#F5A623]' },
     { label: 'Leads à traiter', value: String(leadsNew.count ?? 0), hint: '', Icon: Inbox, color: 'text-coral' },
   ]
 
