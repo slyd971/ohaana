@@ -177,6 +177,9 @@ export function HomeClient({ services, rows }: HomeClientProps) {
   const [leadDest, setLeadDest]     = useState('')
   const [leadWA, setLeadWA]         = useState('')
   const [leadSent, setLeadSent]     = useState(false)
+  const [leadConsent, setLeadConsent] = useState(false)
+  const [leadBusy, setLeadBusy]       = useState(false)
+  const [leadError, setLeadError]     = useState(false)
 
   // Zone 1  - Explorer : tous les services filtrés par île + humeur
   const explorerServices = (() => {
@@ -204,12 +207,30 @@ export function HomeClient({ services, rows }: HomeClientProps) {
   const visibleExplorerServices = showAllExplorer ? explorerServices : explorerServices.slice(0, 8)
   const hasMoreExplorerServices = explorerServices.length > visibleExplorerServices.length
 
-  function handleLeadSubmit(e: React.FormEvent) {
+  async function handleLeadSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const data = { email: leadEmail, destination: leadDest, whatsapp: leadWA, ts: new Date().toISOString() }
-    console.log('[Ohaana lead]', data)
-    try { localStorage.setItem('ohaana_lead', JSON.stringify(data)) } catch {}
-    setLeadSent(true)
+    if (leadBusy) return
+    setLeadBusy(true)
+    setLeadError(false)
+    try {
+      const res = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          email: leadEmail,
+          destination: leadDest || undefined,
+          whatsapp: leadWA || undefined,
+          locale,
+          consent: leadConsent,
+        }),
+      })
+      if (!res.ok) throw new Error(String(res.status))
+      setLeadSent(true)
+    } catch {
+      setLeadError(true)
+    } finally {
+      setLeadBusy(false)
+    }
   }
 
   return (
@@ -574,12 +595,34 @@ export function HomeClient({ services, rows }: HomeClientProps) {
                 onChange={(e) => setLeadWA(e.target.value)}
                 className="w-full h-12 rounded-control bg-white/10 border border-coconut/20 px-4 text-sm text-coconut placeholder:text-coconut/40 focus:outline-none focus:border-turquoise transition-colors"
               />
+              <label className="flex items-start gap-2.5 text-left text-xs text-coconut/70">
+                <input
+                  type="checkbox"
+                  required
+                  checked={leadConsent}
+                  onChange={(e) => setLeadConsent(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 flex-none accent-coral"
+                />
+                <span>
+                  {L(
+                    'J\'accepte de recevoir les actualités Ohaana par email.',
+                    'I agree to receive Ohaana news by email.',
+                    'Acepto recibir las novedades de Ohaana por email.'
+                  )}
+                </span>
+              </label>
               <button
                 type="submit"
-                className="w-full h-12 rounded-control bg-coral text-coconut font-medium text-sm hover:bg-coral-light transition-colors shadow-sm"
+                disabled={leadBusy}
+                className="w-full h-12 rounded-control bg-coral text-coconut font-medium text-sm hover:bg-coral-light transition-colors shadow-sm disabled:opacity-60"
               >
                 {L('Me prévenir du lancement', 'Notify me at launch', 'Avisarme del lanzamiento')}
               </button>
+              {leadError && (
+                <p role="alert" className="text-xs text-coconut">
+                  {L('Une erreur est survenue, réessayez dans un instant.', 'Something went wrong, please try again.', 'Ha ocurrido un error, inténtalo de nuevo.')}
+                </p>
+              )}
               <p className="text-[11px] text-coconut/30">
                 {L('Pas de spam. Désabonnement en un clic.', 'No spam. Unsubscribe in one click.', 'Sin spam. Cancela con un clic.')}
               </p>
