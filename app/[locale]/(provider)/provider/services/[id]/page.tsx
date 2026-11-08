@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { getCategories } from '@/lib/data/services'
+import { getCommissionPct } from '@/lib/commission'
 import { getProviderContext } from '@/lib/provider/context'
 import { getProviderService } from '@/lib/provider/queries'
 import { PageHeader, SignInRequired, StatusBadge } from '@/components/provider/ui'
@@ -18,12 +19,14 @@ export default async function EditServicePage({ params }: { params: Promise<{ lo
   const service = await getProviderService(ctx.supabase, ctx.provider.id, id)
   if (!service) notFound()
   const categories = await getCategories().catch(() => [])
+  const commissionPct = await getCommissionPct()
   const images = await listServiceImages(ctx.supabase, service.id)
 
   return (
     <div className="p-5 md:p-8 space-y-6 max-w-3xl">
       <PageHeader title="Modifier le service" subtitle={service.title_fr} action={<StatusBadge status={service.status} />} />
       <ServiceForm
+        commissionPct={commissionPct}
         locale={locale}
         categories={categories.map((c) => ({ id: c.id, name_fr: c.name_fr }))}
         service={service}
