@@ -260,7 +260,7 @@ export function HomeClient({ services, rows }: HomeClientProps) {
                     <Icon size={20} strokeWidth={1.7} className="text-coconut" />
                   </div>
                   <div className="min-w-0">
-                    <h3 className="text-[15px] font-semibold text-deep-green">{title}</h3>
+                    <p className="text-[15px] font-semibold text-deep-green">{title}</p>
                     <p className="mt-0.5 text-xs leading-relaxed text-charcoal/70">{text}</p>
                   </div>
                 </motion.div>
