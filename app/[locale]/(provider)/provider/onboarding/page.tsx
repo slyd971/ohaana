@@ -90,7 +90,7 @@ export default function ProviderOnboarding() {
       <div className="min-h-[80dvh] flex flex-col items-center justify-center px-6 text-center space-y-6">
         <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', duration: 0.6 }}>
           <div className="w-20 h-20 rounded-full bg-turquoise/15 flex items-center justify-center mx-auto">
-            <CheckCircle size={40} className="text-turquoise" />
+            <CheckCircle size={40} className="text-turquoise-text" />
           </div>
         </motion.div>
         <div>
@@ -127,7 +127,7 @@ export default function ProviderOnboarding() {
             value={form.businessName}
             onChange={(e) => set('businessName', e.target.value)}
             placeholder="Ex. Chef Marcus, Massage Madeleine…"
-            className="w-full px-4 py-3 rounded-xl border border-mist bg-white text-charcoal placeholder:text-stone text-sm focus:outline-none focus:border-deep-green transition-colors"
+            className="w-full px-4 py-3 rounded-control border border-mist bg-white text-charcoal placeholder:text-stone text-sm focus:outline-none focus:border-deep-green transition-colors"
           />
         </div>
 
@@ -138,7 +138,7 @@ export default function ProviderOnboarding() {
             onChange={(e) => set('bio', e.target.value)}
             placeholder="Décrivez votre expertise, votre histoire, ce qui vous rend unique…"
             rows={3}
-            className="w-full px-4 py-3 rounded-xl border border-mist bg-white text-charcoal placeholder:text-stone text-sm focus:outline-none focus:border-deep-green transition-colors resize-none"
+            className="w-full px-4 py-3 rounded-control border border-mist bg-white text-charcoal placeholder:text-stone text-sm focus:outline-none focus:border-deep-green transition-colors resize-none"
           />
           <p className="text-xs text-stone/60 mt-1">{form.bio.length} / 500 caractères</p>
         </div>
@@ -151,7 +151,7 @@ export default function ProviderOnboarding() {
             <select
               value={form.island}
               onChange={(e) => set('island', e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-mist bg-white text-charcoal text-sm focus:outline-none focus:border-deep-green transition-colors appearance-none"
+              className="w-full px-4 py-3 rounded-control border border-mist bg-white text-charcoal text-sm focus:outline-none focus:border-deep-green transition-colors appearance-none"
             >
               <option value="">Choisir…</option>
               {ISLANDS.map((i) => <option key={i} value={i.toLowerCase()}>{i}</option>)}
@@ -165,7 +165,7 @@ export default function ProviderOnboarding() {
               value={form.phone}
               onChange={(e) => set('phone', e.target.value)}
               placeholder="+590 690…"
-              className="w-full px-4 py-3 rounded-xl border border-mist bg-white text-charcoal placeholder:text-stone text-sm focus:outline-none focus:border-deep-green transition-colors"
+              className="w-full px-4 py-3 rounded-control border border-mist bg-white text-charcoal placeholder:text-stone text-sm focus:outline-none focus:border-deep-green transition-colors"
             />
           </div>
         </div>
@@ -181,7 +181,7 @@ export default function ProviderOnboarding() {
                 type="button"
                 onClick={() => toggleLang(id)}
                 className={cn(
-                  'px-3 py-1.5 rounded-xl text-sm border transition-all',
+                  'px-3 py-1.5 rounded-control text-sm border transition-all',
                   form.languages.includes(id)
                     ? 'border-deep-green bg-deep-green/8 text-charcoal font-medium'
                     : 'border-mist text-stone hover:border-stone'
@@ -212,7 +212,7 @@ export default function ProviderOnboarding() {
               type="button"
               onClick={() => set('category', id)}
               className={cn(
-                'flex items-center gap-2.5 px-3 py-2.5 rounded-xl border text-sm text-left transition-all',
+                'flex items-center gap-2.5 px-3 py-2.5 rounded-control border text-sm text-left transition-all',
                 form.category === id
                   ? 'border-deep-green bg-deep-green/8 text-charcoal font-medium'
                   : 'border-mist text-stone hover:border-stone'
@@ -230,7 +230,7 @@ export default function ProviderOnboarding() {
           value={form.serviceTitle}
           onChange={(e) => set('serviceTitle', e.target.value)}
           placeholder="Ex. Dîner privé créole à domicile, 4–8 pers."
-          className="w-full px-4 py-3 rounded-xl border border-mist bg-white text-charcoal placeholder:text-stone text-sm focus:outline-none focus:border-deep-green transition-colors"
+          className="w-full px-4 py-3 rounded-control border border-mist bg-white text-charcoal placeholder:text-stone text-sm focus:outline-none focus:border-deep-green transition-colors"
         />
       </div>
 
@@ -241,7 +241,7 @@ export default function ProviderOnboarding() {
           onChange={(e) => set('serviceDesc', e.target.value)}
           placeholder="Décrivez l'expérience, ce qui est inclus, le lieu…"
           rows={3}
-          className="w-full px-4 py-3 rounded-xl border border-mist bg-white text-charcoal placeholder:text-stone text-sm focus:outline-none focus:border-deep-green transition-colors resize-none"
+          className="w-full px-4 py-3 rounded-control border border-mist bg-white text-charcoal placeholder:text-stone text-sm focus:outline-none focus:border-deep-green transition-colors resize-none"
         />
       </div>
 
@@ -253,7 +253,7 @@ export default function ProviderOnboarding() {
           value={form.certifications}
           onChange={(e) => set('certifications', e.target.value)}
           placeholder="CAP Cuisine, BPJEPS, Capitaine 200…"
-          className="w-full px-4 py-3 rounded-xl border border-mist bg-white text-charcoal placeholder:text-stone text-sm focus:outline-none focus:border-deep-green transition-colors"
+          className="w-full px-4 py-3 rounded-control border border-mist bg-white text-charcoal placeholder:text-stone text-sm focus:outline-none focus:border-deep-green transition-colors"
         />
       </div>
     </motion.div>,
@@ -266,7 +266,7 @@ export default function ProviderOnboarding() {
         <p className="text-sm text-stone mt-1">Le voyageur paie le prix que vous fixez ; Ohaana en prélève une commission et vous versez le reste (le taux en vigueur s’affiche dans le formulaire de chaque service).</p>
       </div>
 
-      <div className="bg-sand rounded-2xl p-4 border border-mist">
+      <div className="bg-sand rounded-card p-4 border border-mist">
         <p className="text-xs font-medium text-charcoal mb-3">Simulateur de revenus</p>
         <div className="flex items-center gap-2 text-sm">
           <span className="text-stone">Prix affiché :</span>
@@ -288,7 +288,7 @@ export default function ProviderOnboarding() {
             onChange={(e) => set('price', e.target.value)}
             placeholder="150"
             min="10"
-            className="w-full px-4 py-3 rounded-xl border border-mist bg-white text-charcoal placeholder:text-stone text-sm focus:outline-none focus:border-deep-green transition-colors"
+            className="w-full px-4 py-3 rounded-control border border-mist bg-white text-charcoal placeholder:text-stone text-sm focus:outline-none focus:border-deep-green transition-colors"
           />
         </div>
         <div>
@@ -299,7 +299,7 @@ export default function ProviderOnboarding() {
             onChange={(e) => set('duration', e.target.value)}
             placeholder="120"
             min="30"
-            className="w-full px-4 py-3 rounded-xl border border-mist bg-white text-charcoal placeholder:text-stone text-sm focus:outline-none focus:border-deep-green transition-colors"
+            className="w-full px-4 py-3 rounded-control border border-mist bg-white text-charcoal placeholder:text-stone text-sm focus:outline-none focus:border-deep-green transition-colors"
           />
         </div>
         <div>
@@ -310,12 +310,12 @@ export default function ProviderOnboarding() {
             onChange={(e) => set('capacity', e.target.value)}
             placeholder="8"
             min="1"
-            className="w-full px-4 py-3 rounded-xl border border-mist bg-white text-charcoal placeholder:text-stone text-sm focus:outline-none focus:border-deep-green transition-colors"
+            className="w-full px-4 py-3 rounded-control border border-mist bg-white text-charcoal placeholder:text-stone text-sm focus:outline-none focus:border-deep-green transition-colors"
           />
         </div>
       </div>
 
-      <div className="bg-deep-green/5 rounded-2xl p-4 border border-deep-green/15 space-y-1">
+      <div className="bg-deep-green/5 rounded-card p-4 border border-deep-green/15 space-y-1">
         <p className="text-xs font-semibold text-charcoal">Conditions de paiement</p>
         <p className="text-xs text-stone">Versement sous 7 jours ouvrés après chaque prestation. Stripe Connect sécurisé. Retrait instantané disponible.</p>
       </div>
@@ -340,15 +340,15 @@ export default function ProviderOnboarding() {
             type="button"
             onClick={() => set(key, !form[key])}
             className={cn(
-              'w-full flex items-start gap-3 p-4 rounded-2xl border-2 text-left transition-all',
+              'w-full flex items-start gap-3 p-4 rounded-card border-2 text-left transition-all',
               form[key]
                 ? 'border-turquoise bg-turquoise/5'
                 : 'border-mist bg-surface hover:border-stone'
             )}
           >
-            <div className={cn('mt-0.5 p-2 rounded-xl flex-none', form[key] ? 'bg-turquoise/15' : 'bg-mist/60')}>
+            <div className={cn('mt-0.5 p-2 rounded-control flex-none', form[key] ? 'bg-turquoise/15' : 'bg-mist/60')}>
               {form[key]
-                ? <CheckCircle size={16} className="text-turquoise" />
+                ? <CheckCircle size={16} className="text-turquoise-text" />
                 : <Upload size={16} className="text-stone" />}
             </div>
             <div className="flex-1 min-w-0">
@@ -359,7 +359,7 @@ export default function ProviderOnboarding() {
         ))}
       </div>
 
-      <div className="bg-sand rounded-2xl p-4 border border-mist text-xs text-stone space-y-1">
+      <div className="bg-sand rounded-card p-4 border border-mist text-xs text-stone space-y-1">
         <p className="font-medium text-charcoal">Validation sous 48h</p>
         <p>Notre équipe vérifie chaque dossier manuellement. Vous serez notifié par email dès l&apos;activation de votre profil.</p>
       </div>

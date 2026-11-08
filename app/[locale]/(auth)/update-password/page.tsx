@@ -90,7 +90,7 @@ export default function UpdatePasswordPage() {
         <Input label={t('confirmPassword')} name="confirm" type="password" autoComplete="new-password" required
           value={confirm} onChange={(e) => setConfirm(e.target.value)} leftIcon={<Lock size={16} />}
           error={fe('confirm')} />
-        {formError && <p role="alert" className="text-sm text-coral">{t(`errors.${formError}` as 'errors.generic')}</p>}
+        {formError && <p role="alert" className="text-sm text-coral-text">{t(`errors.${formError}` as 'errors.generic')}</p>}
         <Button type="submit" fullWidth loading={loading}>{t('updatePassword')}</Button>
       </form>
     </div>

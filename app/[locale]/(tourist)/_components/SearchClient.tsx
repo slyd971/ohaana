@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, useTransition } from 'react'
+import { Button } from '@/components/ui/Button'
 import { motion } from 'framer-motion'
 import { useLocale } from 'next-intl'
 import { Search, SlidersHorizontal, X, MapPin } from 'lucide-react'
@@ -65,7 +66,7 @@ export function SearchClient({ state, categories, result }: SearchClientProps) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={L('Trouver un chef, un massage ou une expérience', 'Find a chef, massage, or experience', 'Buscar un chef, masaje o experiencia')}
-              className="w-full h-11 pl-9 pr-4 bg-surface border border-mist rounded-xl text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green focus:ring-2 focus:ring-deep-green/15"
+              className="w-full h-11 pl-9 pr-4 bg-surface border border-mist rounded-control text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green focus:ring-2 focus:ring-deep-green/15"
             />
             {query && (
               <button type="button" onClick={() => setQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-stone">
@@ -77,7 +78,7 @@ export function SearchClient({ state, categories, result }: SearchClientProps) {
             type="button"
             onClick={() => setShowFilters((v) => !v)}
             className={cn(
-              'h-11 w-11 flex items-center justify-center rounded-xl border transition-colors',
+              'h-11 w-11 flex items-center justify-center rounded-control border transition-colors',
               showFilters ? 'bg-deep-green border-deep-green text-coconut' : 'bg-surface border-mist text-charcoal'
             )}
           >
@@ -199,10 +200,10 @@ export function SearchClient({ state, categories, result }: SearchClientProps) {
               <><span className="font-semibold text-charcoal">{result.total}</span> expérience{result.total !== 1 ? 's' : ''} trouvée{result.total !== 1 ? 's' : ''}</>
             )}
           </p>
-          <button type="button" className="flex items-center gap-1.5 text-xs text-deep-green font-medium flex-none">
+          <Button variant="link" size="bare" type="button" className="text-xs flex-none">
             <MapPin size={13} />
             <span className="hidden sm:inline">{L('Voir sur carte', 'View on map', 'Ver en mapa')}</span>
-          </button>
+          </Button>
         </div>
 
         {results.length === 0 ? (

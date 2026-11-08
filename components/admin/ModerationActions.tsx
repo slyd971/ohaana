@@ -58,7 +58,7 @@ export function ReviewActions({ serviceId, providerApproved }: { serviceId: stri
             onChange={(e) => setReason(e.target.value)}
             rows={3}
             maxLength={500}
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-turquoise/50"
+            className="w-full bg-white/5 border border-white/10 rounded-control px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-turquoise/50"
             placeholder="Ex. : photos manquantes, description trop courte…"
           />
           <button

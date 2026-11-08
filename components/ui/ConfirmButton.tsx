@@ -25,7 +25,7 @@ const TONES = {
   },
   light: {
     text: 'text-stone',
-    confirm: 'bg-[#C0392B] text-white hover:bg-[#C0392B]/90',
+    confirm: 'bg-danger text-white hover:bg-danger/90',
     cancel: 'border border-mist text-stone hover:bg-sand',
   },
 } as const

@@ -58,7 +58,7 @@ export function Footer() {
               ].map(({ label, active }) => (
                 <li key={label} className="flex items-center gap-1.5">
                   <span className={active ? 'text-coconut/80' : 'text-coconut/40'}>{label}</span>
-                  {!active && <span className="text-[9px] text-coconut/30">{t('soon')}</span>}
+                  {!active && <span className="text-xs text-coconut/30">{t('soon')}</span>}
                 </li>
               ))}
             </ul>

@@ -1,10 +1,11 @@
 import { MessageSquare, Users2, TrendingUp, Clock, CheckCircle, AlertCircle } from 'lucide-react'
+import { Button } from '@/components/ui/Button'
 
 const KPI = [
   { label: 'Demandes actives', value: '8', delta: '3 urgentes', Icon: MessageSquare, color: 'bg-coral/10 text-coral' },
   { label: 'Clients suivis', value: '24', delta: '+4 ce mois', Icon: Users2, color: 'bg-turquoise/10 text-turquoise' },
   { label: 'Commissions du mois', value: '1 260 €', delta: '+22%', Icon: TrendingUp, color: 'bg-deep-green/10 text-deep-green' },
-  { label: 'Taux de satisfaction', value: '98%', delta: '47 retours', Icon: CheckCircle, color: 'bg-[#F5A623]/10 text-[#F5A623]' },
+  { label: 'Taux de satisfaction', value: '98%', delta: '47 retours', Icon: CheckCircle, color: 'bg-star/10 text-star' },
 ]
 
 const ACTIVE_REQUESTS = [
@@ -22,7 +23,7 @@ const RECENT_CLIENTS = [
 
 const priorityBadge: Record<string, string> = {
   high: 'bg-coral/10 text-coral',
-  medium: 'bg-[#F5A623]/10 text-[#F5A623]',
+  medium: 'bg-star/10 text-star',
   low: 'bg-turquoise/10 text-turquoise',
 }
 const priorityLabel: Record<string, string> = {
@@ -42,8 +43,8 @@ export default function ConciergeDashboard() {
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {KPI.map(({ label, value, delta, Icon, color }) => (
-          <div key={label} className="bg-coconut rounded-2xl p-4 border border-mist shadow-sm">
-            <div className={`inline-flex items-center justify-center w-9 h-9 rounded-xl mb-3 ${color}`}>
+          <div key={label} className="bg-coconut rounded-card p-4 border border-mist shadow-sm">
+            <div className={`inline-flex items-center justify-center w-9 h-9 rounded-control mb-3 ${color}`}>
               <Icon size={18} />
             </div>
             <p className="text-2xl font-display text-charcoal">{value}</p>
@@ -55,7 +56,7 @@ export default function ConciergeDashboard() {
 
       <div className="grid md:grid-cols-3 gap-6">
         {/* Active requests */}
-        <div className="md:col-span-2 bg-coconut rounded-2xl border border-mist shadow-sm overflow-hidden">
+        <div className="md:col-span-2 bg-coconut rounded-card border border-mist shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-mist flex items-center gap-2">
             <AlertCircle size={15} className="text-coral" />
             <h2 className="text-sm font-semibold text-charcoal">Demandes actives</h2>
@@ -66,7 +67,7 @@ export default function ConciergeDashboard() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-medium text-charcoal">{client}</p>
-                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${priorityBadge[priority]}`}>
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${priorityBadge[priority]}`}>
                       {priorityLabel[priority]}
                     </span>
                   </div>
@@ -76,16 +77,16 @@ export default function ConciergeDashboard() {
                     {deadline}
                   </p>
                 </div>
-                <button className="shrink-0 text-xs bg-deep-green text-coconut px-3 py-1.5 rounded-lg hover:bg-deep-green/90 transition-colors mt-0.5">
+                <Button size="sm" className="shrink-0 mt-0.5">
                   Traiter
-                </button>
+                </Button>
               </li>
             ))}
           </ul>
         </div>
 
         {/* Recent clients */}
-        <div className="bg-coconut rounded-2xl border border-mist shadow-sm overflow-hidden">
+        <div className="bg-coconut rounded-card border border-mist shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-mist flex items-center gap-2">
             <Users2 size={15} className="text-turquoise" />
             <h2 className="text-sm font-semibold text-charcoal">Clients récents</h2>

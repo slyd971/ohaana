@@ -31,7 +31,7 @@ export default async function AdminEditServicePage({ params }: { params: Promise
         <h1 className="text-2xl font-display text-white mt-2">Modifier le service</h1>
         <p className="text-white/40 text-sm mt-0.5">{service.title_fr}</p>
       </div>
-      <div className="bg-sand rounded-2xl p-3 md:p-4">
+      <div className="bg-sand rounded-card p-3 md:p-4">
         <ServiceForm
           commissionPct={commissionPct}
           locale={locale}
@@ -42,7 +42,7 @@ export default async function AdminEditServicePage({ params }: { params: Promise
           providerId={id}
         />
       </div>
-      <div className="bg-sand rounded-2xl p-3 md:p-4">
+      <div className="bg-sand rounded-card p-3 md:p-4">
         <ServiceImagesManager serviceId={service.id} providerId={id} images={images} act={manageServiceImageAsAdminAction} />
       </div>
     </div>

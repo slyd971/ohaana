@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { Button } from '@/components/ui/Button'
 import { setUserActiveAction, setUserRoleAction } from '@/app/actions/admin'
 import { ROLE_LABELS, USER_ROLES, type AssignableRole } from '@/lib/admin/schemas'
 import { ConfirmButton } from '@/components/ui/ConfirmButton'
@@ -73,7 +74,9 @@ export function UserRowActions({
       {nextRole && (
         <div role="group" aria-label="Confirmer le changement de rôle" className="flex flex-wrap items-center gap-2">
           <span className="text-[11px] text-white/70">Passer {name} en « {ROLE_LABELS[nextRole]} » ?</span>
-          <button
+          <Button
+            variant="soft"
+            size="bare"
             type="button"
             disabled={pending}
             onClick={() => {
@@ -81,10 +84,10 @@ export function UserRowActions({
               setNextRole(null)
               run(() => setUserRoleAction(userId, target))
             }}
-            className="text-xs px-3 py-1.5 rounded-lg bg-turquoise/20 text-turquoise border border-turquoise/30 hover:bg-turquoise/30 disabled:opacity-40"
+            className="text-xs px-3 py-1.5 rounded-lg"
           >
             Confirmer
-          </button>
+          </Button>
           <button type="button" onClick={() => setNextRole(null)} className="text-xs px-3 py-1.5 rounded-lg border border-white/10 text-white/60 hover:bg-white/10">
             Annuler
           </button>

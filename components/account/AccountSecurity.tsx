@@ -117,7 +117,7 @@ export function AccountSecurity({ returnTo }: { returnTo: string }) {
 
   if (isDemo) {
     return (
-      <div className="bg-coconut rounded-2xl border border-mist p-5 text-sm text-stone">
+      <div className="bg-coconut rounded-card border border-mist p-5 text-sm text-stone">
         Mode démo : aucun compte connecté, la sécurité du compte est désactivée.
       </div>
     )
@@ -128,7 +128,7 @@ export function AccountSecurity({ returnTo }: { returnTo: string }) {
 
   return (
     <div className="space-y-6">
-      <section className="bg-coconut rounded-2xl border border-mist p-5 space-y-1">
+      <section className="bg-coconut rounded-card border border-mist p-5 space-y-1">
         <h2 className="text-sm font-semibold text-deep-green">Connexion</h2>
         <p className="text-sm text-charcoal">{user.email}</p>
         <p className="text-[11px] text-stone">
@@ -136,7 +136,7 @@ export function AccountSecurity({ returnTo }: { returnTo: string }) {
         </p>
       </section>
 
-      <section className="bg-coconut rounded-2xl border border-mist p-5">
+      <section className="bg-coconut rounded-card border border-mist p-5">
         <h2 className="text-sm font-semibold text-deep-green mb-1">Mot de passe</h2>
         <p className="text-[11px] text-stone mb-4">
           {viaGoogle
@@ -152,14 +152,14 @@ export function AccountSecurity({ returnTo }: { returnTo: string }) {
               <input id="acc-confirm" type="password" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} className={inputClass} />
             </Field>
           </div>
-          {pwMsg && <p role={pwMsg.kind === 'error' ? 'alert' : 'status'} className={`text-sm ${pwMsg.kind === 'error' ? 'text-[#C0392B]' : 'text-turquoise'}`}>{pwMsg.text}</p>}
+          {pwMsg && <p role={pwMsg.kind === 'error' ? 'alert' : 'status'} className={`text-sm ${pwMsg.kind === 'error' ? 'text-danger' : 'text-turquoise-text'}`}>{pwMsg.text}</p>}
           <button type="submit" disabled={pwBusy} className={submitClass}>
             {pwBusy ? 'Enregistrement…' : viaGoogle ? 'Définir un mot de passe' : 'Changer le mot de passe'}
           </button>
         </form>
       </section>
 
-      <section className="bg-coconut rounded-2xl border border-mist p-5">
+      <section className="bg-coconut rounded-card border border-mist p-5">
         <h2 className="text-sm font-semibold text-deep-green mb-1">Adresse e-mail</h2>
         {viaGoogle ? (
           <p className="text-[11px] text-stone">
@@ -172,7 +172,7 @@ export function AccountSecurity({ returnTo }: { returnTo: string }) {
               <Field label="Nouvelle adresse e-mail" htmlFor="acc-email" error={tv(emailErrors.email)}>
                 <input id="acc-email" type="email" autoComplete="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} className={inputClass} />
               </Field>
-              {emailMsg && <p role={emailMsg.kind === 'error' ? 'alert' : 'status'} className={`text-sm ${emailMsg.kind === 'error' ? 'text-[#C0392B]' : 'text-turquoise'}`}>{emailMsg.text}</p>}
+              {emailMsg && <p role={emailMsg.kind === 'error' ? 'alert' : 'status'} className={`text-sm ${emailMsg.kind === 'error' ? 'text-danger' : 'text-turquoise-text'}`}>{emailMsg.text}</p>}
               <button type="submit" disabled={emailBusy} className={submitClass}>
                 {emailBusy ? 'Envoi…' : 'Changer l’adresse e-mail'}
               </button>

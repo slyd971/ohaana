@@ -86,7 +86,7 @@ export function HeroSection({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: EASE }}
         >
-          <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-turquoise sm:text-xs sm:tracking-[0.18em]">
+          <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-turquoise-text sm:text-xs sm:tracking-[0.18em]">
             {copy.eyebrow}
           </p>
           <h1 className="mt-4 font-display text-4xl leading-[1.1] text-deep-green md:text-6xl">
@@ -106,7 +106,7 @@ export function HeroSection({
           transition={{ duration: 0.8, delay: 0.15, ease: EASE }}
           className="relative z-30 mx-auto mt-10 md:mt-12  flex w-full max-w-3xl flex-col gap-1 rounded-3xl border border-mist/70 bg-white p-2 text-left shadow-modal md:flex-row md:items-stretch md:rounded-full md:p-2.5"
         >
-          <div className="min-h-14 rounded-2xl px-5 py-3 md:rounded-full md:flex-none md:w-44 hover:bg-sand/50 transition-colors">
+          <div className="min-h-14 rounded-card px-5 py-3 md:rounded-full md:flex-none md:w-44 hover:bg-sand/50 transition-colors">
             <div className={label}>{copy.where}</div>
             <div className="mt-1">
               <IslandSelector value={island} onChange={onIslandChange} variant="bare" />
@@ -115,7 +115,7 @@ export function HeroSection({
 
           <span className="hidden md:block my-3 w-px bg-mist" aria-hidden="true" />
 
-          <div className="min-h-14 rounded-2xl px-5 py-3 md:rounded-full md:flex-none md:w-44 hover:bg-sand/50 transition-colors">
+          <div className="min-h-14 rounded-card px-5 py-3 md:rounded-full md:flex-none md:w-44 hover:bg-sand/50 transition-colors">
             <div className={label}>{copy.when}</div>
             <div className="mt-1">
               <DateRangePicker
@@ -130,7 +130,7 @@ export function HeroSection({
 
           <span className="hidden md:block my-3 w-px bg-mist" aria-hidden="true" />
 
-          <label className="flex min-h-14 flex-1 min-w-0 cursor-text flex-col rounded-2xl px-5 py-3 md:rounded-full hover:bg-sand/50 transition-colors">
+          <label className="flex min-h-14 flex-1 min-w-0 cursor-text flex-col rounded-card px-5 py-3 md:rounded-full hover:bg-sand/50 transition-colors">
             <span className={label}>{copy.what}</span>
             <input
               type="search"
@@ -143,7 +143,7 @@ export function HeroSection({
 
           <button
             type="submit"
-            className="m-1 flex items-center justify-center gap-2 rounded-full bg-deep-green px-6 py-3.5 text-sm font-medium text-coconut transition-colors hover:bg-coral md:flex-none"
+            className="m-1 flex items-center justify-center gap-2 rounded-full bg-deep-green px-6 py-3.5 text-sm font-medium text-coconut transition-colors hover:bg-deep-green-light active:scale-[0.98] md:flex-none"
           >
             <Search size={18} />
             <span className="md:sr-only lg:not-sr-only">{copy.cta}</span>

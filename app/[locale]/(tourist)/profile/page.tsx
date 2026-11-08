@@ -47,15 +47,15 @@ const TRAVELER_TYPES = [
 ] as const
 
 const STATUS_CFG = {
-  confirmed: { label: 'Confirmé',   color: 'text-turquoise bg-turquoise/10' },
-  pending:   { label: 'En attente', color: 'text-[#F5A623] bg-[#F5A623]/10' },
+  confirmed: { label: 'Confirmé',   color: 'text-turquoise-text bg-turquoise/10' },
+  pending:   { label: 'En attente', color: 'text-star bg-star/10' },
   completed: { label: 'Terminé',    color: 'text-stone bg-stone/10' },
   cancelled: { label: 'Annulé',     color: 'text-stone bg-stone/10' },
 }
 
 function ToggleChip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <button type="button" onClick={onClick} aria-pressed={active} className={cn('px-4 py-2 rounded-xl text-sm font-medium border transition-all flex items-center gap-2', active ? 'bg-deep-green/10 border-deep-green/40 text-deep-green' : 'bg-coconut border-mist text-stone hover:border-deep-green/20 hover:text-charcoal')}>
+    <button type="button" onClick={onClick} aria-pressed={active} className={cn('px-4 py-2 rounded-control text-sm font-medium border transition-all flex items-center gap-2', active ? 'bg-deep-green/10 border-deep-green/40 text-deep-green' : 'bg-coconut border-mist text-stone hover:border-deep-green/20 hover:text-charcoal')}>
       {active && <Check size={12} />}{children}
     </button>
   )
@@ -63,7 +63,7 @@ function ToggleChip({ active, onClick, children }: { active: boolean; onClick: (
 
 function EmptyNote({ title, sub, href, cta }: { title: string; sub: string; href: string; cta: string }) {
   return (
-    <div className="rounded-2xl border border-dashed border-mist bg-surface p-8 text-center space-y-2">
+    <div className="rounded-card border border-dashed border-mist bg-surface p-8 text-center space-y-2">
       <p className="font-medium text-charcoal">{title}</p>
       <p className="text-sm text-stone">{sub}</p>
       <Link href={href}><Button variant="outline" className="mt-2">{cta}</Button></Link>
@@ -84,20 +84,20 @@ function AperçuPanel({ goTo }: { goTo: (t: Tab) => void }) {
     <div className="space-y-6 max-w-2xl">
       <h1 className="text-2xl font-display text-charcoal">Bonjour{first ? `, ${first}` : ''} 👋</h1>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <button type="button" onClick={() => goTo('voyages')} className="p-4 bg-surface border border-mist rounded-2xl text-left hover:border-deep-green/30 transition-colors">
-          <CalendarDays size={18} className="text-turquoise mb-2" />
+        <button type="button" onClick={() => goTo('voyages')} className="p-4 bg-surface border border-mist rounded-card text-left hover:border-deep-green/30 transition-colors">
+          <CalendarDays size={18} className="text-turquoise-text mb-2" />
           <p className="text-2xl font-display text-charcoal">{loading ? '–' : upcoming.length}</p>
           <p className="text-xs text-stone mt-0.5">Réservations à venir</p>
         </button>
-        <button type="button" onClick={() => goTo('favoris')} className="p-4 bg-surface border border-mist rounded-2xl text-left hover:border-deep-green/30 transition-colors">
-          <Heart size={18} className="text-coral mb-2" />
+        <button type="button" onClick={() => goTo('favoris')} className="p-4 bg-surface border border-mist rounded-card text-left hover:border-deep-green/30 transition-colors">
+          <Heart size={18} className="text-coral-text mb-2" />
           <p className="text-2xl font-display text-charcoal">{favorites.size}</p>
           <p className="text-xs text-stone mt-0.5">Favoris</p>
         </button>
       </div>
 
       {upcoming.length > 0 ? (
-        <div className="rounded-2xl border border-mist bg-surface p-4 space-y-1">
+        <div className="rounded-card border border-mist bg-surface p-4 space-y-1">
           <p className="text-xs uppercase tracking-wider text-stone">Prochaine expérience</p>
           <p className="font-medium text-charcoal">{upcoming[0].title.fr}</p>
           <p className="text-sm text-stone">{upcoming[0].date} · {upcoming[0].time} · {upcoming[0].guests} pers. · {formatPrice(upcoming[0].totalCents)}</p>
@@ -112,13 +112,13 @@ function AperçuPanel({ goTo }: { goTo: (t: Tab) => void }) {
 function VoyagesPanel() {
   const { items, loading, error } = useMyBookings()
   if (loading) return <p className="text-sm text-stone" role="status">Chargement…</p>
-  if (error) return <p role="alert" className="text-sm text-coral">Impossible de charger vos réservations.</p>
+  if (error) return <p role="alert" className="text-sm text-coral-text">Impossible de charger vos réservations.</p>
   if (items.length === 0) return <EmptyNote title="Aucune réservation" sub="Votre prochain souvenir vous attend" href="/search" cta="Découvrir" />
   return (
     <div className="space-y-3 max-w-2xl">
       <h1 className="text-2xl font-display text-charcoal">Mes voyages</h1>
       {items.map((b) => (
-        <div key={b.id} className="flex items-center gap-3 rounded-2xl border border-mist bg-surface p-4">
+        <div key={b.id} className="flex items-center gap-3 rounded-card border border-mist bg-surface p-4">
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium text-charcoal">{b.title.fr}</p>
             <p className="text-xs text-stone">{b.date} · {b.time} · {b.guests} pers. · {formatPrice(b.totalCents)}</p>
@@ -194,7 +194,7 @@ function PreferencesPanel() {
         <div className="flex items-center gap-3">
           <Button onClick={handleSave} loading={busy}>Enregistrer</Button>
           {saved === 'ok' && <span role="status" className="text-sm text-deep-green">Préférences enregistrées</span>}
-          {saved === 'error' && <span role="alert" className="text-sm text-coral">Enregistrement impossible</span>}
+          {saved === 'error' && <span role="alert" className="text-sm text-coral-text">Enregistrement impossible</span>}
         </div>
       ) : (
         <p className="text-sm text-stone">Connectez-vous avec un compte pour enregistrer vos préférences.</p>
@@ -207,7 +207,7 @@ function PaiementPanel() {
   return (
     <div className="space-y-4 max-w-2xl">
       <h1 className="text-2xl font-display text-charcoal">Paiement</h1>
-      <div className="flex items-start gap-3 rounded-2xl border border-mist bg-surface p-5 text-sm text-stone">
+      <div className="flex items-start gap-3 rounded-card border border-mist bg-surface p-5 text-sm text-stone">
         <ShieldCheck size={18} className="mt-0.5 flex-none text-deep-green" />
         <p>
           Vous réglez chaque réservation au moment de la commande, avec un paiement sécurisé par Stripe.
@@ -242,12 +242,12 @@ function ParamètresPanel({ onLogout }: { onLogout: () => void }) {
         <div className="flex items-center gap-3">
           <Button type="submit" loading={busy} disabled={isDemo}>Enregistrer</Button>
           {state === 'ok' && <span role="status" className="text-sm text-deep-green">Enregistré</span>}
-          {state === 'error' && <span role="alert" className="text-sm text-coral">Enregistrement impossible</span>}
+          {state === 'error' && <span role="alert" className="text-sm text-coral-text">Enregistrement impossible</span>}
         </div>
       </form>
       <div className="space-y-2 border-t border-mist pt-5">
         <Link href="/settings" className="block text-sm text-deep-green hover:underline">Mot de passe et langue</Link>
-        <button type="button" onClick={onLogout} className="flex items-center gap-2 text-sm text-coral hover:underline"><LogOut size={15} /> Se déconnecter</button>
+        <button type="button" onClick={onLogout} className="flex items-center gap-2 text-sm text-coral-text hover:underline"><LogOut size={15} /> Se déconnecter</button>
       </div>
     </div>
   )
@@ -279,16 +279,16 @@ function ClientSpace() {
         </div>
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
           {NAV.map(({ key, label, Icon }) => (
-            <button key={key} type="button" onClick={() => goTo(key)} className={cn('w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-left', activeTab === key ? 'bg-coconut/15 text-coconut' : 'text-coconut/55 hover:text-coconut hover:bg-coconut/10')}>
+            <button key={key} type="button" onClick={() => goTo(key)} className={cn('w-full flex items-center gap-3 px-3 py-2.5 rounded-control text-sm font-medium transition-colors text-left', activeTab === key ? 'bg-coconut/15 text-coconut' : 'text-coconut/55 hover:text-coconut hover:bg-coconut/10')}>
               <Icon size={17} /> {label}
             </button>
           ))}
         </nav>
         <div className="px-3 py-4 border-t border-coconut/10 space-y-0.5">
-          <Link href="/concierge" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-coconut/55 hover:text-coconut hover:bg-coconut/10 transition-colors">
+          <Link href="/concierge" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-control text-sm text-coconut/55 hover:text-coconut hover:bg-coconut/10 transition-colors">
             <MessageCircle size={17} /> Concierge
           </Link>
-          <button type="button" onClick={() => void signOut()} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-coconut/55 hover:text-coconut hover:bg-coconut/10 transition-colors">
+          <button type="button" onClick={() => void signOut()} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-control text-sm text-coconut/55 hover:text-coconut hover:bg-coconut/10 transition-colors">
             <LogOut size={17} /> Déconnexion
           </button>
         </div>

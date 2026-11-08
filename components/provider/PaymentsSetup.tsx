@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { Button } from '@/components/ui/Button'
 import { CheckCircle2, Clock3, CreditCard, ShieldCheck } from 'lucide-react'
 import { refreshPaymentsStatusAction, startPaymentsOnboardingAction } from '@/app/actions/provider'
 import type { ConnectState } from '@/lib/stripe/connect-status'
@@ -16,7 +17,7 @@ const COPY: Record<ConnectState, { title: string; body: string; button: string |
     title: 'Il manque des informations',
     body: 'Votre compte de paiement est créé, mais Stripe attend encore des informations de votre part. Reprenez là où vous vous êtes arrêté.',
     button: 'Continuer la configuration',
-    tone: 'border-[#F5A623]/40 bg-[#F5A623]/10',
+    tone: 'border-star/40 bg-star/10',
   },
   pending: {
     title: 'Stripe vérifie vos informations',
@@ -67,7 +68,7 @@ export function PaymentsSetup({ initialState, approved }: { initialState: Connec
   }
 
   return (
-    <section aria-labelledby="payments-setup-title" className={`rounded-2xl border p-5 space-y-3 ${copy.tone}`}>
+    <section aria-labelledby="payments-setup-title" className={`rounded-card border p-5 space-y-3 ${copy.tone}`}>
       <div className="flex items-start gap-3">
         <Icon size={20} className="mt-0.5 flex-none text-deep-green" />
         <div className="space-y-1">
@@ -81,9 +82,9 @@ export function PaymentsSetup({ initialState, approved }: { initialState: Connec
       ) : (
         <div className="flex flex-wrap gap-2">
           {copy.button && (
-            <button type="button" disabled={pending} onClick={open} className="bg-deep-green text-coconut px-5 py-2.5 rounded-full text-sm font-medium hover:bg-deep-green/90 disabled:opacity-60 transition-colors">
+            <Button size="sm" type="button" disabled={pending} onClick={open} className="rounded-full">
               {pending ? 'Ouverture…' : copy.button}
-            </button>
+            </Button>
           )}
           {state !== 'none' && state !== 'closed' && (
             <button type="button" disabled={pending} onClick={refresh} className="border border-mist text-stone px-4 py-2.5 rounded-full text-sm hover:bg-sand disabled:opacity-60">
@@ -98,7 +99,7 @@ export function PaymentsSetup({ initialState, approved }: { initialState: Connec
           <ShieldCheck size={12} /> Vos pièces d’identité et votre IBAN sont saisis sur le site de Stripe : Ohaana ne les voit jamais.
         </p>
       ) : null}
-      {message && <p role="alert" className="text-xs text-[#C0392B]">{message}</p>}
+      {message && <p role="alert" className="text-xs text-danger">{message}</p>}
     </section>
   )
 }

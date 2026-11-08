@@ -1,6 +1,7 @@
 'use client'
 
 import { useLocale } from 'next-intl'
+import { Button } from '@/components/ui/Button'
 import { Bell, CheckCheck } from 'lucide-react'
 import { Link } from '@/lib/i18n/navigation'
 import { cn } from '@/lib/utils'
@@ -11,7 +12,7 @@ export function NotificationsList() {
   const { items, loading, error, unread, markRead } = useNotifications()
 
   if (loading) return <p className="py-10 text-center text-sm text-stone" role="status">Chargement…</p>
-  if (error) return <p role="alert" className="py-6 text-sm text-coral">Impossible de charger vos notifications.</p>
+  if (error) return <p role="alert" className="py-6 text-sm text-coral-text">Impossible de charger vos notifications.</p>
 
   if (items.length === 0) {
     return (
@@ -26,15 +27,11 @@ export function NotificationsList() {
   return (
     <div className="space-y-3">
       {unread > 0 && (
-        <button
-          type="button"
-          onClick={() => void markRead(items.filter((n) => !n.is_read).map((n) => n.id))}
-          className="flex items-center gap-1.5 text-xs font-medium text-deep-green hover:underline"
-        >
+        <Button variant="link" size="bare" type="button" onClick={() => void markRead(items.filter((n) => !n.is_read).map((n) => n.id))} className="text-xs">
           <CheckCheck size={14} /> Tout marquer comme lu ({unread})
-        </button>
+        </Button>
       )}
-      <ul className="divide-y divide-mist overflow-hidden rounded-2xl border border-mist bg-surface">
+      <ul className="divide-y divide-mist overflow-hidden rounded-card border border-mist bg-surface">
         {items.map((n) => {
           const title = locale === 'en' ? (n.title_en ?? n.title_fr) : n.title_fr
           const body = locale === 'en' ? (n.body_en ?? n.body_fr) : n.body_fr

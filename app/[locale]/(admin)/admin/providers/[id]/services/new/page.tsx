@@ -26,7 +26,7 @@ export default async function AdminNewServicePage({ params }: { params: Promise<
         <h1 className="text-2xl font-display text-white mt-2">Nouveau service</h1>
         <p className="text-white/40 text-sm mt-0.5">Enregistré en brouillon ; vous le publiez depuis la fiche du prestataire.</p>
       </div>
-      <div className="bg-sand rounded-2xl p-3 md:p-4">
+      <div className="bg-sand rounded-card p-3 md:p-4">
         <ServiceForm
           commissionPct={commissionPct}
           locale={locale}

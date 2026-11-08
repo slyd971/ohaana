@@ -20,7 +20,7 @@ export default async function NewManagedProviderPage({ params }: { params: Promi
           Crée une fiche sans compte, approuvée d’emblée. Vous ajoutez ensuite ses services et ses créneaux.
         </p>
       </div>
-      <div className="bg-sand rounded-2xl p-3 md:p-4">
+      <div className="bg-sand rounded-card p-3 md:p-4">
         <ProfileForm action={createManagedProviderAction} hidden={{ locale }} submitLabel="Créer le prestataire" />
       </div>
     </div>

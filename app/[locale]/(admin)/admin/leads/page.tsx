@@ -39,7 +39,7 @@ export default async function AdminLeadsPage() {
         {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a
           href="/api/admin/leads"
-          className="flex-none text-xs bg-turquoise/20 text-turquoise border border-turquoise/30 px-4 py-2 rounded-xl hover:bg-turquoise/30"
+          className="flex-none text-xs bg-turquoise/20 text-turquoise border border-turquoise/30 px-4 py-2 rounded-control hover:bg-turquoise/30"
         >
           Exporter en CSV
         </a>
@@ -47,7 +47,7 @@ export default async function AdminLeadsPage() {
 
       {error && <p role="alert" className="text-sm text-red-400">Impossible de charger les leads.</p>}
 
-      <div className="bg-white/5 rounded-2xl border border-white/8 overflow-hidden">
+      <div className="bg-white/5 rounded-card border border-white/8 overflow-hidden">
         {leads.length === 0 ? (
           <p className="px-5 py-6 text-sm text-white/40">Aucun lead pour l’instant.</p>
         ) : (

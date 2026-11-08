@@ -105,7 +105,7 @@ export function ServiceImagesManager({
   }
 
   return (
-    <section aria-labelledby="photos-title" className="bg-coconut rounded-2xl border border-mist p-5 space-y-4">
+    <section aria-labelledby="photos-title" className="bg-coconut rounded-card border border-mist p-5 space-y-4">
       <div>
         <h2 id="photos-title" className="text-sm font-semibold text-deep-green">Photos</h2>
         <p className="text-[11px] text-stone mt-0.5">
@@ -116,11 +116,11 @@ export function ServiceImagesManager({
       {images.length > 0 && (
         <ul className="space-y-3">
           {images.map((img, i) => (
-            <li key={img.id} className="flex flex-col sm:flex-row gap-3 rounded-xl border border-mist p-3">
+            <li key={img.id} className="flex flex-col sm:flex-row gap-3 rounded-control border border-mist p-3">
               <div className="relative h-24 w-36 flex-none overflow-hidden rounded-lg bg-sand">
                 <Image src={img.url} alt={img.alt_fr ?? ''} fill sizes="144px" className="object-cover" unoptimized />
                 {img.is_cover && (
-                  <span className="absolute left-1 top-1 rounded-full bg-deep-green px-2 py-0.5 text-[10px] font-medium text-coconut">Couverture</span>
+                  <span className="absolute left-1 top-1 rounded-full bg-deep-green px-2 py-0.5 text-xs font-medium text-coconut">Couverture</span>
                 )}
               </div>
               <div className="flex-1 min-w-0 space-y-2">
@@ -155,7 +155,7 @@ export function ServiceImagesManager({
                     confirmLabel="Supprimer"
                     disabled={disabled}
                     onConfirm={() => run({ op: 'delete', serviceId, imageId: img.id })}
-                    className="inline-flex items-center gap-1 text-xs border border-mist text-[#C0392B] px-2.5 py-1.5 rounded-lg hover:bg-sand disabled:opacity-40"
+                    className="inline-flex items-center gap-1 text-xs border border-mist text-danger px-2.5 py-1.5 rounded-lg hover:bg-sand disabled:opacity-40"
                   />
                 </div>
               </div>
@@ -165,10 +165,10 @@ export function ServiceImagesManager({
       )}
 
       {remaining > 0 && (
-        <div className="space-y-3 rounded-xl bg-sand p-4">
+        <div className="space-y-3 rounded-control bg-sand p-4">
           <div>
             <label htmlFor="new-alt" className="block text-xs font-semibold text-charcoal mb-1.5">
-              Description des prochaines photos <span className="text-[#C0392B]">*</span>
+              Description des prochaines photos <span className="text-danger">*</span>
             </label>
             <input
               id="new-alt"
@@ -202,7 +202,7 @@ export function ServiceImagesManager({
       )}
 
       {message && (
-        <p role={message.kind === 'error' ? 'alert' : 'status'} className={`text-sm ${message.kind === 'error' ? 'text-[#C0392B]' : 'text-turquoise'}`}>
+        <p role={message.kind === 'error' ? 'alert' : 'status'} className={`text-sm ${message.kind === 'error' ? 'text-danger' : 'text-turquoise-text'}`}>
           {message.text}
         </p>
       )}

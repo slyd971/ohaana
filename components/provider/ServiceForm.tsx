@@ -1,6 +1,7 @@
 'use client'
 
 import { useActionState, useState } from 'react'
+import { Button } from '@/components/ui/Button'
 import { saveServiceAction } from '@/app/actions/provider'
 import { Field, eur, inputClass } from './ui'
 import { DEFAULT_COMMISSION_PCT, computeCommission } from '@/lib/utils'
@@ -47,17 +48,17 @@ export function ServiceForm({
       {service && <input type="hidden" name="id" value={service.id} />}
 
       {service?.status === 'rejected' && service.rejection_reason && (
-        <div role="alert" className="rounded-xl bg-coral/10 text-coral text-xs px-4 py-3">
+        <div role="alert" className="rounded-control bg-coral/10 text-coral-text text-xs px-4 py-3">
           <strong>Fiche refusée :</strong> {service.rejection_reason}
         </div>
       )}
       {editingPublished && (
-        <div className="rounded-xl bg-[#F5A623]/10 text-[#8A5A00] text-xs px-4 py-3">
+        <div className="rounded-control bg-star/10 text-[#8A5A00] text-xs px-4 py-3">
           Cette fiche est publiée. Toute modification la repasse en relecture avant de réapparaître sur le site.
         </div>
       )}
 
-      <section className="bg-coconut rounded-2xl border border-mist p-5 space-y-4">
+      <section className="bg-coconut rounded-card border border-mist p-5 space-y-4">
         <h2 className="text-sm font-semibold text-deep-green">Présentation</h2>
         <Field label="Titre (français)" htmlFor="title_fr" error={err.title_fr} hint="Ex. : Dîner de chef à domicile — Menu créole">
           <input id="title_fr" name="title_fr" defaultValue={service?.title_fr} required maxLength={120} className={inputClass} />
@@ -65,7 +66,7 @@ export function ServiceForm({
         <Field label="Description (français)" htmlFor="description_fr" error={err.description_fr} hint="Ce qui est inclus, le déroulé, ce que le client doit prévoir.">
           <textarea id="description_fr" name="description_fr" defaultValue={service?.description_fr ?? ''} required rows={6} maxLength={4000} className={inputClass} />
         </Field>
-        <details className="rounded-xl border border-mist px-4 py-3">
+        <details className="rounded-control border border-mist px-4 py-3">
           <summary className="cursor-pointer text-xs font-semibold text-stone">Version anglaise (facultatif)</summary>
           <div className="space-y-4 pt-3">
             <Field label="Title (English)" htmlFor="title_en" error={err.title_en}>
@@ -78,7 +79,7 @@ export function ServiceForm({
         </details>
       </section>
 
-      <section className="bg-coconut rounded-2xl border border-mist p-5 space-y-4">
+      <section className="bg-coconut rounded-card border border-mist p-5 space-y-4">
         <h2 className="text-sm font-semibold text-deep-green">Catégorie et lieu</h2>
         <div className="grid sm:grid-cols-2 gap-4">
           <Field label="Catégorie" htmlFor="category_id" error={err.category_id}>
@@ -105,7 +106,7 @@ export function ServiceForm({
         </Field>
       </section>
 
-      <section className="bg-coconut rounded-2xl border border-mist p-5 space-y-4">
+      <section className="bg-coconut rounded-card border border-mist p-5 space-y-4">
         <h2 className="text-sm font-semibold text-deep-green">Tarif et capacité</h2>
         <div className="grid sm:grid-cols-2 gap-4">
           <Field label="Prix (€)" htmlFor="price_euros" error={err.price_euros}>
@@ -145,17 +146,13 @@ export function ServiceForm({
       </section>
 
       {state.error && (
-        <p role="alert" className="text-sm text-[#C0392B]">{state.error}</p>
+        <p role="alert" className="text-sm text-danger">{state.error}</p>
       )}
 
       <div className="flex items-center gap-3">
-        <button
-          type="submit"
-          disabled={pending}
-          className="bg-deep-green text-coconut px-6 py-2.5 rounded-full text-sm font-medium hover:bg-deep-green/90 disabled:opacity-60 transition-colors"
-        >
+        <Button size="sm" type="submit" disabled={pending} className="rounded-full">
           {pending ? 'Enregistrement…' : service ? 'Enregistrer' : 'Créer le brouillon'}
-        </button>
+        </Button>
       </div>
     </form>
   )

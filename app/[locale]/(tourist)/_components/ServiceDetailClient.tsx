@@ -147,7 +147,7 @@ function LocationAutocomplete({ value, onChange }: { value: string; onChange: (v
           onChange={(e) => { onChange(e.target.value); setOpen(true) }}
           onFocus={() => setOpen(true)}
           className={cn(
-            'w-full h-11 rounded-xl border bg-coconut pl-8 pr-3 text-sm text-charcoal placeholder:text-stone focus:outline-none transition-colors',
+            'w-full h-11 rounded-control border bg-coconut pl-8 pr-3 text-sm text-charcoal placeholder:text-stone focus:outline-none transition-colors',
             open ? 'border-deep-green ring-2 ring-deep-green/15' : 'border-mist',
           )}
         />
@@ -157,7 +157,7 @@ function LocationAutocomplete({ value, onChange }: { value: string; onChange: (v
         <motion.div
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
-          className="absolute top-full left-0 right-0 mt-1.5 bg-surface rounded-xl border border-mist shadow-elevated overflow-hidden z-50"
+          className="absolute top-full left-0 right-0 mt-1.5 bg-surface rounded-control border border-mist shadow-elevated overflow-hidden z-50"
         >
           {filtered.map((opt) => (
             <button
@@ -301,7 +301,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
         </Link>
         <button type="button" onClick={() => setIsFav((v) => !v)}
           className="absolute top-4 right-4 p-2 rounded-full bg-black/35 backdrop-blur-sm hover:bg-black/55 transition-colors z-10">
-          <Heart size={20} className={cn(isFav ? 'fill-coral text-coral' : 'text-white fill-transparent')} />
+          <Heart size={20} className={cn(isFav ? 'fill-coral text-coral-text' : 'text-white fill-transparent')} />
         </button>
         {images.length > 1 && (
           <>
@@ -314,7 +314,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
           </>
         )}
         <div className="absolute bottom-0 left-0 right-0 px-4 pb-5 flex items-end gap-4">
-          <div className="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-white/80 shadow-lg flex-none">
+          <div className="relative w-16 h-16 rounded-card overflow-hidden border-2 border-white/80 shadow-lg flex-none">
             {provider.user.avatar_url ? (
               <Image src={provider.user.avatar_url} alt={provider.user.full_name ?? provider.business_name} fill className="object-cover" sizes="64px" />
             ) : (
@@ -362,7 +362,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
               onClick={() => setIsFav((v) => !v)}
               className="ml-auto flex items-center gap-1.5 text-sm text-stone hover:text-charcoal transition-colors"
             >
-              <Heart size={15} className={cn(isFav ? 'fill-coral text-coral' : '')} />
+              <Heart size={15} className={cn(isFav ? 'fill-coral text-coral-text' : '')} />
               {isFav ? 'Retiré des favoris' : 'Ajouter aux favoris'}
             </button>
           </div>
@@ -395,7 +395,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
 
         {/* Desktop photo grid — style GYG (1 grande + 2×2) */}
         <div
-          className="hidden md:grid grid-rows-2 grid-flow-col gap-1.5 h-[400px] rounded-2xl overflow-hidden mb-8"
+          className="hidden md:grid grid-rows-2 grid-flow-col gap-1.5 h-[400px] rounded-card overflow-hidden mb-8"
           style={{ gridTemplateColumns: '1.8fr 1fr 1fr' }}
         >
           <div className="row-span-2 relative overflow-hidden">
@@ -472,7 +472,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
                   type="button"
                   onClick={() => setSelectedOffering(offering.id)}
                   className={cn(
-                    'w-full text-left rounded-2xl border p-4 transition-all',
+                    'w-full text-left rounded-card border p-4 transition-all',
                     isSelected
                       ? 'border-deep-green bg-deep-green/4 shadow-sm'
                       : 'border-mist bg-surface hover:border-deep-green/40 hover:bg-sand/40'
@@ -483,7 +483,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="text-sm font-semibold text-charcoal">{offering.title}</h3>
                         {isRecommended && (
-                          <span className="inline-flex items-center text-[10px] font-semibold text-deep-green bg-turquoise/15 border border-turquoise/25 px-1.5 py-0.5 rounded-full">
+                          <span className="inline-flex items-center text-xs font-semibold text-deep-green bg-turquoise/15 border border-turquoise/25 px-1.5 py-0.5 rounded-full">
                             Populaire
                           </span>
                         )}
@@ -511,7 +511,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
         </section>
 
         {/* Smart availability */}
-        <section className="mb-6 bg-deep-green/6 rounded-2xl border border-deep-green/20 shadow-sm overflow-hidden">
+        <section className="mb-6 bg-deep-green/6 rounded-card border border-deep-green/20 shadow-sm overflow-hidden">
           <div className="flex items-center gap-3 px-4 py-3 bg-deep-green/8 border-b border-deep-green/15">
             <CalendarDays size={16} className="text-deep-green flex-none" />
             <h2 className="text-sm font-semibold text-deep-green uppercase tracking-wider">Disponibilités</h2>
@@ -551,7 +551,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
                   type="button"
                   onClick={() => setSelectedDay(isActive ? null : day.isoDate)}
                   className={cn(
-                    'rounded-xl border p-2.5 text-center transition-all',
+                    'rounded-control border p-2.5 text-center transition-all',
                     isActive
                       ? 'border-deep-green bg-deep-green/5 ring-2 ring-deep-green/15'
                       : hasSelected
@@ -559,7 +559,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
                       : 'border-mist bg-coconut hover:border-deep-green/30'
                   )}
                 >
-                  <p className="text-[10px] uppercase text-stone">{day.day}</p>
+                  <p className="text-xs uppercase text-stone">{day.day}</p>
                   <p className="text-lg font-display text-charcoal leading-tight">{day.date}</p>
                   <div className="flex justify-center mt-1.5">
                     <div className={cn('w-2 h-2 rounded-full', {
@@ -582,7 +582,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
                 initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.18 }}
-                className="rounded-2xl bg-sand border border-mist p-4 space-y-3"
+                className="rounded-card bg-sand border border-mist p-4 space-y-3"
               >
                 <p className="text-xs font-semibold text-charcoal uppercase tracking-wider">
                   {day.day} {day.date} — Choisissez un créneau
@@ -599,7 +599,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
                           isSelected ? null : { id: slot.id, isoDate: day.isoDate, day: day.day, date: day.date, time: slot.time }
                         )}
                         className={cn(
-                          'inline-flex items-center gap-1.5 rounded-xl border px-4 py-2.5 text-sm font-medium transition-all',
+                          'inline-flex items-center gap-1.5 rounded-control border px-4 py-2.5 text-sm font-medium transition-all',
                           isSelected
                             ? 'border-deep-green bg-deep-green text-white shadow-sm'
                             : 'border-turquoise/50 bg-turquoise/10 text-deep-green hover:bg-turquoise/20'
@@ -628,7 +628,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {INCLUDED_ITEMS.map((item) => (
               <div key={item} className="flex items-center gap-2 text-sm text-charcoal-soft">
-                <CheckCircle2 size={15} className="text-turquoise flex-none" />
+                <CheckCircle2 size={15} className="text-turquoise-text flex-none" />
                 {item}
               </div>
             ))}
@@ -650,7 +650,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
                 <div
                   key={img.id}
                   className={cn(
-                    'relative overflow-hidden rounded-xl aspect-[4/3]',
+                    'relative overflow-hidden rounded-control aspect-[4/3]',
                     i === 0 ? 'col-span-2 md:col-span-1' : ''
                   )}
                 >
@@ -668,7 +668,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
         )}
 
         {/* Provider bio */}
-        <section className="mb-6 bg-sand rounded-2xl p-4 space-y-3">
+        <section className="mb-6 bg-sand rounded-card p-4 space-y-3">
           <div className="flex items-center gap-3">
             <div className="relative w-10 h-10 rounded-full overflow-hidden flex-none">
               {provider.user.avatar_url ? (
@@ -732,7 +732,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
             </h3>
             <ul className="space-y-3">
               {reviews.map((r) => (
-                <li key={r.id} className="rounded-2xl border border-mist bg-surface p-4">
+                <li key={r.id} className="rounded-card border border-mist bg-surface p-4">
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-sm font-medium text-charcoal">{r.author_first_name || 'Voyageur'}</span>
                     <span className="flex items-center gap-1 text-xs text-stone">
@@ -777,7 +777,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
           </section>
         )}
         {/* Bloc concierge */}
-        <section className="mb-6 rounded-2xl bg-deep-green text-coconut p-5 flex gap-4 items-start">
+        <section className="mb-6 rounded-card bg-deep-green text-coconut p-5 flex gap-4 items-start">
           <div className="flex-none w-10 h-10 rounded-full bg-coconut/15 flex items-center justify-center">
             <MessageCircle size={18} className="text-coconut" />
           </div>
@@ -807,7 +807,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
 
             {/* Prestation sélectionnée */}
             {selected && (
-              <div className="rounded-xl border border-deep-green/20 bg-deep-green/5 px-4 py-3">
+              <div className="rounded-control border border-deep-green/20 bg-deep-green/5 px-4 py-3">
                 <p className="text-xs text-stone mb-0.5">Prestation sélectionnée</p>
                 <p className="text-sm font-semibold text-charcoal">{selected.title}</p>
                 <p className="text-xs text-stone mt-0.5">{selected.duration}</p>
@@ -816,7 +816,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
 
             {/* Créneau sélectionné */}
             {selectedSlot && (
-              <div className="rounded-xl border border-deep-green/20 bg-deep-green/5 px-4 py-2.5 text-xs text-deep-green font-medium">
+              <div className="rounded-control border border-deep-green/20 bg-deep-green/5 px-4 py-2.5 text-xs text-deep-green font-medium">
                 {selectedSlot.day} {selectedSlot.date} · {fmtSlot(selectedSlot.time)}
               </div>
             )}

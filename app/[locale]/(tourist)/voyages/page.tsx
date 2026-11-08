@@ -58,10 +58,10 @@ function CarnetView({ bookings, onCancel }: { bookings: BookingItem[]; onCancel:
 
   return (
     <div className="space-y-5">
-      <div className="rounded-2xl p-5 space-y-4" style={{ background: 'linear-gradient(135deg, var(--deep-green) 0%, #0F2B1D 100%)' }}>
+      <div className="rounded-card p-5 space-y-4" style={{ background: 'linear-gradient(135deg, var(--deep-green) 0%, #0F2B1D 100%)' }}>
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-coconut/50 text-[10px] uppercase tracking-widest">Mon séjour</p>
+            <p className="text-coconut/50 text-xs uppercase tracking-widest">Mon séjour</p>
             <h2 className="text-coconut font-display text-xl mt-0.5">{destination}</h2>
             <p className="text-coconut/70 text-sm mt-1.5 flex items-center gap-1.5">
               <CalendarDays size={13} />
@@ -69,7 +69,7 @@ function CarnetView({ bookings, onCancel }: { bookings: BookingItem[]; onCancel:
             </p>
           </div>
           <div className="text-right">
-            <p className="text-coconut/50 text-[10px]">{bookings.length} expérience{bookings.length > 1 ? 's' : ''}</p>
+            <p className="text-coconut/50 text-xs">{bookings.length} expérience{bookings.length > 1 ? 's' : ''}</p>
             <p className="text-coconut font-semibold text-sm mt-0.5">{formatPrice(total)}</p>
           </div>
         </div>
@@ -91,15 +91,15 @@ function CarnetView({ bookings, onCancel }: { bookings: BookingItem[]; onCancel:
           return (
             <motion.div key={booking.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
               <p className="text-[11px] font-semibold text-stone uppercase tracking-wider mb-2 px-1">{booking.date ? fmtDateLong(booking.date) : ''}</p>
-              <div className="bg-surface rounded-2xl overflow-hidden border border-mist shadow-card">
+              <div className="bg-surface rounded-card overflow-hidden border border-mist shadow-card">
                 <div className="flex gap-3 p-3">
-                  <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-none bg-sand">
+                  <div className="relative w-20 h-20 rounded-control overflow-hidden flex-none bg-sand">
                     {booking.coverUrl && <Image src={booking.coverUrl} alt={booking.title.fr} fill className="object-cover" sizes="80px" />}
                   </div>
                   <div className="flex-1 min-w-0 space-y-1.5">
                     <div className="flex items-start justify-between gap-2">
                       <h3 className="text-sm font-medium text-charcoal leading-snug line-clamp-2">{booking.title.fr}</h3>
-                      <Badge variant={statusInfo.variant} className="flex-none text-[10px]">{statusInfo.label}</Badge>
+                      <Badge variant={statusInfo.variant} className="flex-none text-xs">{statusInfo.label}</Badge>
                     </div>
                     {booking.providerName && <p className="text-xs text-stone">{booking.providerName}</p>}
                     <div className="flex items-center gap-3 text-xs text-stone">
@@ -113,7 +113,7 @@ function CarnetView({ bookings, onCancel }: { bookings: BookingItem[]; onCancel:
                   <Link href={`/prestataires/${booking.serviceId}`} className="flex-1">
                     <Button size="sm" variant="ghost" fullWidth>Voir</Button>
                   </Link>
-                  <Button size="sm" variant="outline" className="text-coral border-coral/30 hover:bg-coral/5" onClick={() => onCancel(booking.id)}>
+                  <Button size="sm" variant="outline" className="text-coral-text border-coral/30 hover:bg-coral/5" onClick={() => onCancel(booking.id)}>
                     Annuler
                   </Button>
                 </div>
@@ -124,7 +124,7 @@ function CarnetView({ bookings, onCancel }: { bookings: BookingItem[]; onCancel:
       </div>
 
       <Link href="/search">
-        <button type="button" className="w-full flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-mist py-5 text-sm font-medium text-stone hover:border-deep-green/40 hover:text-deep-green transition-colors">
+        <button type="button" className="w-full flex items-center justify-center gap-2 rounded-card border-2 border-dashed border-mist py-5 text-sm font-medium text-stone hover:border-deep-green/40 hover:text-deep-green transition-colors">
           <Plus size={16} />
           Ajouter une expérience
         </button>
@@ -138,15 +138,15 @@ function CarnetView({ bookings, onCancel }: { bookings: BookingItem[]; onCancel:
 function PastCard({ booking }: { booking: BookingItem }) {
   const statusInfo = STATUS_LABELS[booking.status]
   return (
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="bg-surface rounded-2xl overflow-hidden shadow-card border border-mist">
+    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="bg-surface rounded-card overflow-hidden shadow-card border border-mist">
       <div className="flex gap-3 p-3">
-        <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-none bg-sand">
+        <div className="relative w-20 h-20 rounded-control overflow-hidden flex-none bg-sand">
           {booking.coverUrl && <Image src={booking.coverUrl} alt={booking.title.fr} fill className="object-cover" sizes="80px" />}
         </div>
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex items-start justify-between gap-2">
             <h3 className="text-sm font-medium text-charcoal leading-snug line-clamp-2">{booking.title.fr}</h3>
-            <Badge variant={statusInfo.variant} className="flex-none text-[10px]">{statusInfo.label}</Badge>
+            <Badge variant={statusInfo.variant} className="flex-none text-xs">{statusInfo.label}</Badge>
           </div>
           {booking.providerName && <p className="text-xs text-stone">{booking.providerName}</p>}
           <div className="flex items-center gap-3 text-xs text-stone">
@@ -250,7 +250,7 @@ export default function VoyagesPage() {
         </div>
 
         <div className="px-4 py-5">
-          {error && <p role="alert" className="mb-4 text-sm text-coral">Impossible de charger vos réservations pour le moment.</p>}
+          {error && <p role="alert" className="mb-4 text-sm text-coral-text">Impossible de charger vos réservations pour le moment.</p>}
           {loading && tab !== 'favorites' && <p className="py-10 text-center text-sm text-stone" role="status">Chargement…</p>}
 
           {!loading && tab === 'programme' && (

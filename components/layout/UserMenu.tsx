@@ -52,7 +52,7 @@ export function UserMenu({ opaque }: UserMenuProps) {
       </button>
 
       {open && (
-        <div role="menu" className="absolute right-0 top-11 w-56 overflow-hidden rounded-2xl border border-mist bg-surface shadow-lg">
+        <div role="menu" className="absolute right-0 top-11 w-56 overflow-hidden rounded-card border border-mist bg-surface shadow-lg">
           <div className="border-b border-mist px-3 py-2.5">
             <p className="truncate text-sm font-medium text-charcoal">{user.fullName ?? user.email}</p>
             {user.fullName && <p className="truncate text-xs text-stone">{user.email}</p>}
@@ -68,7 +68,7 @@ export function UserMenu({ opaque }: UserMenuProps) {
           <Link href="/profile" role="menuitem" onClick={() => setOpen(false)} className={itemClass}>
             <UserIcon size={15} /> {t('profile')}
           </Link>
-          <button type="button" role="menuitem" onClick={() => { setOpen(false); void signOut() }} className={cn(itemClass, 'border-t border-mist text-coral')}>
+          <button type="button" role="menuitem" onClick={() => { setOpen(false); void signOut() }} className={cn(itemClass, 'border-t border-mist text-coral-text')}>
             <LogOut size={15} /> {tAuth('logout')}
           </button>
         </div>

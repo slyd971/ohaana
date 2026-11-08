@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { setCommissionPctAction } from '@/app/actions/admin'
 import { computeCommission } from '@/lib/utils'
 import { Field, eur, inputClass } from '@/components/provider/ui'
+import { Button } from '@/components/ui/Button'
 import type { ActionState } from '@/lib/provider/schemas'
 
 export function CommissionForm({ current }: { current: number }) {
@@ -26,7 +27,7 @@ export function CommissionForm({ current }: { current: number }) {
         }
         start(async () => setResult(await setCommissionPctAction(pct)))
       }}
-      className="bg-coconut rounded-2xl border border-mist p-5 space-y-4"
+      className="bg-coconut rounded-card border border-mist p-5 space-y-4"
     >
       <Field label="Commission d’Ohaana (%)" htmlFor="commission" hint="Entre 0 et 50. Prélevée sur la part du prestataire : le voyageur paie toujours le prix affiché.">
         <input id="commission" inputMode="decimal" value={value} onChange={(e) => setValue(e.target.value)} className={`${inputClass} max-w-[10rem]`} />
@@ -40,11 +41,11 @@ export function CommissionForm({ current }: { current: number }) {
       <p className="text-[11px] text-stone">
         S’applique aux <strong>nouvelles</strong> réservations. Les paiements déjà créés gardent leur répartition.
       </p>
-      {result?.error && <p role="alert" className="text-sm text-[#C0392B]">{result.error}</p>}
+      {result?.error && <p role="alert" className="text-sm text-danger">{result.error}</p>}
       {result?.message && <p role="status" className="text-sm text-turquoise">{result.message}</p>}
-      <button type="submit" disabled={pending} className="bg-deep-green text-coconut px-5 py-2.5 rounded-full text-sm font-medium hover:bg-deep-green/90 disabled:opacity-60">
+      <Button type="submit" size="sm" loading={pending} className="rounded-full">
         {pending ? 'Enregistrement…' : 'Enregistrer'}
-      </button>
+      </Button>
     </form>
   )
 }
