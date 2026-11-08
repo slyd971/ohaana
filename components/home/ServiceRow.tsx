@@ -82,7 +82,7 @@ export function ServiceRow({
         <h2 className="text-2xl md:text-3xl font-display text-deep-green">{title}</h2>
         <Link
           href={seeAllHref}
-          className="flex items-center gap-0.5 text-sm text-deep-green font-medium"
+          className="flex min-h-11 items-center gap-0.5 text-sm text-deep-green font-medium"
         >
           {seeAll} <ChevronRight size={15} />
         </Link>

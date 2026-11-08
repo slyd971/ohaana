@@ -58,7 +58,7 @@ export function LanguageSwitcher({ variant = 'header', className }: LanguageSwit
         onClick={() => setOpen((v) => !v)}
         aria-label="Changer de langue"
         aria-expanded={open}
-        className="flex h-8 w-8 items-center justify-center rounded-full border border-mist/70 bg-coconut/75 text-deep-green shadow-sm backdrop-blur-sm transition-colors hover:border-deep-green/30 hover:bg-coconut"
+        className="flex h-11 w-11 items-center justify-center rounded-full border border-mist/70 bg-coconut/75 text-deep-green shadow-sm backdrop-blur-sm transition-colors hover:border-deep-green/30 hover:bg-coconut"
       >
         <Globe size={15} aria-hidden="true" />
       </button>

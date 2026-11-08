@@ -87,7 +87,7 @@ export function ServiceCard({
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); onToggleFavorite(service.id) }}
-              className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm transition-transform hover:scale-110"
+              className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm transition-transform hover:scale-110 before:absolute before:-inset-1.5 before:content-['']"
               aria-label={isFavorite ? removeFav : addFav}
             >
               <Heart

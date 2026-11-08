@@ -74,7 +74,7 @@ export function Header({ transparent = false }: HeaderProps) {
             href="/voyages"
             aria-label="Mes favoris"
             className={cn(
-              'p-1.5 rounded-full transition-colors hover:bg-sand',
+              'flex h-11 w-11 items-center justify-center rounded-full transition-colors hover:bg-sand',
               isOpaque ? 'text-charcoal-soft' : 'text-coconut/80'
             )}
           >
@@ -87,7 +87,7 @@ export function Header({ transparent = false }: HeaderProps) {
               <Button
                 variant={isOpaque ? 'ghost' : 'outline'}
                 size="sm"
-                className={!isOpaque ? 'border-coconut/40 text-coconut hover:bg-coconut/10' : ''}
+                className={cn('min-h-11 min-w-11', !isOpaque && 'border-coconut/40 text-coconut hover:bg-coconut/10')}
               >
                 <User size={16} />
                 <span className="hidden sm:inline">{tAuth('login')}</span>
