@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { useLocale } from 'next-intl'
@@ -146,6 +146,24 @@ export function HomeClient({ services, rows }: HomeClientProps) {
   const [showAllExplorer, setShowAllExplorer] = useState(false)
   const [whyActiveIdx, setWhyActiveIdx] = useState(0)
   const whyScrollRef = useRef<HTMLDivElement>(null)
+  const explorerGridRef = useRef<HTMLDivElement>(null)
+  const [stickyHidden, setStickyHidden] = useState(false)
+
+  // Fade the sticky category bar out before the grid fully leaves the screen
+  useEffect(() => {
+    const onScroll = () => {
+      const el = explorerGridRef.current
+      if (!el) return
+      setStickyHidden(el.getBoundingClientRect().bottom < 520)
+    }
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [])
 
   const handleWhyScroll = useCallback(() => {
     const el = whyScrollRef.current
@@ -266,7 +284,11 @@ export function HomeClient({ services, rows }: HomeClientProps) {
       {/* '- -' Zone 1 : Explorer '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
       {/* Wrapper: bounds the sticky category bar to the explorer grid only */}
       <div>
-      <div className="sticky top-16 z-20 border-b border-mist bg-coconut/96 backdrop-blur-md">
+      <div
+        className={`sticky top-16 z-20 border-b border-mist bg-coconut/96 backdrop-blur-md transition-all duration-300 ${
+          stickyHidden ? 'pointer-events-none -translate-y-2 opacity-0' : 'translate-y-0 opacity-100'
+        }`}
+      >
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-5 pt-4 md:px-8 md:pt-5">
           <h2 className="font-display text-xl text-deep-green md:text-2xl">
             {L('Explorer par catégorie', 'Explore by category', 'Explorar por categoría')}
@@ -280,7 +302,7 @@ export function HomeClient({ services, rows }: HomeClientProps) {
           />
         </div>
       </div>
-      <div className="pt-8 pb-8 px-5 md:px-8 max-w-7xl mx-auto">
+      <div ref={explorerGridRef} className="pt-8 pb-8 px-5 md:px-8 max-w-7xl mx-auto">
         <motion.div
           key={mood + island}
           initial={{ opacity: 0, y: 10 }}
