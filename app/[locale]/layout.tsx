@@ -13,7 +13,9 @@ import '../globals.css'
 const fraunces = Fraunces({
   subsets: ['latin'],
   style: ['normal', 'italic'],
-  weight: ['300', '400', '500'],
+  weight: 'variable',
+  // WONK : axe qui incline les f, h, n, m (« wonky »). On l'expose pour pouvoir le couper en CSS.
+  axes: ['opsz', 'WONK'],
   variable: '--font-fraunces',
   display: 'swap',
 })

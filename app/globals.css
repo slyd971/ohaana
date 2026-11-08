@@ -117,7 +117,8 @@ body {
   font-family: var(--font-display);
 }
 
-h1, h2, h3 {
+h1, h2, h3, .font-display {
+  font-variation-settings: 'WONK' 0, 'opsz' 30; /* opsz fixe : le f à grand opsz a un crochet très tordu */
   font-family: var(--font-display);
   font-weight: 400;
   line-height: 1.15;
