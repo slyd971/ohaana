@@ -292,6 +292,110 @@ begin
 end $$;
 
 -- ─────────────────────────────────────────────────────────────
+-- 2e. Webhook Stripe (migration 010) : idempotence et cas limites
+-- ─────────────────────────────────────────────────────────────
+do $$
+declare
+  A constant uuid := 'aaaaaaaa-0000-4000-8000-000000000001';
+  v_service uuid; v_provider uuid; v_slot1 uuid; v_slot2 uuid; v_b1 uuid; v_b2 uuid; v_pro_user uuid;
+begin
+  select s.id, s.provider_id into v_service, v_provider from public.services s where s.title_fr like 'Dîner de chef%' limit 1;
+  select id into v_slot1 from public.availability_slots where service_id = v_service and date = current_date + 30 and start_time = '09:00';
+  select id into v_slot2 from public.availability_slots where service_id = v_service and date = current_date + 31 and start_time = '09:00';
+  select user_id into v_pro_user from public.provider_profiles where id = v_provider;
+
+  -- droits : ni un visiteur ni un utilisateur connecté ne peuvent appeler ces fonctions
+  perform t.as_user(A);
+  perform t.fails('a signed-in user cannot call apply_payment_succeeded',
+    $q$select public.apply_payment_succeeded('pi_x', 'ch_x')$q$, '42501');
+  perform t.fails('a signed-in user cannot claim webhook events',
+    $q$select public.webhook_claim_event('evt_x', 'payment_intent.succeeded')$q$, '42501');
+  perform t.reset();
+  perform t.as_anon();
+  perform t.fails('anon cannot call apply_account_updated',
+    $q$select public.apply_account_updated('acct_x', true)$q$, '42501');
+  perform t.reset();
+
+  -- deux réservations en attente avec leur paiement
+  perform t.as_user(A);
+  v_b1 := t.scalar(format($q$select (public.create_booking(%L, %L, 2)).id::text$q$, v_service, v_slot1))::uuid;
+  v_b2 := t.scalar(format($q$select (public.create_booking(%L, %L, 2)).id::text$q$, v_service, v_slot2))::uuid;
+  perform t.reset();
+  perform t.run(format($q$insert into public.payments (booking_id, stripe_payment_intent_id, status, total_cents, platform_fee_cents, provider_amount_cents)
+    values (%L, 'pi_test_1', 'pending', 36000, 7200, 28800), (%L, 'pi_test_2', 'pending', 36000, 7200, 28800)$q$, v_b1, v_b2));
+
+  -- paiement réussi : confirme la réservation, notifie les deux parties
+  perform t.eq('payment_intent.succeeded confirms a pending booking',
+    t.scalar($q$select public.apply_payment_succeeded('pi_test_1', 'ch_test_1')$q$), 'confirmed');
+  perform t.eq('the booking is confirmed',
+    t.scalar(format($q$select status::text from public.bookings where id = %L$q$, v_b1)), 'confirmed');
+  perform t.eq('the payment is succeeded with its charge id',
+    t.scalar($q$select status::text || ':' || stripe_charge_id from public.payments where stripe_payment_intent_id = 'pi_test_1'$q$), 'succeeded:ch_test_1');
+  perform t.eq('the traveler is notified',
+    t.scalar(format($q$select count(*)::text from public.notifications where user_id = %L and type = 'booking_confirmed'$q$, A)), '1');
+  perform t.eq('the provider is notified',
+    t.scalar(format($q$select count(*)::text from public.notifications where user_id = %L and title_fr = 'Nouvelle réservation confirmée'$q$, v_pro_user)), '1');
+
+  -- rejeu du même événement : aucun effet de bord
+  perform t.eq('replaying the same payment is a no-op',
+    t.scalar($q$select public.apply_payment_succeeded('pi_test_1', 'ch_test_1')$q$), 'already');
+  perform t.eq('no duplicate notification after a replay',
+    t.scalar(format($q$select count(*)::text from public.notifications where user_id = %L and type = 'booking_confirmed'$q$, A)), '1');
+
+  -- paiement arrivé après l'expiration de la réservation : il faut rembourser, la réservation ne ressuscite pas
+  perform t.run(format($q$update public.bookings set status = 'expired' where id = %L$q$, v_b2));
+  perform t.eq('a payment arriving after expiry asks for a refund',
+    t.scalar($q$select public.apply_payment_succeeded('pi_test_2', 'ch_test_2')$q$), 'needs_refund');
+  perform t.eq('the expired booking stays expired',
+    t.scalar(format($q$select status::text from public.bookings where id = %L$q$, v_b2)), 'expired');
+  perform t.eq('replaying the late payment still asks for the refund',
+    t.scalar($q$select public.apply_payment_succeeded('pi_test_2', 'ch_test_2')$q$), 'needs_refund');
+
+  perform t.eq('an unknown PaymentIntent is ignored',
+    t.scalar($q$select public.apply_payment_succeeded('pi_nope', null)$q$), 'unknown');
+
+  -- remboursement partiel puis total
+  perform t.eq('a partial refund keeps the payment succeeded',
+    t.scalar($q$select public.apply_charge_refunded('ch_test_1', 'pi_test_1', false)$q$), 'partial');
+  perform t.eq('payment still succeeded after a partial refund',
+    t.scalar($q$select status::text from public.payments where stripe_payment_intent_id = 'pi_test_1'$q$), 'succeeded');
+  perform t.eq('a full refund marks the payment refunded',
+    t.scalar($q$select public.apply_charge_refunded('ch_test_1', 'pi_test_1', true)$q$), 'refunded');
+  perform t.eq('payment is refunded',
+    t.scalar($q$select status::text from public.payments where stripe_payment_intent_id = 'pi_test_1'$q$), 'refunded');
+  perform t.eq('a refunded payment is not re-confirmed by a late replay',
+    t.scalar($q$select public.apply_payment_succeeded('pi_test_1', 'ch_test_1')$q$), 'already');
+
+  -- paiement refusé : seule une ligne encore en attente passe en échec
+  perform t.eq('a failure for an unknown intent is ignored',
+    t.scalar($q$select public.apply_payment_failed('pi_none')$q$), 'ignored');
+
+  -- événements : un seul traitement par identifiant Stripe
+  perform t.eq('a new event is claimed', t.scalar($q$select public.webhook_claim_event('evt_1', 'payment_intent.succeeded')$q$), 'new');
+  perform t.eq('the same event not yet processed is retried', t.scalar($q$select public.webhook_claim_event('evt_1', 'payment_intent.succeeded')$q$), 'retry');
+  perform t.run($q$select public.webhook_finish_event('evt_1')$q$);
+  perform t.eq('a processed event is a duplicate', t.scalar($q$select public.webhook_claim_event('evt_1', 'payment_intent.succeeded')$q$), 'duplicate');
+  perform t.run($q$select public.webhook_claim_event('evt_2', 'charge.refunded')$q$);
+  perform t.run($q$select public.webhook_finish_event('evt_2', 'boom')$q$);
+  perform t.eq('a failed event stays retryable', t.scalar($q$select public.webhook_claim_event('evt_2', 'charge.refunded')$q$), 'retry');
+
+  -- compte Connect : prêt / non prêt
+  perform t.run(format($q$update public.provider_profiles set stripe_account_id = 'acct_test_1' where id = %L$q$, v_provider));
+  perform t.eq('account.updated marks the provider ready', t.scalar($q$select public.apply_account_updated('acct_test_1', true)$q$), 'updated');
+  perform t.eq('stripe_onboarded is set',
+    t.scalar(format($q$select stripe_onboarded::text from public.provider_profiles where id = %L$q$, v_provider)), 'true');
+  perform t.eq('an unknown account is ignored', t.scalar($q$select public.apply_account_updated('acct_none', true)$q$), 'unknown');
+
+  -- nettoyage : les tests suivants comptent sur un état propre (notifications, créneaux, réservations)
+  perform t.run(format($q$delete from public.notifications where (payload->>'booking_id')::uuid in (%L, %L)$q$, v_b1, v_b2));
+  perform t.run(format($q$delete from public.payments where booking_id in (%L, %L)$q$, v_b1, v_b2));
+  perform t.run(format($q$delete from public.bookings where id in (%L, %L)$q$, v_b1, v_b2));
+  perform t.run(format($q$update public.availability_slots set is_available = true where id in (%L, %L)$q$, v_slot1, v_slot2));
+  perform t.run(format($q$update public.provider_profiles set stripe_account_id = null, stripe_onboarded = false where id = %L$q$, v_provider));
+  perform t.run($q$delete from public.webhook_events where stripe_event_id in ('evt_1', 'evt_2')$q$);
+end $$;
+
+-- ─────────────────────────────────────────────────────────────
 -- 2d. Commission (migration 009) : lecture publique bornée, écriture admin validée
 -- ─────────────────────────────────────────────────────────────
 do $$
