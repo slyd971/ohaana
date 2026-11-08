@@ -266,22 +266,11 @@ export function HomeClient({ services, rows }: HomeClientProps) {
       {/* '- -' Zone 1 : Explorer '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
       {/* Wrapper: bounds the sticky category bar to the explorer grid only */}
       <div>
-      <section className="px-5 md:px-8 pt-8 pb-4 max-w-7xl mx-auto">
-        <div className="max-w-2xl">
-          <h2 className="text-2xl md:text-3xl font-display text-deep-green">
+      <div className="sticky top-16 z-20 border-b border-mist bg-coconut/96 backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl flex-col gap-1 px-5 pt-6 md:flex-row md:items-center md:justify-between md:gap-8 md:px-8 md:pt-4">
+          <h2 className="font-display text-2xl text-deep-green md:text-3xl">
             {L('Explorer par catégorie', 'Explore by category', 'Explorar por categoría')}
           </h2>
-          <p className="mt-1.5 text-sm text-stone">
-            {L(
-              "Choisissez le type d'expérience que vous recherchez.",
-              'Choose the type of experience you are looking for.',
-              'Elige el tipo de experiencia que buscas.'
-            )}
-          </p>
-        </div>
-      </section>
-      <div className="sticky top-16 z-20 bg-coconut/96 backdrop-blur-md border-b border-mist pt-2 pb-2">
-        <div className="max-w-7xl mx-auto px-5 md:px-8">
           <MoodSelector
             value={mood}
             onChange={(nextMood) => {
