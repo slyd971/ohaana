@@ -3,7 +3,8 @@ import type Stripe from 'stripe'
 /** What the handlers need from the outside world (a Supabase service-role client and Stripe), injectable for tests. */
 export interface WebhookDeps {
   rpc(fn: string, args: Record<string, unknown>): Promise<{ data: unknown; error: { message: string } | null }>
-  refundLatePayment(paymentIntentId: string): Promise<void>
+  /** `connectedAccount` = compte du prestataire quand l'événement vient d'un compte connecté (paiement direct). */
+  refundLatePayment(paymentIntentId: string, connectedAccount: string | null): Promise<void>
 }
 
 export type HandlerOutcome = { handled: boolean; result?: string }
@@ -30,7 +31,7 @@ export async function handleStripeEvent(event: Stripe.Event, deps: WebhookDeps):
         p_charge: idOf(intent.latest_charge as string | { id: string } | null),
       })
       // Paid after the booking expired or was cancelled: the slot is no longer guaranteed, give the money back.
-      if (result === 'needs_refund') await deps.refundLatePayment(intent.id)
+      if (result === 'needs_refund') await deps.refundLatePayment(intent.id, event.account ?? null)
       return { handled: true, result }
     }
 

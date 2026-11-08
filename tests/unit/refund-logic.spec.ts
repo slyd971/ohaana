@@ -12,7 +12,7 @@ import {
 // (refund_percent + the service's cancellation policy), covered in supabase/tests/security.sql.
 
 function setup(booking: BookingForRefund | null, payment: PaymentForRefund | null, opts: { recordFails?: boolean } = {}) {
-  const created: { args: { paymentIntent: string; amountCents: number; bookingId: string }; key: string }[] = []
+  const created: { args: { paymentIntent: string; amountCents: number; bookingId: string; stripeAccount: string | null }; key: string }[] = []
   const recorded: { paymentIntent: string; refundedCents: number; fully: boolean }[] = []
   const deps: RefundDeps = {
     loadBooking: async () => booking,
@@ -33,6 +33,7 @@ const paid = (over: Partial<PaymentForRefund> = {}): PaymentForRefund => ({
   total_cents: 36000,
   refunded_cents: 0,
   stripe_payment_intent_id: 'pi_1',
+  stripe_account_id: 'acct_1ABC',
   ...over,
 })
 const cancelled = (pct: number | null, status = 'cancelled_tourist'): BookingForRefund => ({ status, refund_pct: pct })
@@ -65,7 +66,7 @@ test.describe('refundCancelledBooking', () => {
     const out = await refundCancelledBooking('b1', deps)
     expect(out).toEqual({ status: 'refunded', refundedCents: 36000 })
     expect(created).toHaveLength(1)
-    expect(created[0].args).toEqual({ paymentIntent: 'pi_1', amountCents: 36000, bookingId: 'b1' })
+    expect(created[0].args).toEqual({ paymentIntent: 'pi_1', amountCents: 36000, bookingId: 'b1', stripeAccount: 'acct_1ABC' })
     expect(recorded).toEqual([{ paymentIntent: 'pi_1', refundedCents: 36000, fully: true }])
   })
 
@@ -139,5 +140,19 @@ test.describe('refundCancelledBooking', () => {
     await refundCancelledBooking('b1', a.deps)
     await refundCancelledBooking('b1', b.deps)
     expect(a.created[0].key).not.toBe(b.created[0].key)
+  })
+})
+
+test.describe('direct charges', () => {
+  test('the refund is requested on the provider account that took the payment', async () => {
+    const { deps, created } = setup(cancelled(100), paid())
+    await refundCancelledBooking('b1', deps)
+    expect(created[0].args.stripeAccount).toBe('acct_1ABC')
+  })
+
+  test('a legacy platform payment has no connected account', async () => {
+    const { deps, created } = setup(cancelled(100), paid({ stripe_account_id: null }))
+    await refundCancelledBooking('b1', deps)
+    expect(created[0].args.stripeAccount).toBeNull()
   })
 })

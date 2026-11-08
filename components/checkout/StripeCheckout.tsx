@@ -27,6 +27,8 @@ const APPEARANCE: Appearance = {
 
 interface StripeCheckoutProps {
   clientSecret: string
+  /** Compte connecté qui encaisse (paiement direct) ; absent en mode démo. */
+  stripeAccount?: string | null
   returnUrl: string
   /** The page's sticky "Pay" button calls the registered function. */
   registerPay: (pay: (() => Promise<void>) | null) => void
@@ -35,7 +37,7 @@ interface StripeCheckoutProps {
   onBusyChange: (busy: boolean) => void
 }
 
-function PayForm({ returnUrl, registerPay, onSuccess, onError, onBusyChange }: Omit<StripeCheckoutProps, 'clientSecret'>) {
+function PayForm({ returnUrl, registerPay, onSuccess, onError, onBusyChange }: Omit<StripeCheckoutProps, 'clientSecret' | 'stripeAccount'>) {
   const stripe = useStripe()
   const elements = useElements()
 
@@ -80,8 +82,8 @@ function PayForm({ returnUrl, registerPay, onSuccess, onError, onBusyChange }: O
   )
 }
 
-export function StripeCheckout({ clientSecret, ...rest }: StripeCheckoutProps) {
-  const stripePromise = getStripePromise()
+export function StripeCheckout({ clientSecret, stripeAccount, ...rest }: StripeCheckoutProps) {
+  const stripePromise = getStripePromise(stripeAccount)
   const options = useMemo(() => ({ clientSecret, appearance: APPEARANCE, locale: 'fr' as const }), [clientSecret])
   if (!stripePromise) return null
   return (
