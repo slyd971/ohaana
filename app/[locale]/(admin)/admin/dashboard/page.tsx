@@ -2,6 +2,7 @@ import { Briefcase, CalendarCheck, CreditCard, Inbox, Users2 } from 'lucide-reac
 import { Link } from '@/lib/i18n/navigation'
 import { getAdminContext } from '@/lib/admin/context'
 import { eur } from '@/components/provider/ui'
+import { PendingRefunds, type PendingRefund } from '@/components/admin/PendingRefunds'
 import { DemoAdminDashboard } from '../_demo/DemoAdminDashboard'
 
 export default async function AdminDashboard() {
@@ -24,6 +25,10 @@ export default async function AdminDashboard() {
       supabase.from('provider_profiles').select('id, business_name, island, created_at').eq('is_approved', false).not('is_demo', 'is', true).order('created_at', { ascending: false }).limit(5),
       supabase.from('payments').select('id, total_cents, status, created_at').order('created_at', { ascending: false }).limit(5),
     ])
+
+  // Remboursements d'annulation non partis. Si la migration 011 n'est pas encore appliquée, la section n'apparaît simplement pas.
+  const { data: refundRows } = await supabase.rpc('admin_pending_refunds')
+  const pendingRefunds = (Array.isArray(refundRows) ? refundRows : []) as PendingRefund[]
 
   const paid = (payments.data ?? []) as { total_cents: number; platform_fee_cents: number }[]
   const gmv = paid.reduce((s, p) => s + p.total_cents, 0)
@@ -57,6 +62,8 @@ export default async function AdminDashboard() {
           </div>
         ))}
       </div>
+
+      {pendingRefunds.length > 0 && <PendingRefunds rows={pendingRefunds} />}
 
       <div className="grid md:grid-cols-2 gap-6">
         <section aria-labelledby="todo-title" className="bg-white/5 rounded-2xl border border-white/8 overflow-hidden">

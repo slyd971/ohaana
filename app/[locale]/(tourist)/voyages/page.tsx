@@ -188,8 +188,16 @@ export default function VoyagesPage() {
 
   async function handleCancel(id: string) {
     if (!window.confirm('Annuler cette réservation ? Le remboursement dépend de la politique d’annulation du service.')) return
-    const ok = await cancel(id)
-    if (!ok) window.alert('Impossible d’annuler cette réservation. Réessayez ou contactez-nous.')
+    const result = await cancel(id)
+    if (!result.ok) {
+      window.alert(result.error ?? 'Impossible d’annuler cette réservation. Réessayez ou contactez-nous.')
+    } else if (result.refund?.kind === 'refunded') {
+      window.alert(`Réservation annulée. ${formatPrice(result.refund.cents)} vous sont remboursés (délai bancaire : quelques jours).`)
+    } else if (result.refund?.kind === 'pending') {
+      window.alert('Réservation annulée. Votre remboursement est en cours de traitement : vous le recevrez sous 48 h.')
+    } else {
+      window.alert('Réservation annulée. Aucun remboursement n’est dû selon la politique d’annulation de ce service.')
+    }
   }
 
   if (isGuest) {
