@@ -267,8 +267,8 @@ export function HomeClient({ services, rows }: HomeClientProps) {
       {/* Wrapper: bounds the sticky category bar to the explorer grid only */}
       <div>
       <div className="sticky top-16 z-20 border-b border-mist bg-coconut/96 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl flex-col gap-1 px-5 pt-6 md:flex-row md:items-center md:justify-between md:gap-8 md:px-8 md:pt-4">
-          <h2 className="font-display text-2xl text-deep-green md:text-3xl">
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-5 pt-4 md:px-8 md:pt-5">
+          <h2 className="font-display text-xl text-deep-green md:text-2xl">
             {L('Explorer par catégorie', 'Explore by category', 'Explorar por categoría')}
           </h2>
           <MoodSelector
