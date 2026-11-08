@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { setProviderApprovalAction } from '@/app/actions/admin'
+import { ConfirmButton } from '@/components/ui/ConfirmButton'
 import { Link } from '@/lib/i18n/navigation'
 import { CheckCircle, Clock, Star, Search, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -57,10 +58,12 @@ export default function AdminProvidersPage() {
     return () => { active = false }
   }, [version])
 
+  const [actionError, setActionError] = useState<string | null>(null)
+
   async function setApproval(id: string, approved: boolean) {
-    if (!approved && !window.confirm('Suspendre ce prestataire ? Ses fiches publiées repasseront en relecture.')) return
+    setActionError(null)
     const result = await setProviderApprovalAction(id, approved)
-    if (result.error) { window.alert(result.error); return }
+    if (result.error) { setActionError(result.error); return }
     setVersion((v) => v + 1)
   }
 
@@ -131,6 +134,7 @@ export default function AdminProvidersPage() {
         </div>
 
         {error && <p role="alert" className="px-5 py-4 text-sm text-red-400">Impossible de charger les prestataires.</p>}
+        {actionError && <p role="alert" className="px-5 py-3 text-sm text-red-400">{actionError}</p>}
         {!loading && !error && filtered.length === 0 && <p className="px-5 py-6 text-sm text-white/40">Aucun prestataire.</p>}
         <ul className="divide-y divide-white/5">
           {filtered.map(p => {
@@ -181,14 +185,15 @@ export default function AdminProvidersPage() {
                       <span className="inline-flex items-center gap-1 text-xs text-green-400 bg-green-400/10 rounded-full px-2 py-0.5">
                         <CheckCircle size={10} /> Validé
                       </span>
-                      <button
-                        type="button"
-                        onClick={() => void setApproval(p.id, false)}
-                        aria-label={`Suspendre ${p.business_name}`}
+                      <ConfirmButton
+                        tone="dark"
+                        label="Suspendre"
+                        ariaLabel={`Suspendre ${p.business_name}`}
+                        message="Suspendre ce prestataire ? Ses fiches publiées repasseront en relecture."
+                        confirmLabel="Suspendre"
+                        onConfirm={() => void setApproval(p.id, false)}
                         className="text-[11px] text-white/50 border border-white/10 rounded-lg px-2 py-1 hover:text-white/80 hover:bg-white/5"
-                      >
-                        Suspendre
-                      </button>
+                      />
                     </div>
                   )}
                 </div>
