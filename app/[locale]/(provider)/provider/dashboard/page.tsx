@@ -40,7 +40,7 @@ export default async function ProviderDashboard() {
       </div>
 
       <p className="text-xs text-stone -mt-4">
-        Revenu net : montant qui vous revient après paiement du voyageur, hors frais de service Ohaana. Total cumulé : {eur(stats.netRevenueTotalCents)}.
+        Revenu net : montant qui vous revient après paiement du voyageur, une fois la commission d’Ohaana déduite. Total cumulé : {eur(stats.netRevenueTotalCents)}.
         {stats.honouredRate !== null && ` Prestations honorées : ${Math.round(stats.honouredRate * 100)} %.`}
       </p>
 

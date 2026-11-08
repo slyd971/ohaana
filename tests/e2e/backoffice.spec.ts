@@ -53,7 +53,6 @@ test.describe.serial('provider -> admin -> public', () => {
   test.beforeAll(async ({ browser }) => {
     provider = await newSignedInContext(browser, creds.providerEmail, creds.providerPassword)
     admin = await newSignedInContext(browser, creds.adminEmail, creds.adminPassword)
-    provider.page.on('dialog', (d) => void d.accept())
   })
 
   test.afterAll(async () => {
@@ -161,6 +160,7 @@ test.describe.serial('provider -> admin -> public', () => {
     await page.goto('/provider/services')
     const card = page.getByRole('article').filter({ hasText: TITLE })
     await card.getByRole('button', { name: 'Archiver' }).click()
+    await card.getByRole('button', { name: 'Archiver', exact: true }).last().click() // confirmation intégrée à la page
     await expect(card.getByText('Archivé')).toBeVisible()
   })
 })

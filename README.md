@@ -8,7 +8,7 @@ MVP démo-investisseur. Next.js 16 · TypeScript strict · Supabase · Stripe Co
 |--------|------------|
 | Framework | Next.js 16 App Router |
 | Auth & BDD | Supabase (PostgreSQL + RLS + Auth + Storage) |
-| Paiement | Stripe Connect Express (20% plateforme / 80% prestataire) |
+| Paiement | Stripe Connect Express (commission incluse : le voyageur paie le prix affiché, Ohaana prélève un % réglable par l'admin, 20 % par défaut) |
 | Styles | Tailwind CSS v4 + CSS variables design tokens |
 | Animations | Framer Motion |
 | i18n | next-intl (fr défaut / en / es) |
@@ -149,7 +149,7 @@ lib/
 ├── supabase/           # client.ts (browser), server.ts (RSC/Route)
 ├── stripe/             # client.ts, createPaymentIntent
 ├── i18n/               # routing, navigation, request config
-└── utils.ts            # cn(), formatPrice(), computeFees()
+└── utils.ts            # cn(), formatPrice(), computeCommission()
 supabase/migrations/
 ├── 001_schema.sql … 008_public_availability.sql   # voir tableau ci-dessus
 supabase/seed.sql       # données de démo (is_demo = true)
@@ -198,6 +198,6 @@ Le paiement utilise le **Payment Element** de Stripe : cartes bancaires (3-D Sec
 4. Carte de test : `4242 4242 4242 4242`, date future, CVC au choix. 3-D Secure : `4000 0027 6000 3184`. Refus : `4000 0000 0000 0002`.
 5. **Apple Pay** : Dashboard → *Settings → Payment methods → Apple Pay → Add new domain* (le domaine doit être servi en HTTPS ; visible uniquement dans Safari / appareils Apple avec une carte dans Wallet). **Google Pay** : visible dans Chrome avec une carte enregistrée.
 
-`POST /api/checkout` calcule toujours le montant côté serveur (prix du service × participants + frais de service) ; le navigateur n'envoie que des identifiants.
+`POST /api/checkout` calcule toujours le montant côté serveur (prix du service × participants, commission incluse : aucun frais n'est ajouté au voyageur) ; le navigateur n'envoie que des identifiants.
 - **Démo** (`NEXT_PUBLIC_DEMO_MODE=true`) : aucun compte ni réservation en base, uniquement des clés de test (`sk_test_` ou `rk_test_`) acceptées.
 - **Réel** : exige un utilisateur connecté, appelle `create_booking` (verrou de créneau, prix serveur) puis crée le PaymentIntent lié à la réservation ; le webhook `payment_intent.succeeded` confirme la réservation. Requiert `SUPABASE_SERVICE_ROLE_KEY` et `STRIPE_WEBHOOK_SECRET`. Reste à faire (Prompt 6) : Stripe Connect (virement au prestataire), remboursements, idempotence des webhooks.
