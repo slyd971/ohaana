@@ -25,6 +25,12 @@ export default async function ProviderDashboard() {
     <div className="p-5 md:p-8 space-y-8 max-w-5xl">
       <PageHeader title={`Bonjour, ${provider.business_name}`} subtitle="Voici un résumé réel de votre activité." />
       <ApprovalBanner provider={provider} />
+      {provider.is_approved && !provider.stripe_onboarded && (
+        <div className="rounded-xl bg-coral/10 text-coral text-xs px-4 py-3">
+          <strong>Configurez vos paiements</strong> pour pouvoir recevoir des réservations :{' '}
+          <Link href="/provider/paiements" className="underline">ouvrir la page Paiements</Link>.
+        </div>
+      )}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {kpis.map(({ label, value, hint, Icon, color }) => (

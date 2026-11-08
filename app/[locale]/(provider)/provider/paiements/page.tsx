@@ -2,6 +2,9 @@ import { Wallet, TrendingUp, Clock } from 'lucide-react'
 import { getProviderContext } from '@/lib/provider/context'
 import { listProviderBookings, listProviderPayments } from '@/lib/provider/queries'
 import { EmptyState, PageHeader, SignInRequired, eur } from '@/components/provider/ui'
+import { PaymentsSetup } from '@/components/provider/PaymentsSetup'
+import { syncProviderPaymentsStatus } from '@/lib/stripe/connect-service'
+import type { ConnectState } from '@/lib/stripe/connect-status'
 import { DemoPaiements } from '../_demo/DemoPaiements'
 
 const PAYMENT_LABELS: Record<string, string> = {
@@ -18,6 +21,17 @@ export default async function ProviderPaiementsPage() {
 
   const [payments, bookings] = await Promise.all([listProviderPayments(ctx.supabase), listProviderBookings(ctx.supabase, 300)])
   const titleByBooking = new Map(bookings.map((b) => [b.id, b.title_fr]))
+
+  // État du compte de versement : relu chez Stripe à chaque visite (le prestataire revient du formulaire de Stripe sur cette page).
+  const { data: stripeRow } = await ctx.supabase.from('provider_profiles').select('stripe_account_id').eq('id', ctx.provider.id).maybeSingle()
+  let paymentsState: ConnectState = ctx.provider.stripe_onboarded ? 'active' : stripeRow?.stripe_account_id ? 'incomplete' : 'none'
+  if (stripeRow?.stripe_account_id) {
+    try {
+      paymentsState = (await syncProviderPaymentsStatus(ctx.provider.id)).state
+    } catch {
+      // Stripe injoignable ou non configuré : on garde le dernier état connu.
+    }
+  }
   const received = payments.filter((p) => p.status === 'succeeded').reduce((sum, p) => sum + p.provider_amount_cents, 0)
   const pending = payments.filter((p) => p.status === 'pending').reduce((sum, p) => sum + p.provider_amount_cents, 0)
   const refunded = payments.filter((p) => p.status === 'refunded').reduce((sum, p) => sum + p.provider_amount_cents, 0)
@@ -42,10 +56,7 @@ export default async function ProviderPaiementsPage() {
         ))}
       </div>
 
-      <div className="rounded-xl bg-sand text-stone text-xs px-4 py-3">
-        Les virements vers votre compte bancaire seront disponibles avec la connexion Stripe Connect (prochaine étape).
-        {!ctx.provider.stripe_onboarded && ' Votre compte de versement n’est pas encore connecté.'}
-      </div>
+      <PaymentsSetup initialState={paymentsState} approved={ctx.provider.is_approved} />
 
       {payments.length === 0 ? (
         <EmptyState title="Aucun paiement pour l’instant" />
