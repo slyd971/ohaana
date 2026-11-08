@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { useLocale } from 'next-intl'
 import { MessageCircle, Search, CalendarDays, MapPin, ChevronRight } from 'lucide-react'
 import { Link, useRouter } from '@/lib/i18n/navigation'
+import { DateRangePicker } from '@/components/ui/DateRangePicker'
 import type { ServiceView } from '@/lib/data/types'
 import { WHATSAPP_NUMBER } from '@/lib/site'
 
@@ -32,7 +33,7 @@ const COPY = {
     es: 'Ej.: masaje mañana, chef privado el viernes por la noche, niñera para dos niños…',
   },
   dates: { fr: 'Dates du séjour', en: 'Stay dates', es: 'Fechas de la estancia' },
-  datesPh: { fr: 'Ex : 12–18 août', en: 'E.g. Aug 12–18', es: 'Ej.: 12–18 agosto' },
+  datesPh: { fr: 'Ajouter des dates', en: 'Add dates', es: 'Añadir fechas' },
   place: { fr: 'Lieu de séjour', en: 'Where you stay', es: 'Lugar de estancia' },
   placePh: { fr: 'Ex : villa à Deshaies', en: 'E.g. villa in Deshaies', es: 'Ej.: villa en Deshaies' },
   contact: { fr: 'Votre email ou WhatsApp', en: 'Your email or WhatsApp', es: 'Tu email o WhatsApp' },
@@ -85,9 +86,13 @@ export function ConciergeClient({ recommendations }: ConciergeClientProps) {
   const router = useRouter()
 
   const [message, setMessage] = useState('')
-  const [stayDates, setStayDates] = useState('')
+  const [stayStart, setStayStart] = useState<Date | null>(null)
+  const [stayEnd, setStayEnd] = useState<Date | null>(null)
   const [location, setLocation] = useState('')
   const [contact, setContact] = useState('')
+
+  const fmt = (d: Date) => d.toLocaleDateString(lang === 'fr' ? 'fr-FR' : lang === 'es' ? 'es-ES' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+  const stayDates = stayStart ? (stayEnd ? `${fmt(stayStart)} → ${fmt(stayEnd)}` : fmt(stayStart)) : ''
 
   const fullMessage = [
     message.trim(),
@@ -177,12 +182,17 @@ export function ConciergeClient({ recommendations }: ConciergeClientProps) {
             </label>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <label className="block">
+              <div className="block">
                 <span className="mb-2 flex items-center gap-1.5 text-sm font-medium text-charcoal">
                   <CalendarDays size={14} /> {c('dates')}
                 </span>
-                <input value={stayDates} onChange={(e) => setStayDates(e.target.value)} placeholder={c('datesPh')} className={`${field} h-12`} />
-              </label>
+                <DateRangePicker
+                  startDate={stayStart}
+                  endDate={stayEnd}
+                  onChange={(a, b) => { setStayStart(a); setStayEnd(b) }}
+                  placeholder={c('datesPh')}
+                />
+              </div>
               <label className="block">
                 <span className="mb-2 flex items-center gap-1.5 text-sm font-medium text-charcoal">
                   <MapPin size={14} /> {c('place')}
