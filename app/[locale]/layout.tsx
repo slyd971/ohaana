@@ -7,16 +7,15 @@ import { routing } from '@/lib/i18n/routing'
 import { SITE_URL } from '@/lib/site'
 import { DEMO_MODE } from '@/lib/demo-mode'
 import { AuthProvider } from '@/lib/auth/AuthProvider'
-import { Fraunces, Inter } from 'next/font/google'
+import { Newsreader, Inter } from 'next/font/google'
 import '../globals.css'
 
-const fraunces = Fraunces({
+// Police des titres. Remplace Fraunces dont le « f » (crochet très penché) était jugé tordu.
+const display = Newsreader({
   subsets: ['latin'],
   style: ['normal', 'italic'],
-  weight: 'variable',
-  // WONK : axe qui incline les f, h, n, m (« wonky »). On l'expose pour pouvoir le couper en CSS.
-  axes: ['opsz', 'WONK'],
-  variable: '--font-fraunces',
+  weight: ['300', '400', '500'],
+  variable: '--font-display-serif',
   display: 'swap',
 })
 const inter = Inter({
@@ -112,7 +111,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   const messages = await getMessages()
 
   return (
-    <html lang={locale} className={`h-full scroll-smooth ${fraunces.variable} ${inter.variable}`}>
+    <html lang={locale} className={`h-full scroll-smooth ${display.variable} ${inter.variable}`}>
       <head>
         <script
           type="application/ld+json"
