@@ -264,6 +264,8 @@ export function HomeClient({ services, rows }: HomeClientProps) {
       </section>
 
       {/* '- -' Zone 1 : Explorer '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
+      {/* Wrapper: bounds the sticky category bar to the explorer grid only */}
+      <div>
       <section className="px-5 md:px-8 pt-8 pb-4 max-w-7xl mx-auto">
         <div className="max-w-2xl">
           <h2 className="text-2xl md:text-3xl font-display text-deep-green">
@@ -325,6 +327,8 @@ export function HomeClient({ services, rows }: HomeClientProps) {
             </div>
           )}
         </motion.div>
+      </div>
+
       </div>
 
       {/* '- -' 7. Concierge  - filet de sécurité '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
