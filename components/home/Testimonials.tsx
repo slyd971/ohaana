@@ -137,15 +137,15 @@ export function Testimonials() {
   const t = TESTIMONIALS[idx]
 
   return (
-    <section className="py-14 overflow-hidden">
+    <section className="py-16 md:py-24 overflow-hidden">
       <div className="max-w-5xl mx-auto px-5 md:px-8">
 
         {/* Header */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-12">
           <p className="text-xs text-stone uppercase tracking-widest mb-2">
             {L('Ils en parlent mieux que nous', 'They say it better than we do', 'Ellos lo cuentan mejor')}
           </p>
-          <h2 className="text-2xl md:text-3xl font-display text-charcoal">
+          <h2 className="text-2xl md:text-3xl font-display text-deep-green">
             {L('Ce que vivent nos clients', 'What our clients experience', 'Lo que viven nuestros clientes')}
           </h2>
         </div>
@@ -174,7 +174,7 @@ export function Testimonials() {
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
-                className="bg-surface rounded-2xl border border-mist shadow-card p-6 md:p-8"
+                className="bg-white rounded-3xl border border-mist p-7 md:p-10"
               >
                 <Quote size={24} className="text-mist mb-4" />
                 <p className="text-base md:text-lg text-charcoal/85 leading-relaxed font-light mb-6">

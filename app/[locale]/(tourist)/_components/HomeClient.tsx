@@ -266,7 +266,7 @@ export function HomeClient({ services, rows }: HomeClientProps) {
       {/* '- -' Zone 1 : Explorer '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
       <section className="px-5 md:px-8 pt-8 pb-4 max-w-7xl mx-auto">
         <div className="max-w-2xl">
-          <h2 className="text-xl md:text-2xl font-display text-charcoal">
+          <h2 className="text-2xl md:text-3xl font-display text-deep-green">
             {L('Explorer par catégorie', 'Explore by category', 'Explorar por categoría')}
           </h2>
           <p className="mt-1.5 text-sm text-stone">
@@ -410,7 +410,7 @@ export function HomeClient({ services, rows }: HomeClientProps) {
       {/* '- -' Zone 3 : Sélections éditoriales '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
       <section className="px-5 md:px-8 pt-2 pb-6 max-w-7xl mx-auto">
         <div className="max-w-2xl">
-          <h2 className="text-xl md:text-2xl font-display text-charcoal">
+          <h2 className="text-2xl md:text-3xl font-display text-deep-green">
             {L('Les incontournables', 'Essential picks', 'Imprescindibles')}
           </h2>
           <p className="mt-1.5 text-sm text-stone">
@@ -466,7 +466,7 @@ export function HomeClient({ services, rows }: HomeClientProps) {
             <Building2 size={24} className="text-coconut" />
           </div>
           <div className="flex-1 text-center md:text-left space-y-3">
-            <h2 className="text-xl md:text-2xl font-display text-charcoal">
+            <h2 className="text-2xl md:text-3xl font-display text-deep-green">
               {L(
                 'Vous êtes chef.fe, masseur.se, DJ, photographe ou coach sportif ?',
                 'Are you a chef, massage therapist, DJ, photographer, or fitness coach?',

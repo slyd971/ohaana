@@ -57,12 +57,8 @@ export function ServiceCard({
     ? ((service as { title_es?: string }).title_es ?? service.title_en)
     : isEn ? service.title_en : service.title_fr
   const coverAlt = isEn || locale === 'es' ? cover?.alt_en : cover?.alt_fr
-  const providerName = service.provider?.business_name ?? 'Ohaana'
-  const providerUserName = service.provider?.user?.full_name ?? providerName
-  const providerAvatar = service.provider?.user?.avatar_url
 
-  const widths  = { sm: 'w-52', md: 'w-64', lg: 'w-72' }
-  const heights = { sm: 'h-36', md: 'h-44', lg: 'h-52' }
+  const widths = { sm: 'w-52', md: 'w-64', lg: 'w-72' }
 
   const primaryTag = TAG_PRIORITY.find((t) => service.tags.includes(t))
   const islandLabel = ISLAND_LABELS[service.island] ?? service.island
@@ -74,97 +70,68 @@ export function ServiceCard({
 
   return (
     <motion.div
-      whileHover={{ y: -4, transition: { duration: 0.2 } }}
-      whileTap={{ scale: 0.97 }}
-      className={cn(
-        'relative flex-none rounded-2xl overflow-hidden bg-surface cursor-pointer group',
-        'shadow-card hover:shadow-elevated transition-shadow duration-300',
-        widths[size],
-        className
-      )}
+      whileTap={{ scale: 0.98 }}
+      className={cn('relative flex-none cursor-pointer group', widths[size], className)}
     >
       <Link href={`/prestataires/${service.id}`} className="block">
-        <div className={cn('relative overflow-hidden', heights[size])}>
+        <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-sand">
           <Image
             src={cover?.url ?? ''}
             alt={coverAlt ?? title}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
-            sizes="(max-width: 768px) 256px, 288px"
+            sizes="(max-width: 768px) 288px, 360px"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-deep-green/50 via-transparent to-transparent" />
 
           {onToggleFavorite && (
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); onToggleFavorite(service.id) }}
-              className="absolute top-2.5 right-2.5 p-1.5 rounded-full bg-white/25 backdrop-blur-sm hover:bg-white/50 transition-colors"
+              className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm transition-transform hover:scale-110"
               aria-label={isFavorite ? removeFav : addFav}
             >
               <Heart
                 size={15}
-                className={cn(isFavorite ? 'fill-coral text-coral' : 'fill-transparent text-white')}
+                className={cn(isFavorite ? 'fill-coral text-coral' : 'fill-transparent text-charcoal')}
               />
             </button>
           )}
 
           {service.is_featured && (
-            <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-coral text-coconut text-[10px] font-semibold tracking-wide">
+            <span className="absolute top-3 left-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-deep-green shadow-sm">
               {popular}
             </span>
           )}
-
-          <div className="absolute bottom-2.5 left-3 right-3 flex items-end justify-between">
-            <div>
-              <span className="text-coconut text-sm font-semibold drop-shadow-md">{price}</span>
-              <span className="text-coconut/70 text-xs"> {perPerson}</span>
-            </div>
-            <span className="flex items-center gap-0.5 text-coconut/80 text-[10px] drop-shadow-md">
-              <MapPin size={9} />
-              {islandLabel}
-            </span>
-          </div>
         </div>
 
-        <div className="p-3.5 space-y-1.5">
+        <div className="pt-3 space-y-1">
           <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="relative w-5 h-5 rounded-full overflow-hidden flex-none ring-1 ring-mist">
-                {providerAvatar ? (
-                  <Image
-                    src={providerAvatar}
-                    alt={providerUserName}
-                    fill
-                    className="object-cover"
-                    sizes="20px"
-                  />
-                ) : (
-                  <div className="h-full w-full bg-deep-green text-[9px] font-semibold text-coconut flex items-center justify-center">
-                    {providerName.slice(0, 1)}
-                  </div>
-                )}
-              </div>
-              <span className="text-xs text-stone truncate">{providerName}</span>
-            </div>
-          </div>
-
-          <h3 className="text-sm font-semibold text-charcoal leading-snug line-clamp-2">
-            {title}
-          </h3>
-
-          <div className="flex items-center justify-between gap-2">
-            {service.duration_min ? (
-              <div className="flex items-center gap-1 text-xs text-stone">
-                <Clock size={11} />
-                <span>{formatDuration(service.duration_min)}</span>
-              </div>
-            ) : <div />}
+            <h3 className="text-[15px] font-semibold text-charcoal leading-snug line-clamp-1">
+              {title}
+            </h3>
             {primaryTag && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-sand text-charcoal-soft font-medium flex-none">
+              <span className="flex-none rounded-full bg-sand px-2 py-0.5 text-[10px] font-medium text-charcoal-soft">
                 {TAG_BADGES[primaryTag][lang as 'fr' | 'en' | 'es']}
               </span>
             )}
           </div>
+
+          <p className="flex items-center gap-1 text-xs text-stone">
+            <MapPin size={11} className="flex-none" />
+            <span className="truncate">{islandLabel}</span>
+            {service.duration_min ? (
+              <>
+                <span aria-hidden="true">·</span>
+                <Clock size={11} className="flex-none" />
+                <span className="flex-none">{formatDuration(service.duration_min)}</span>
+              </>
+            ) : null}
+          </p>
+
+          <p className="text-sm text-charcoal">
+            <span className="font-semibold">{price}</span>
+            <span className="text-stone"> {perPerson}</span>
+          </p>
         </div>
       </Link>
     </motion.div>
