@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Link } from '@/lib/i18n/navigation'
 import { HeroSection } from '@/components/home/HeroSection'
 import { ServiceRow } from '@/components/home/ServiceRow'
@@ -135,6 +135,7 @@ interface HomeClientProps {
 
 export function HomeClient({ services, rows }: HomeClientProps) {
   const locale = useLocale()
+  const t = useTranslations('homePage')
   const { isLoggedIn, isProvider, isAdmin } = useAuth()
   const provider = providerTarget({ isLoggedIn, isProvider, isAdmin })
   const L = (fr: string, en: string, es: string) =>
@@ -317,7 +318,7 @@ export function HomeClient({ services, rows }: HomeClientProps) {
       >
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-5 pt-4 md:px-8 md:pt-5">
           <h2 className="font-display text-xl text-deep-green md:text-2xl">
-            {L('Explorer par catégorie', 'Explore by category', 'Explorar por categoría')}
+            {t('explorerParCategorie')}
           </h2>
           <MoodSelector
             value={mood}
@@ -337,7 +338,7 @@ export function HomeClient({ services, rows }: HomeClientProps) {
         >
           {explorerServices.length === 0 ? (
             <p className="text-center text-stone py-16 text-sm">
-              {L('Aucun service disponible pour cette sélection.', 'No service available for this selection.', 'Ningún servicio disponible para esta selección.')}
+              {t('aucunServiceDisponiblePourCette')}
             </p>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -359,7 +360,7 @@ export function HomeClient({ services, rows }: HomeClientProps) {
                 onClick={() => setShowAllExplorer(true)}
                 className="inline-flex items-center justify-center rounded-full border border-mist bg-coconut px-5 py-2.5 text-sm font-medium text-deep-green transition-colors hover:border-deep-green/40 hover:bg-sand"
               >
-                {L('Voir plus', 'See more', 'Ver más')}
+                {t('voirPlus')}
               </button>
             </div>
           )}
@@ -380,7 +381,7 @@ export function HomeClient({ services, rows }: HomeClientProps) {
             <div className="mx-auto max-w-xl space-y-5 md:mx-0">
               <span className="inline-flex items-center gap-2 bg-coconut/10 border border-coconut/15 text-coconut/80 text-xs px-3 py-1 rounded-full">
                 <span className="w-1.5 h-1.5 rounded-full bg-turquoise animate-pulse" />
-                {L('Réponse en moins de 2h · 7j/7', 'Reply in under 2 hours · 7 days a week', 'Respuesta en menos de 2h · 7 días a la semana')}
+                {t('reponseEnMoinsDe2h')}
               </span>
               <h2 className="text-2xl md:text-3xl font-display text-coconut leading-snug">
                 {locale === 'en'
@@ -390,11 +391,7 @@ export function HomeClient({ services, rows }: HomeClientProps) {
                   : <>Vous hésitez ou vous n&apos;avez<br />pas trouvé ce que vous cherchez&nbsp;?</>}
               </h2>
               <p className="text-coconut/70 text-sm md:text-base leading-relaxed max-w-sm mx-auto md:mx-0">
-                {L(
-                  'Dîner privé, massage, baby-sitter, photographe, DJ ou programme complet : Camille vous aide à trouver les bons services autour de votre lieu de séjour.',
-                  'Private dinner, massage, babysitter, photographer, DJ, or a full itinerary: Camille helps you find the right services near your place of stay.',
-                  'Cena privada, masaje, canguro, fotógrafo, DJ o programa completo: Camille te ayuda a encontrar los servicios adecuados cerca de tu alojamiento.'
-                )}
+                {t('dinerPriveMassageBabySitter')}
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:justify-start">
                 {WHATSAPP_NUMBER && (
@@ -405,14 +402,14 @@ export function HomeClient({ services, rows }: HomeClientProps) {
                     className="inline-flex items-center gap-2 bg-coral text-coconut px-6 py-3 rounded-full font-medium text-sm hover:bg-coral-light transition-colors shadow-sm"
                   >
                     <MessageCircle size={16} />
-                    {L('Parler à Camille', 'Talk to Camille', 'Hablar con Camille')}
+                    {t('parlerACamille')}
                   </a>
                 )}
                 <Link
                   href="/concierge"
                   className="inline-flex items-center gap-2 bg-coconut/10 text-coconut border border-coconut/20 px-6 py-3 rounded-full font-medium text-sm hover:bg-coconut/20 transition-colors"
                 >
-                  {L('Créer mon programme', 'Create my program', 'Crear mi programa')}
+                  {t('creerMonProgramme')}
                   <ChevronRight size={14} />
                 </Link>
               </div>
@@ -421,11 +418,7 @@ export function HomeClient({ services, rows }: HomeClientProps) {
           <div className="relative min-h-[20rem] md:min-h-full">
             <Image
               src="/photos/concierge-antillaise.png"
-              alt={L(
-                'Concierge antillaise accueillant des voyageurs dans une villa',
-                'Antillean concierge welcoming travelers in a villa',
-                'Conserje antillana recibiendo viajeros en una villa'
-              )}
+              alt={t('conciergeAntillaiseAccueillantDesVoyageurs')}
               fill
               className="object-cover object-center"
               sizes="(max-width: 768px) 100vw, 45vw"
@@ -452,14 +445,10 @@ export function HomeClient({ services, rows }: HomeClientProps) {
       <section className="px-5 md:px-8 pt-2 pb-6 max-w-7xl mx-auto">
         <div className="max-w-2xl">
           <h2 className="text-2xl md:text-3xl font-display text-deep-green">
-            {L('Les incontournables', 'Essential picks', 'Imprescindibles')}
+            {t('lesIncontournables')}
           </h2>
           <p className="mt-1.5 text-sm text-stone">
-            {L(
-              'Les services les plus réservés par les voyageurs en hébergement privatif.',
-              'The services most booked by travelers in private accommodation.',
-              'Los servicios más reservados por viajeros en alojamientos privados.'
-            )}
+            {t('lesServicesLesPlusReserves')}
           </p>
         </div>
       </section>
@@ -508,25 +497,17 @@ export function HomeClient({ services, rows }: HomeClientProps) {
           </div>
           <div className="flex-1 text-center md:text-left space-y-3">
             <h2 className="text-2xl md:text-3xl font-display text-deep-green">
-              {L(
-                'Vous êtes chef.fe, masseur.se, DJ, photographe ou coach sportif ?',
-                'Are you a chef, massage therapist, DJ, photographer, or fitness coach?',
-                '¿Eres chef, terapeuta, DJ, fotógrafo o coach de fitness?'
-              )}
+              {t('vousEtesChefFeMasseur')}
             </h2>
             <p className="text-sm text-stone leading-relaxed">
-              {L(
-                'Recevez des demandes de voyageurs en villa, bungalow, Airbnb ou maison de vacances, et proposez vos prestations directement sur leur lieu de séjour.',
-                'Receive requests from travelers in villas, bungalows, Airbnbs, or vacation homes, and offer your services directly at their place of stay.',
-                'Recibe solicitudes de viajeros en villas, bungalows, Airbnb o casas de vacaciones, y ofrece tus servicios directamente en su alojamiento.'
-              )}
+              {t('recevezDesDemandesDeVoyageurs')}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start pt-1">
               {(() => {
                 const cta = 'inline-flex items-center gap-2 bg-deep-green text-coconut px-5 py-2.5 rounded-full text-sm font-medium hover:bg-deep-green-light transition-colors'
                 const label = isProvider || isAdmin
-                  ? L('Mon espace prestataire', 'My provider space', 'Mi espacio de proveedor')
-                  : L('Rejoindre Ohaana', 'Join Ohaana', 'Unirse a Ohaana')
+                  ? t('monEspacePrestataire')
+                  : t('rejoindreOhaana')
                 return provider.external ? (
                   <a href={provider.href} className={cta}>{label}<ChevronRight size={14} /></a>
                 ) : (
@@ -549,14 +530,10 @@ export function HomeClient({ services, rows }: HomeClientProps) {
       <section className="mx-5 mb-16 md:mx-8 md:mb-20">
         <div className="mx-auto max-w-4xl rounded-3xl border border-mist bg-white p-7 text-center md:p-12">
           <h2 className="font-display text-2xl text-deep-green md:text-3xl">
-            {L('Recevoir les nouveautés Ohaana', 'Get Ohaana news', 'Recibe las novedades de Ohaana')}
+            {t('recevoirLesNouveautesOhaana')}
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-charcoal/70 md:text-base">
-            {L(
-              'Les nouveaux services près de votre hébergement et l\'ouverture de nouvelles îles, en avant-première.',
-              'New services near your accommodation and early access to new islands.',
-              'Los nuevos servicios cerca de tu alojamiento y acceso anticipado a nuevas islas.'
-            )}
+            {t('lesNouveauxServicesPresDe')}
           </p>
 
           {leadSent ? (
@@ -566,8 +543,8 @@ export function HomeClient({ services, rows }: HomeClientProps) {
               className="mt-6 flex flex-col items-center gap-2 py-4"
             >
               <CheckCircle size={36} className="text-deep-green" />
-              <p className="font-medium text-deep-green">{L('Plus qu\'un clic !', 'Almost there!', '¡Un clic más!')}</p>
-              <p className="text-sm text-charcoal/70">{L('Nous venons de vous envoyer un email : cliquez sur le lien pour confirmer votre inscription.', 'We just sent you an email: click the link to confirm your subscription.', 'Te acabamos de enviar un email: haz clic en el enlace para confirmar tu suscripción.')}</p>
+              <p className="font-medium text-deep-green">{t('plusQuUnClic')}</p>
+              <p className="text-sm text-charcoal/70">{t('nousVenonsDeVousEnvoyer')}</p>
             </motion.div>
           ) : (
             <form onSubmit={handleLeadSubmit} className="mx-auto mt-6 max-w-2xl space-y-3">
@@ -587,7 +564,7 @@ export function HomeClient({ services, rows }: HomeClientProps) {
                   type="email"
                   required
                   aria-label="Email"
-                  placeholder={L('Votre email', 'Your email', 'Tu email')}
+                  placeholder={t('votreEmail')}
                   value={leadEmail}
                   onChange={(e) => setLeadEmail(e.target.value)}
                   className="h-12 w-full min-w-0 flex-1 rounded-full border border-mist bg-coconut px-5 text-sm text-charcoal placeholder:text-stone focus:border-deep-green focus:outline-none"
@@ -595,10 +572,10 @@ export function HomeClient({ services, rows }: HomeClientProps) {
                 <select
                   value={leadDest}
                   onChange={(e) => setLeadDest(e.target.value)}
-                  aria-label={L('Destination prévue', 'Planned destination', 'Destino previsto')}
+                  aria-label={t('destinationPrevue')}
                   className="h-12 w-full rounded-full border border-mist bg-coconut px-5 text-sm text-charcoal focus:border-deep-green focus:outline-none md:w-60"
                 >
-                  <option value="">{L('Destination (optionnel)', 'Destination (optional)', 'Destino (opcional)')}</option>
+                  <option value="">{t('destinationOptionnel')}</option>
                   {destinations.map((d) => (
                     <option key={d} value={d}>{d}</option>
                   ))}
@@ -608,7 +585,7 @@ export function HomeClient({ services, rows }: HomeClientProps) {
                   disabled={leadBusy}
                   className="h-12 rounded-full bg-deep-green px-7 text-sm font-medium text-coconut transition-colors hover:bg-coral disabled:opacity-60"
                 >
-                  {L('Je m\'inscris', 'Sign me up', 'Apuntarme')}
+                  {t('jeMInscris')}
                 </button>
               </div>
               <label className="flex items-start justify-center gap-2.5 text-left text-xs text-charcoal/70">
@@ -620,16 +597,12 @@ export function HomeClient({ services, rows }: HomeClientProps) {
                   className="mt-0.5 h-4 w-4 flex-none accent-deep-green"
                 />
                 <span>
-                  {L(
-                    'J\'accepte de recevoir les actualités Ohaana par email. Désabonnement en un clic.',
-                    'I agree to receive Ohaana news by email. Unsubscribe in one click.',
-                    'Acepto recibir las novedades de Ohaana por email. Cancela con un clic.'
-                  )}
+                  {t('jAccepteDeRecevoirLes')}
                 </span>
               </label>
               {leadError && (
                 <p role="alert" className="text-xs text-coral-text">
-                  {L('Une erreur est survenue, réessayez dans un instant.', 'Something went wrong, please try again.', 'Ha ocurrido un error, inténtalo de nuevo.')}
+                  {t('uneErreurEstSurvenueReessayez')}
                 </p>
               )}
             </form>

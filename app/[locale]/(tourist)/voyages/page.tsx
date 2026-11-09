@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useLocale, useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Link } from '@/lib/i18n/navigation'
@@ -13,64 +14,59 @@ import { loadServicesByIds } from '@/app/actions/catalogue'
 import { useFavorites } from '@/hooks/useFavorites'
 import { useMyBookings, type BookingItem } from '@/hooks/useMyBookings'
 import type { ServiceView } from '@/lib/data/types'
-import { formatPrice, cn } from '@/lib/utils'
+import { cn } from '@/lib/utils'
+import { ConfirmButton } from '@/components/ui/ConfirmButton'
+import { useFormat } from '@/hooks/useFormat'
+import { toLang } from '@/lib/i18n/format'
 
 type Tab = 'programme' | 'past' | 'favorites'
 
-const STATUS_LABELS = {
-  confirmed: { label: 'Confirmé',   variant: 'green'   as const },
-  pending:   { label: 'En attente', variant: 'stone'   as const },
-  completed: { label: 'Terminé',    variant: 'default' as const },
-  cancelled: { label: 'Annulé',     variant: 'stone'   as const },
+const STATUS_VARIANT = {
+  confirmed: 'green' as const,
+  pending: 'stone' as const,
+  completed: 'default' as const,
+  cancelled: 'stone' as const,
 }
+const STATUS_KEY = { confirmed: 'statusConfirmed', pending: 'statusPending', completed: 'statusCompleted', cancelled: 'statusCancelled' } as const
 
 const ISLAND_LABELS: Record<string, string> = {
   guadeloupe: 'Guadeloupe', martinique: 'Martinique', saint_martin: 'Saint-Martin', saint_barth: 'Saint-Barth',
 }
-
-const MONTHS_FR = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre']
-const DAYS_FR   = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam']
 
 function parseLocalDate(iso: string) {
   const [y, m, d] = iso.split('-').map(Number)
   return new Date(y, m - 1, d)
 }
 
-function fmtDateLong(iso: string) {
-  const d = parseLocalDate(iso)
-  return `${DAYS_FR[d.getDay()]} ${d.getDate()} ${MONTHS_FR[d.getMonth()]}`
-}
-
-function fmtDateShort(d: Date) {
-  return `${d.getDate()} ${MONTHS_FR[d.getMonth()]}`
-}
-
 // ── Carnet de voyage ──────────────────────────────────────────────────────────
 
 function CarnetView({ bookings, onCancel }: { bookings: BookingItem[]; onCancel: (id: string) => void }) {
+  const t = useTranslations('trips')
+  const fmt = useFormat()
+  const lang = toLang(useLocale())
   // The trip is derived from the bookings themselves (first → last experience).
   const dates = bookings.map((b) => b.date).filter(Boolean).sort()
   const start = dates.length ? parseLocalDate(dates[0]) : new Date()
   const end = dates.length ? parseLocalDate(dates[dates.length - 1]) : new Date()
   const nights = Math.max(1, Math.round((end.getTime() - start.getTime()) / 86400000))
   const total = bookings.reduce((sum, b) => sum + b.totalCents, 0)
-  const destination = ISLAND_LABELS[bookings[0]?.island ?? ''] ?? 'Antilles'
+  const destination = ISLAND_LABELS[bookings[0]?.island ?? ''] ?? t('destinationFallback')
 
   return (
     <div className="space-y-5">
       <div className="rounded-card p-5 space-y-4" style={{ background: 'linear-gradient(135deg, var(--deep-green) 0%, #0F2B1D 100%)' }}>
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-coconut/50 text-xs uppercase tracking-widest">Mon séjour</p>
+            <p className="text-coconut/50 text-xs uppercase tracking-widest">{t('myStay')}</p>
             <h2 className="text-coconut font-display text-xl mt-0.5">{destination}</h2>
             <p className="text-coconut/70 text-sm mt-1.5 flex items-center gap-1.5">
               <CalendarDays size={13} />
-              {fmtDateShort(start)} – {fmtDateShort(end)}
+              {fmt.date(start, { day: 'numeric', month: 'long' })} – {fmt.date(end, { day: 'numeric', month: 'long' })}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-coconut/50 text-xs">{bookings.length} expérience{bookings.length > 1 ? 's' : ''}</p>
-            <p className="text-coconut font-semibold text-sm mt-0.5">{formatPrice(total)}</p>
+            <p className="text-coconut/50 text-xs">{t('experiences', { count: bookings.length })}</p>
+            <p className="text-coconut font-semibold text-sm mt-0.5">{fmt.price(total)}</p>
           </div>
         </div>
 
@@ -87,35 +83,39 @@ function CarnetView({ bookings, onCancel }: { bookings: BookingItem[]; onCancel:
 
       <div className="space-y-4">
         {bookings.map((booking) => {
-          const statusInfo = STATUS_LABELS[booking.status]
+          const statusInfo = { label: t(STATUS_KEY[booking.status]), variant: STATUS_VARIANT[booking.status] }
           return (
             <motion.div key={booking.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <p className="text-[11px] font-semibold text-stone uppercase tracking-wider mb-2 px-1">{booking.date ? fmtDateLong(booking.date) : ''}</p>
+              <p className="text-[11px] font-semibold text-stone uppercase tracking-wider mb-2 px-1">{booking.date ? fmt.date(parseLocalDate(booking.date), { weekday: 'short', day: 'numeric', month: 'long' }) : ''}</p>
               <div className="bg-surface rounded-card overflow-hidden border border-mist shadow-card">
                 <div className="flex gap-3 p-3">
                   <div className="relative w-20 h-20 rounded-control overflow-hidden flex-none bg-sand">
-                    {booking.coverUrl && <Image src={booking.coverUrl} alt={booking.title.fr} fill className="object-cover" sizes="80px" />}
+                    {booking.coverUrl && <Image src={booking.coverUrl} alt={booking.title[lang]} fill className="object-cover" sizes="80px" />}
                   </div>
                   <div className="flex-1 min-w-0 space-y-1.5">
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className="text-sm font-medium text-charcoal leading-snug line-clamp-2">{booking.title.fr}</h3>
+                      <h3 className="text-sm font-medium text-charcoal leading-snug line-clamp-2">{booking.title[lang]}</h3>
                       <Badge variant={statusInfo.variant} className="flex-none text-xs">{statusInfo.label}</Badge>
                     </div>
                     {booking.providerName && <p className="text-xs text-stone">{booking.providerName}</p>}
                     <div className="flex items-center gap-3 text-xs text-stone">
                       <span className="flex items-center gap-1"><Clock size={11} />{booking.time}</span>
-                      <span className="flex items-center gap-1"><Users size={11} />{booking.guests} pers.</span>
-                      <span className="font-medium text-charcoal">{formatPrice(booking.totalCents)}</span>
+                      <span className="flex items-center gap-1"><Users size={11} />{t('guestsShort', { count: booking.guests })}</span>
+                      <span className="font-medium text-charcoal">{fmt.price(booking.totalCents)}</span>
                     </div>
                   </div>
                 </div>
                 <div className="px-3 pb-3 flex gap-2">
                   <Link href={`/prestataires/${booking.serviceId}`} className="flex-1">
-                    <Button size="sm" variant="ghost" fullWidth>Voir</Button>
+                    <Button size="sm" variant="ghost" fullWidth>{t('view')}</Button>
                   </Link>
-                  <Button size="sm" variant="outline" className="text-coral-text border-coral/30 hover:bg-coral/5" onClick={() => onCancel(booking.id)}>
-                    Annuler
-                  </Button>
+                  <ConfirmButton
+                    label={t('cancel')}
+                    message={t('cancelAsk')}
+                    confirmLabel={t('cancelConfirm')}
+                    onConfirm={() => onCancel(booking.id)}
+                    className="rounded-control border border-coral/30 px-3 py-1.5 text-sm text-coral-text hover:bg-coral/5"
+                  />
                 </div>
               </div>
             </motion.div>
@@ -126,7 +126,7 @@ function CarnetView({ bookings, onCancel }: { bookings: BookingItem[]; onCancel:
       <Link href="/search">
         <button type="button" className="w-full flex items-center justify-center gap-2 rounded-card border-2 border-dashed border-mist py-5 text-sm font-medium text-stone hover:border-deep-green/40 hover:text-deep-green transition-colors">
           <Plus size={16} />
-          Ajouter une expérience
+          {t('addExperience')}
         </button>
       </Link>
     </div>
@@ -136,31 +136,34 @@ function CarnetView({ bookings, onCancel }: { bookings: BookingItem[]; onCancel:
 // ── Past booking card ─────────────────────────────────────────────────────────
 
 function PastCard({ booking }: { booking: BookingItem }) {
-  const statusInfo = STATUS_LABELS[booking.status]
+  const t = useTranslations('trips')
+  const fmt = useFormat()
+  const lang = toLang(useLocale())
+  const statusInfo = { label: t(STATUS_KEY[booking.status]), variant: STATUS_VARIANT[booking.status] }
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="bg-surface rounded-card overflow-hidden shadow-card border border-mist">
       <div className="flex gap-3 p-3">
         <div className="relative w-20 h-20 rounded-control overflow-hidden flex-none bg-sand">
-          {booking.coverUrl && <Image src={booking.coverUrl} alt={booking.title.fr} fill className="object-cover" sizes="80px" />}
+          {booking.coverUrl && <Image src={booking.coverUrl} alt={booking.title[lang]} fill className="object-cover" sizes="80px" />}
         </div>
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-sm font-medium text-charcoal leading-snug line-clamp-2">{booking.title.fr}</h3>
+            <h3 className="text-sm font-medium text-charcoal leading-snug line-clamp-2">{booking.title[lang]}</h3>
             <Badge variant={statusInfo.variant} className="flex-none text-xs">{statusInfo.label}</Badge>
           </div>
           {booking.providerName && <p className="text-xs text-stone">{booking.providerName}</p>}
           <div className="flex items-center gap-3 text-xs text-stone">
             <span className="flex items-center gap-1">
               <CalendarDays size={11} />
-              {booking.date ? parseLocalDate(booking.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : ''} · {booking.time}
+              {booking.date ? fmt.date(parseLocalDate(booking.date), { day: 'numeric', month: 'short' }) : ''} · {booking.time}
             </span>
-            <span>{booking.guests} pers. · {formatPrice(booking.totalCents)}</span>
+            <span>{t('guestsShort', { count: booking.guests })} · {fmt.price(booking.totalCents)}</span>
           </div>
         </div>
       </div>
       <div className="px-3 pb-3 flex justify-end">
         <Link href={`/prestataires/${booking.serviceId}`}>
-          <Button size="sm" variant="ghost">Réserver à nouveau</Button>
+          <Button size="sm" variant="ghost">{t('bookAgain')}</Button>
         </Link>
       </div>
     </motion.div>
@@ -170,6 +173,9 @@ function PastCard({ booking }: { booking: BookingItem }) {
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function VoyagesPage() {
+  const t = useTranslations('trips')
+  const fmt = useFormat()
+  const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null)
   const [tab, setTab] = useState<Tab>('programme')
   const { isGuest } = useAuth()
   const { favorites, toggleFavorite } = useFavorites()
@@ -187,17 +193,12 @@ export default function VoyagesPage() {
   const past = items.filter((b) => !b.upcoming).reverse()
 
   async function handleCancel(id: string) {
-    if (!window.confirm('Annuler cette réservation ? Le remboursement dépend de la politique d’annulation du service.')) return
+    setNotice(null)
     const result = await cancel(id)
-    if (!result.ok) {
-      window.alert(result.error ?? 'Impossible d’annuler cette réservation. Réessayez ou contactez-nous.')
-    } else if (result.refund?.kind === 'refunded') {
-      window.alert(`Réservation annulée. ${formatPrice(result.refund.cents)} vous sont remboursés (délai bancaire : quelques jours).`)
-    } else if (result.refund?.kind === 'pending') {
-      window.alert('Réservation annulée. Votre remboursement est en cours de traitement : vous le recevrez sous 48 h.')
-    } else {
-      window.alert('Réservation annulée. Aucun remboursement n’est dû selon la politique d’annulation de ce service.')
-    }
+    if (!result.ok) setNotice({ ok: false, text: result.error ?? t('cancelError') })
+    else if (result.refund?.kind === 'refunded') setNotice({ ok: true, text: t('cancelledRefunded', { amount: fmt.price(result.refund.cents) }) })
+    else if (result.refund?.kind === 'pending') setNotice({ ok: true, text: t('cancelledPending') })
+    else setNotice({ ok: true, text: t('cancelledNoRefund') })
   }
 
   if (isGuest) {
@@ -208,14 +209,14 @@ export default function VoyagesPage() {
             <CalendarDays size={28} className="text-stone" />
           </div>
           <div className="space-y-2">
-            <h1 className="font-display text-xl text-charcoal">Vos voyages vous attendent</h1>
+            <h1 className="font-display text-xl text-charcoal">{t('guestTitle')}</h1>
             <p className="text-sm text-stone leading-relaxed">
-              Connectez-vous pour retrouver vos réservations, consulter vos confirmations et gérer vos favoris.
+              {t('guestBody')}
             </p>
           </div>
           <div className="w-full space-y-2.5">
-            <Link href="/register" className="block"><Button fullWidth>Créer un compte</Button></Link>
-            <Link href="/login" className="block"><Button fullWidth variant="outline">Se connecter</Button></Link>
+            <Link href="/register" className="block"><Button fullWidth>{t('createAccount')}</Button></Link>
+            <Link href="/login" className="block"><Button fullWidth variant="outline">{t('signIn')}</Button></Link>
           </div>
         </div>
       </div>
@@ -223,16 +224,16 @@ export default function VoyagesPage() {
   }
 
   const TABS: { key: Tab; label: string }[] = [
-    { key: 'programme', label: 'Programme' },
-    { key: 'past',      label: 'Passées' },
-    { key: 'favorites', label: `Favoris (${favorites.size})` },
+    { key: 'programme', label: t('tabProgram') },
+    { key: 'past',      label: t('tabPast') },
+    { key: 'favorites', label: t('tabFavorites', { count: favorites.size }) },
   ]
 
   return (
     <div className="min-h-screen bg-coconut pt-16 pb-24">
       <div className="max-w-2xl mx-auto">
         <div className="px-4 pt-6 pb-2">
-          <h1 className="text-2xl font-display text-charcoal">Mes voyages</h1>
+          <h1 className="text-2xl font-display text-charcoal">{t('title')}</h1>
         </div>
 
         <div className="flex px-4 border-b border-mist">
@@ -250,20 +251,21 @@ export default function VoyagesPage() {
         </div>
 
         <div className="px-4 py-5">
-          {error && <p role="alert" className="mb-4 text-sm text-coral-text">Impossible de charger vos réservations pour le moment.</p>}
-          {loading && tab !== 'favorites' && <p className="py-10 text-center text-sm text-stone" role="status">Chargement…</p>}
+          {error && <p role="alert" className="mb-4 text-sm text-coral-text">{t('loadError')}</p>}
+          {notice && <p role={notice.ok ? 'status' : 'alert'} className={cn('mb-4 rounded-control px-3.5 py-2.5 text-sm', notice.ok ? 'bg-deep-green/10 text-deep-green' : 'bg-coral/10 text-coral-text')}>{notice.text}</p>}
+          {loading && tab !== 'favorites' && <p className="py-10 text-center text-sm text-stone" role="status">{t('loading')}</p>}
 
           {!loading && tab === 'programme' && (
             upcoming.length > 0
               ? <CarnetView bookings={upcoming} onCancel={handleCancel} />
-              : <EmptyState emoji="🗓️" title="Aucune expérience prévue" sub="Composez votre programme de séjour" href="/search" cta="Explorer" />
+              : <EmptyState emoji="🗓️" title={t('emptyUpcomingTitle')} sub={t('emptyUpcomingSub')} href="/search" cta={t('explore')} />
           )}
 
           {!loading && tab === 'past' && (
             <div className="space-y-3">
               {past.length > 0
                 ? past.map((b) => <PastCard key={b.id} booking={b} />)
-                : <EmptyState emoji="📸" title="Aucune réservation passée" sub="Votre prochain souvenir vous attend" href="/search" cta="Découvrir" />}
+                : <EmptyState emoji="📸" title={t('emptyPastTitle')} sub={t('emptyPastSub')} href="/search" cta={t('discover')} />}
             </div>
           )}
 
@@ -276,7 +278,7 @@ export default function VoyagesPage() {
                   ))}
                 </div>
               )
-              : <EmptyState emoji="❤️" title="Aucun favori pour l'instant" sub="Appuyez sur ♡ pour sauvegarder des expériences" href="/search" cta="Explorer" />
+              : <EmptyState emoji="❤️" title={t('emptyFavTitle')} sub={t('emptyFavSub')} href="/search" cta={t('explore')} />
           )}
         </div>
       </div>
