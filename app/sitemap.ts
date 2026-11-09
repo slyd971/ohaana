@@ -42,7 +42,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
   }
 
-  for (const path of ['/concierge', '/about', '/terms', '/privacy']) {
+  for (const path of ['/concierge', '/about', '/terms', '/privacy', '/cookies', '/legal', '/provider-terms']) {
     out.push(...entries(path, { changeFrequency: 'monthly', priority: 0.4 }))
   }
   return out

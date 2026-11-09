@@ -16,6 +16,12 @@ export interface ProviderRow {
   stripe_onboarded: boolean
   avg_rating: number
   review_count: number
+  legal_status: string | null
+  siret: string | null
+  vat_number: string | null
+  insurance_confirmed: boolean
+  insurance_expires_on: string | null
+  compliance_verified_at: string | null
 }
 
 export type ProviderContext =
@@ -25,7 +31,7 @@ export type ProviderContext =
   | { kind: 'provider'; userId: string; provider: ProviderRow; supabase: SupabaseClient }
 
 const COLUMNS =
-  'id, user_id, business_name, bio, languages, island, phone, whatsapp, is_approved, stripe_onboarded, avg_rating, review_count'
+  'id, user_id, business_name, bio, languages, island, phone, whatsapp, is_approved, stripe_onboarded, avg_rating, review_count, legal_status, siret, vat_number, insurance_confirmed, insurance_expires_on, compliance_verified_at'
 
 /**
  * Identity + provider profile of the current request, always re-read from Supabase (getUser() validates

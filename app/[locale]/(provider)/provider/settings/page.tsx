@@ -1,7 +1,9 @@
 import { getProviderContext } from '@/lib/provider/context'
 import { ApprovalBanner, PageHeader, SignInRequired } from '@/components/provider/ui'
 import { ProfileForm } from '@/components/provider/ProfileForm'
+import { ComplianceForm } from '@/components/provider/ComplianceForm'
 import { AccountSecurity } from '@/components/account/AccountSecurity'
+import { DataAndPrivacy } from '@/components/account/DataAndPrivacy'
 import { DemoSettings } from '../_demo/DemoSettings'
 
 export default async function ProviderSettingsPage() {
@@ -14,8 +16,10 @@ export default async function ProviderSettingsPage() {
       <PageHeader title="Paramètres" subtitle="Votre profil prestataire." />
       <ApprovalBanner provider={ctx.provider} />
       <ProfileForm provider={ctx.provider} />
+      <ComplianceForm provider={ctx.provider} />
       <PageHeader title="Mon compte" subtitle="Identifiants de connexion." />
       <AccountSecurity returnTo="/provider/settings" />
+      <DataAndPrivacy />
     </div>
   )
 }

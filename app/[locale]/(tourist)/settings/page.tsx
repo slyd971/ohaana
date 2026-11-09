@@ -3,12 +3,13 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Link } from '@/lib/i18n/navigation'
-import { ChevronLeft, ChevronRight, Globe, Lock, Trash2, LogOut } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Globe, Lock, LogOut } from 'lucide-react'
 import { useAuth } from '@/lib/auth/AuthProvider'
 import { createClient } from '@/lib/supabase/client'
 import { updatePasswordSchema } from '@/lib/auth/schemas'
 import { authErrorKey } from '@/lib/auth/errors'
 import { cn } from '@/lib/utils'
+import { DataAndPrivacy } from '@/components/account/DataAndPrivacy'
 
 const LANGS = [
   { id: 'fr', label: 'Français', flag: '🇫🇷' },
@@ -23,7 +24,6 @@ export default function SettingsPage() {
   const [passwordBusy, setPasswordBusy] = useState(false)
   const [passwordMsg, setPasswordMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [lang, setLang] = useState('fr')
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [showPasswordForm, setShowPasswordForm] = useState(false)
 
   async function handlePasswordChange(e: React.FormEvent) {
@@ -113,6 +113,8 @@ export default function SettingsPage() {
           )}
         </section>
 
+        <DataAndPrivacy />
+
         {/* Danger zone */}
         <section className="space-y-3">
           <h2 className="text-sm font-semibold text-stone uppercase tracking-wider">Zone critique</h2>
@@ -125,25 +127,6 @@ export default function SettingsPage() {
             <span className="text-sm text-charcoal">Se déconnecter</span>
           </button>
 
-          {!showDeleteConfirm ? (
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              className="w-full flex items-center gap-3 px-5 py-4 rounded-card bg-coral/5 border border-coral/20 hover:border-coral/40 transition-colors text-left"
-            >
-              <Trash2 size={16} className="text-coral-text" />
-              <span className="text-sm text-coral-text">Supprimer mon compte</span>
-            </button>
-          ) : (
-            <div className="p-5 rounded-card bg-coral/5 border border-coral/30 space-y-3">
-              <p className="text-sm font-medium text-coral-text">Supprimer définitivement votre compte ?</p>
-              <p className="text-xs text-stone">
-                Pour exercer votre droit à l&apos;effacement, écrivez-nous à{' '}
-                <a href="mailto:privacy@ohaana.fr" className="text-deep-green underline underline-offset-2">privacy@ohaana.fr</a>
-                {' '}depuis l&apos;adresse de votre compte : nous traiterons votre demande rapidement.
-              </p>
-              <button onClick={() => setShowDeleteConfirm(false)} className="w-full py-2.5 rounded-control text-sm text-stone border border-mist bg-surface hover:bg-sand transition-colors">Fermer</button>
-            </div>
-          )}
         </section>
       </div>
     </div>

@@ -11,6 +11,7 @@ import { Mail, Lock, User } from 'lucide-react'
 import { registerSchema, fieldErrors } from '@/lib/auth/schemas'
 import { authErrorKey } from '@/lib/auth/errors'
 import { buildCallbackUrl } from '@/lib/auth/client-utils'
+import { LEGAL_VERSIONS } from '@/lib/legal/versions'
 
 type Role = 'tourist' | 'provider'
 const PUBLIC_ROLES: Role[] = ['tourist', 'provider']
@@ -58,7 +59,7 @@ export default function RegisterPage({ searchParams }: RegisterPageProps) {
         provider: 'google',
         options: {
           // OAuth cannot carry metadata: the callback upgrades the account via become_provider().
-          redirectTo: buildCallbackUrl({ next: nextPath, locale, role: role === 'provider' ? 'provider' : undefined }),
+          redirectTo: buildCallbackUrl({ next: nextPath, locale, role: role === 'provider' ? 'provider' : undefined, terms: LEGAL_VERSIONS.terms }),
         },
       })
       if (error) throw error
@@ -91,7 +92,9 @@ export default function RegisterPage({ searchParams }: RegisterPageProps) {
             role: parsed.data.role,
             locale,
             business_name: parsed.data.role === 'provider' ? parsed.data.fullName : undefined,
-            accepted_terms_at: new Date().toISOString(),
+            // Versions acceptées : le serveur les enregistre avec son propre horodatage (table consents).
+            terms_version: LEGAL_VERSIONS.terms,
+            privacy_version: LEGAL_VERSIONS.privacy,
           },
           emailRedirectTo: buildCallbackUrl({ next: nextPath, locale }),
         },

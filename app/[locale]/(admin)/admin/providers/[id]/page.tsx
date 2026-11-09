@@ -8,6 +8,7 @@ import { ServiceStatusActions } from '@/components/admin/ServiceStatusActions'
 import { StatusBadge, eur } from '@/components/provider/ui'
 import { isUuid } from '@/lib/provider/service-input'
 import { AdminPaymentsPanel } from '@/components/admin/AdminPaymentsPanel'
+import { ComplianceReview } from '@/components/admin/ComplianceReview'
 import type { ConnectState } from '@/lib/stripe/connect-status'
 
 export default async function AdminProviderPage({ params }: { params: Promise<{ locale: string; id: string }> }) {
@@ -21,11 +22,14 @@ export default async function AdminProviderPage({ params }: { params: Promise<{ 
 
   const { data: provider } = await ctx.supabase
     .from('provider_profiles')
-    .select('id, business_name, bio, languages, island, phone, whatsapp, is_approved, user_id, claimed, stripe_account_id, stripe_onboarded')
+    .select('id, business_name, bio, languages, island, phone, whatsapp, is_approved, user_id, claimed, stripe_account_id, stripe_onboarded, legal_status, siret, vat_number, insurance_confirmed, insurance_expires_on, compliance_verified_at, compliance_note')
     .eq('id', id)
     .maybeSingle()
   if (!provider) notFound()
   const services = await listProviderServices(ctx.supabase, id)
+  const { data: terms } = provider.user_id
+    ? await ctx.supabase.from('consents').select('version').eq('user_id', provider.user_id).eq('document', 'provider_terms').order('accepted_at', { ascending: false }).limit(1).maybeSingle()
+    : { data: null }
 
   return (
     <div className="p-5 md:p-8 space-y-8 max-w-3xl">
@@ -41,6 +45,18 @@ export default async function AdminProviderPage({ params }: { params: Promise<{ 
       <AdminPaymentsPanel
         providerId={id}
         initialState={(provider.stripe_onboarded ? 'active' : provider.stripe_account_id ? 'incomplete' : 'none') as ConnectState}
+      />
+
+      <ComplianceReview
+        providerId={id}
+        legalStatus={provider.legal_status}
+        siret={provider.siret}
+        vatNumber={provider.vat_number}
+        insuranceConfirmed={provider.insurance_confirmed}
+        insuranceExpiresOn={provider.insurance_expires_on}
+        verifiedAt={provider.compliance_verified_at}
+        note={provider.compliance_note}
+        acceptedProviderTerms={(terms as { version: string } | null)?.version ?? null}
       />
 
       <section aria-labelledby="profile-title" className="space-y-3">

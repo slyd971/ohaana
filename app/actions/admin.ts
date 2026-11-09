@@ -14,6 +14,7 @@ import { PaymentsNotConfigured, providerOnboardingUrl, syncProviderPaymentsStatu
 import type { ConnectState } from '@/lib/stripe/connect-status'
 import { SETTINGS_TAG } from '@/lib/commission'
 import { emailProviderDecision } from '@/lib/email/events'
+import { complianceProblems } from '@/lib/provider/compliance'
 import { LEAD_STATUSES, USER_ROLES, categorySchema, type AssignableRole } from '@/lib/admin/schemas'
 
 // Mutations de l'espace admin. Chaque action : (1) relit le rôle admin côté serveur, (2) s'exécute avec la
@@ -96,10 +97,20 @@ export async function rejectServiceAction(serviceId: string, reason: string): Pr
 }
 
 /** Approuve ou suspend un prestataire. Suspendre dépublie aussi ses fiches (retour en relecture). */
-export async function setProviderApprovalAction(providerId: string, approved: boolean): Promise<ActionState> {
+export async function setProviderApprovalAction(providerId: string, approved: boolean, override = false): Promise<ActionState> {
   const a = await admin()
   if ('error' in a) return { error: a.error }
   if (!isUuid(providerId)) return { error: 'Prestataire invalide.' }
+
+  // Un dossier non vérifié (statut professionnel, SIRET, assurance) ne devrait pas être publié : passage possible mais explicite et journalisé.
+  let approvedWithoutCheck = false
+  if (approved) {
+    const { data: c } = await a.ctx.supabase.from('provider_profiles').select('compliance_verified_at').eq('id', providerId).maybeSingle()
+    if (!(c as { compliance_verified_at: string | null } | null)?.compliance_verified_at) {
+      if (!override) return { error: 'compliance_unverified' }
+      approvedWithoutCheck = true
+    }
+  }
 
   const { data, error } = await a.ctx.supabase
     .from('provider_profiles')
@@ -121,7 +132,7 @@ export async function setProviderApprovalAction(providerId: string, approved: bo
     unpublished = rows?.length ?? 0
   }
 
-  await log(a.ctx, approved ? 'provider.approve' : 'provider.suspend', 'provider_profile', providerId, { unpublished })
+  await log(a.ctx, approved ? 'provider.approve' : 'provider.suspend', 'provider_profile', providerId, { unpublished, approvedWithoutCheck })
   await emailProviderDecision(providerId, approved)
   invalidate()
   return {
@@ -525,4 +536,36 @@ export async function setCommissionPctAction(pct: number): Promise<ActionState> 
   revalidateTag(SETTINGS_TAG, 'max')
   revalidatePath('/admin/parametres')
   return { ok: true, message: `Commission réglée à ${value} % pour les nouvelles réservations.` }
+}
+
+/** Marque le dossier d'un prestataire comme vérifié (ou retire la vérification). Refusé si le dossier est incomplet. */
+export async function verifyProviderComplianceAction(providerId: string, verified: boolean, note?: string): Promise<ActionState> {
+  const a = await admin()
+  if ('error' in a) return { error: a.error }
+  if (!isUuid(providerId)) return { error: 'Prestataire invalide.' }
+
+  const { data } = await a.ctx.supabase
+    .from('provider_profiles')
+    .select('legal_status, siret, insurance_confirmed, insurance_expires_on')
+    .eq('id', providerId)
+    .maybeSingle()
+  if (!data) return { error: 'Prestataire introuvable.' }
+  if (verified) {
+    const problems = complianceProblems(data as Parameters<typeof complianceProblems>[0])
+    if (problems.length) return { error: `Dossier incomplet : ${problems.join(' ; ')}.` }
+  }
+
+  const { error } = await a.ctx.supabase
+    .from('provider_profiles')
+    .update({
+      compliance_verified_at: verified ? new Date().toISOString() : null,
+      compliance_verified_by: verified ? a.ctx.userId : null,
+      compliance_note: typeof note === 'string' && note.trim() ? note.trim().slice(0, 1000) : null,
+    })
+    .eq('id', providerId)
+  if (error) return { error: `Mise à jour impossible : ${error.message}` }
+
+  await log(a.ctx, verified ? 'provider.compliance_verify' : 'provider.compliance_unverify', 'provider_profile', providerId, {})
+  revalidatePath(`/admin/providers/${providerId}`)
+  return { ok: true, message: verified ? 'Dossier marqué comme vérifié.' : 'Vérification retirée.' }
 }

@@ -1,14 +1,22 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Link } from '@/lib/i18n/navigation'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { useAuth } from '@/lib/auth/AuthProvider'
 import { ROLE_HOME } from '@/lib/auth/types'
 import { providerTarget } from '@/lib/auth/provider-link'
 
+// Libellés des pages juridiques ajoutées hors des fichiers de messages (fr.json est la source de vérité, non modifiée ici).
+const EXTRA_LINKS = {
+  legal: { fr: 'Mentions légales', en: 'Legal notice', es: 'Aviso legal' },
+  cookies: { fr: 'Cookies', en: 'Cookies', es: 'Cookies' },
+} as const
+
 export function Footer() {
   const t = useTranslations('footer')
+  const current = useLocale()
+  const locale = (current === 'en' || current === 'es' ? current : 'fr') as 'fr' | 'en' | 'es'
   const { isLoggedIn, isProvider, isPartner, isAdmin, isDemo } = useAuth()
   const provider = providerTarget({ isLoggedIn, isProvider, isAdmin })
   // The partner space is private: guests and other roles are sent to sign-in.
@@ -94,6 +102,8 @@ export function Footer() {
           <div className="flex items-center gap-4">
             <Link href="/privacy" className="hover:text-coconut transition-colors">{t('privacy')}</Link>
             <Link href="/terms" className="hover:text-coconut transition-colors">{t('terms')}</Link>
+            <Link href="/legal" className="hover:text-coconut transition-colors">{EXTRA_LINKS.legal[locale]}</Link>
+            <Link href="/cookies" className="hover:text-coconut transition-colors">{EXTRA_LINKS.cookies[locale]}</Link>
             <LanguageSwitcher variant="footer" />
           </div>
         </div>

@@ -15,6 +15,8 @@ import { getProviderService } from '@/lib/provider/queries'
 import { slugify } from '@/lib/utils'
 import { emailBookingCancelled, refundSentence } from '@/lib/email/events'
 import { CACHE_TAGS } from '@/lib/data/services'
+import { complianceSchema } from '@/lib/provider/compliance'
+import { LEGAL_VERSIONS } from '@/lib/legal/versions'
 
 // Toutes les mutations du back-office prestataire passent ici. Chaque action :
 //  1. relit l'identité côté serveur (jamais d'identifiant fourni par le navigateur pour le prestataire),
@@ -296,4 +298,48 @@ export async function refreshPaymentsStatusAction(): Promise<ActionState & { sta
   } catch (e) {
     return { error: paymentsError(e) }
   }
+}
+
+// ─── Statut professionnel ────────────────────────────────────────────────────
+
+/**
+ * Enregistre le statut DÉCLARÉ par le prestataire (statut juridique, SIRET, assurance) et son acceptation des CGU prestataire.
+ * La vérification est faite ensuite par l'équipe (colonnes compliance_* protégées en base) ; modifier une déclaration
+ * annule une vérification existante.
+ */
+export async function saveComplianceAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const s = await session()
+  if ('error' in s) return { error: s.error }
+
+  const raw = formObject(formData)
+  const parsed = complianceSchema.safeParse({
+    legal_status: raw.legal_status,
+    siret: typeof raw.siret === 'string' ? raw.siret : undefined,
+    vat_number: typeof raw.vat_number === 'string' ? raw.vat_number : undefined,
+    insurance_confirmed: raw.insurance_confirmed === 'on',
+    insurance_expires_on: typeof raw.insurance_expires_on === 'string' && raw.insurance_expires_on ? raw.insurance_expires_on : undefined,
+  })
+  if (!parsed.success) return { error: 'Corrigez les champs signalés.', fieldErrors: fieldErrors(parsed.error.issues) }
+  if (raw.accept_provider_terms !== 'on') {
+    return { error: 'Vous devez accepter les conditions prestataire.', fieldErrors: { accept_provider_terms: 'Acceptation requise' } }
+  }
+
+  const d = parsed.data
+  const { error } = await s.ctx.supabase
+    .from('provider_profiles')
+    .update({
+      legal_status: d.legal_status,
+      siret: d.siret || null,
+      vat_number: d.vat_number || null,
+      insurance_confirmed: d.insurance_confirmed,
+      insurance_expires_on: d.insurance_expires_on ?? null,
+    })
+    .eq('id', s.ctx.provider.id)
+  if (error) return { error: `Enregistrement impossible : ${error.message}` }
+
+  await s.ctx.supabase.rpc('accept_legal', { p_document: 'provider_terms', p_version: LEGAL_VERSIONS.provider_terms, p_source: 'provider_onboarding' })
+
+  revalidatePath('/provider/settings')
+  revalidatePath('/provider/dashboard')
+  return { ok: true, message: 'Informations enregistrées. Notre équipe les vérifiera avant la validation de votre dossier.' }
 }
