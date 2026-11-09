@@ -20,7 +20,7 @@ Premium et chaleureux, lisible en plein soleil sur mobile, accessible (WCAG AA),
 **Sur fonds sombres** (admin, bandeaux deep-green) : garder `turquoise`/`coral` (pas les variantes `-text`).
 
 ## Typographie
-Newsreader (`font-display`, remplace Fraunces dont le « f » était tordu) pour h1–h3, Inter pour le reste via `next/font`. Plancher : `text-xs` (12px). Pas de `text-[9–11px]`.
+Lora (`font-display`, remplace Fraunces au « f » tordu puis Newsreader au « f » trop allongé) pour h1–h3, Inter pour le reste via `next/font`. Plancher : `text-xs` (12px). Pas de `text-[9–11px]`.
 
 ## Composants
 `Button` (primary, coral, secondary, outline, ghost, danger ; sm=44px) · `IconButton` (label obligatoire, 44px) · `Input` / `Textarea` · `Badge` · `Alert` · `Card` · `Skeleton` · `ConfirmButton`.
