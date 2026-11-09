@@ -29,6 +29,21 @@ export const PAGE_SEO = {
     en: { title: 'Privacy policy', description: 'How Ohaana collects, uses and protects your personal data, and how to exercise your rights.' },
     es: { title: 'Política de privacidad', description: 'Cómo recoge, utiliza y protege Ohaana tus datos personales y cómo ejercer tus derechos.' },
   },
+  providerTerms: {
+    fr: { title: 'Conditions générales prestataires', description: 'Les conditions de présence d’un prestataire sur Ohaana : accès, commission, paiement, annulations et responsabilités.' },
+    en: { title: 'Provider terms', description: 'The conditions for providers on Ohaana: access, commission, payment, cancellations and responsibilities.' },
+    es: { title: 'Condiciones para proveedores', description: 'Las condiciones de presencia de un proveedor en Ohaana: acceso, comisión, pago, cancelaciones y responsabilidades.' },
+  },
+  cookies: {
+    fr: { title: 'Politique de cookies', description: 'Les cookies utilisés par Ohaana : uniquement ceux qui sont strictement nécessaires au fonctionnement du site.' },
+    en: { title: 'Cookie policy', description: 'The cookies used by Ohaana: only those strictly necessary for the site to work.' },
+    es: { title: 'Política de cookies', description: 'Las cookies que usa Ohaana: solo las estrictamente necesarias para el funcionamiento del sitio.' },
+  },
+  legal: {
+    fr: { title: 'Mentions légales', description: 'Éditeur, hébergeur et informations légales du site Ohaana.' },
+    en: { title: 'Legal notice', description: 'Publisher, host and legal information for the Ohaana website.' },
+    es: { title: 'Aviso legal', description: 'Editor, alojamiento e información legal del sitio web de Ohaana.' },
+  },
 } satisfies Record<string, Copy>
 
 export type PageKey = keyof typeof PAGE_SEO

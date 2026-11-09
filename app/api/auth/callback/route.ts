@@ -3,6 +3,7 @@ import type { EmailOtpType } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/server'
 import { ROLE_HOME, safeRedirectPath } from '@/lib/auth/types'
 import { localePrefix } from '@/lib/auth/locale'
+import { LEGAL_VERSIONS } from '@/lib/legal/versions'
 import type { UserRole } from '@/types/database'
 
 const LOCALE_RE = /^\/(fr|en|es)(?=\/|$)/
@@ -33,6 +34,14 @@ export async function GET(request: NextRequest) {
 
   if (!ok) {
     return NextResponse.redirect(new URL(`${prefix}/login?error=callback`, url.origin))
+  }
+
+  // Inscription via OAuth : la case « j'accepte » était cochée avant la redirection, on enregistre les versions en vigueur.
+  const terms = url.searchParams.get('terms')
+  // Seules les versions réellement en vigueur sont enregistrées : le paramètre n'est qu'un indicateur.
+  if (terms === LEGAL_VERSIONS.terms) {
+    await supabase.rpc('accept_legal', { p_document: 'terms', p_version: LEGAL_VERSIONS.terms, p_source: 'signup' })
+    await supabase.rpc('accept_legal', { p_document: 'privacy', p_version: LEGAL_VERSIONS.privacy, p_source: 'signup' })
   }
 
   // Provider sign-up through OAuth: upgrade tourist -> provider (the RPC refuses any other role change).

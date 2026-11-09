@@ -60,9 +60,14 @@ export default function AdminProvidersPage() {
 
   const [actionError, setActionError] = useState<string | null>(null)
 
-  async function setApproval(id: string, approved: boolean) {
+  // Un prestataire dont le dossier n'est pas vérifié ne s'approuve pas d'un clic : on propose la vérification, ou le passage explicite.
+  const [unverifiedId, setUnverifiedId] = useState<string | null>(null)
+
+  async function setApproval(id: string, approved: boolean, override = false) {
     setActionError(null)
-    const result = await setProviderApprovalAction(id, approved)
+    setUnverifiedId(null)
+    const result = await setProviderApprovalAction(id, approved, override)
+    if (result.error === 'compliance_unverified') { setUnverifiedId(id); return }
     if (result.error) { setActionError(result.error); return }
     setVersion((v) => v + 1)
   }
@@ -135,6 +140,20 @@ export default function AdminProvidersPage() {
 
         {error && <p role="alert" className="px-5 py-4 text-sm text-red-400">Impossible de charger les prestataires.</p>}
         {actionError && <p role="alert" className="px-5 py-3 text-sm text-red-400">{actionError}</p>}
+        {unverifiedId && (
+          <div role="alert" className="flex flex-wrap items-center gap-3 px-5 py-3 text-sm text-amber-300">
+            <span>Dossier non vérifié (statut professionnel, SIRET, assurance).</span>
+            <Link href={`/admin/providers/${unverifiedId}`} className="underline">Vérifier le dossier</Link>
+            <ConfirmButton
+              label="Approuver sans vérification"
+              message="Approuver sans avoir vérifié le dossier ? Ce choix est journalisé."
+              confirmLabel="Approuver quand même"
+              tone="dark"
+              onConfirm={() => void setApproval(unverifiedId, true, true)}
+              className="rounded-control border border-white/15 px-3 py-1.5 text-xs text-white/70 hover:bg-white/10"
+            />
+          </div>
+        )}
         {!loading && !error && filtered.length === 0 && <p className="px-5 py-6 text-sm text-white/40">Aucun prestataire.</p>}
         <ul className="divide-y divide-white/5">
           {filtered.map(p => {

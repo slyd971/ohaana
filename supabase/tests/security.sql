@@ -775,6 +775,116 @@ begin
 end $$;
 
 -- ─────────────────────────────────────────────────────────────
+-- 6c. Conformité (migration 014) : consentements, statut prestataire, export et suppression de compte
+-- ─────────────────────────────────────────────────────────────
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('eeeeeeee-0000-4000-8000-000000000001', 'legal-a@test.local', '{"full_name":"Lea Legal","terms_version":"2026-11-09","privacy_version":"2026-11-09"}'),
+  ('eeeeeeee-0000-4000-8000-000000000002', 'legal-b@test.local', '{"full_name":"Bruno Bookings"}'),
+  ('eeeeeeee-0000-4000-8000-000000000003', 'legal-p@test.local', '{"role":"provider","full_name":"Paul Pro","business_name":"Paul Pro"}'),
+  ('eeeeeeee-0000-4000-8000-000000000004', 'legal-c@test.local', '{"full_name":"Chloe Future"}'),
+  ('eeeeeeee-0000-4000-8000-000000000005', 'legal-bad@test.local', '{"terms_version":"not-a-date; drop table"}');
+
+do $$
+declare
+  A constant uuid := 'eeeeeeee-0000-4000-8000-000000000001';
+  B constant uuid := 'eeeeeeee-0000-4000-8000-000000000002';
+  P constant uuid := 'eeeeeeee-0000-4000-8000-000000000003';
+  C constant uuid := 'eeeeeeee-0000-4000-8000-000000000004';
+  ADM constant uuid := 'aaaaaaaa-0000-4000-8000-000000000004';
+  v_service uuid;
+  v_prov uuid;
+begin
+  -- consentements
+  perform t.eq('signup records the accepted terms and privacy versions',
+    t.scalar(format($q$select count(*)::text from public.consents where user_id = %L and source = 'signup'$q$, A)), '2');
+  perform t.eq('a malformed version in signup metadata is ignored',
+    t.scalar($q$select count(*)::text from public.consents where user_id = 'eeeeeeee-0000-4000-8000-000000000005'$q$), '0');
+
+  perform t.as_user(A);
+  perform t.run($q$select public.accept_legal('terms', '2027-01-01', 'settings')$q$);
+  perform t.run($q$select public.accept_legal('terms', '2027-01-01', 'settings')$q$);  -- idempotent
+  perform t.eq('accepting twice stores one row', t.scalar($q$select count(*)::text from public.consents where version = '2027-01-01'$q$), '1');
+  perform t.fails('unknown document is refused', $q$select public.accept_legal('everything', '2027-01-01')$q$, '22023');
+  perform t.fails('malformed version is refused', $q$select public.accept_legal('terms', 'latest')$q$, '22023');
+  perform t.fails('a user cannot insert a consent directly',
+    format($q$insert into public.consents (user_id, document, version) values (%L, 'terms', '2030-01-01')$q$, A), '42501');
+  perform t.fails('a user cannot delete a consent', $q$delete from public.consents$q$, '42501');
+  perform t.reset();
+  perform t.as_user(B);
+  perform t.eq('another user sees none of those consents', t.scalar('select count(*)::text from public.consents'), '0');
+  perform t.reset();
+  perform t.as_anon();
+  perform t.fails('anon cannot accept', $q$select public.accept_legal('terms', '2027-01-01')$q$, '42501');
+  perform t.reset();
+
+  -- statut prestataire
+  perform t.as_user(P);
+  perform t.scalar($q$update public.provider_profiles set legal_status = 'micro_entrepreneur', siret = '12345678901234', insurance_confirmed = true where user_id = auth.uid() returning id::text$q$);
+  perform t.fails('a malformed SIRET is rejected', $q$update public.provider_profiles set siret = '123' where user_id = auth.uid()$q$, '23514');
+  perform t.fails('a provider cannot mark itself verified',
+    $q$update public.provider_profiles set compliance_verified_at = now() where user_id = auth.uid()$q$, '42501');
+  perform t.reset();
+  perform t.as_user(ADM);
+  perform t.scalar(format($q$update public.provider_profiles set compliance_verified_at = now(), compliance_verified_by = %L where user_id = %L returning id::text$q$, ADM, P));
+  perform t.reset();
+  perform t.eq('the admin verification is stored',
+    t.scalar(format($q$select (compliance_verified_at is not null)::text from public.provider_profiles where user_id = %L$q$, P)), 'true');
+  perform t.as_user(P);
+  perform t.scalar($q$update public.provider_profiles set siret = '98765432109876' where user_id = auth.uid() returning id::text$q$);
+  perform t.reset();
+  perform t.eq('changing a declaration cancels the verification',
+    t.scalar(format($q$select (compliance_verified_at is null)::text from public.provider_profiles where user_id = %L$q$, P)), 'true');
+  perform t.eq('the SIRET is never exposed by the public provider view',
+    t.scalar($q$select count(*)::text from information_schema.columns where table_name = 'public_provider_profiles' and column_name in ('siret','vat_number','insurance_confirmed','compliance_note')$q$), '0');
+
+  -- export
+  perform t.as_user(A);
+  perform t.eq('export contains the account email', t.scalar($q$select public.export_my_data() -> 'account' ->> 'email'$q$), 'legal-a@test.local');
+  perform t.eq('export contains the consents', t.scalar($q$select jsonb_array_length(public.export_my_data() -> 'consents')::text$q$), '3');
+  perform t.eq('export never contains someone else''s account',
+    t.scalar($q$select (public.export_my_data()::text like '%legal-b@test.local%')::text$q$), 'false');
+  perform t.reset();
+  perform t.as_anon();
+  perform t.fails('anon cannot export', 'select public.export_my_data()', '42501');
+  perform t.reset();
+
+  -- suppression du compte
+  perform t.as_user(A);
+  perform t.fails('a user cannot run the removal function directly', format($q$select public.prepare_account_removal(%L)$q$, A), '42501');
+  perform t.reset();
+  perform t.eq('team accounts cannot self-delete', t.scalar(format($q$select public.prepare_account_removal(%L)$q$, ADM)), 'blocked_role');
+  perform t.eq('an account with no booking is fully deletable', t.scalar(format($q$select public.prepare_account_removal(%L)$q$, A)), 'deletable');
+  delete from auth.users where id = A;
+  perform t.eq('deleting the auth user erases the profile and the consents',
+    t.scalar(format($q$select (select count(*) from public.users where id = %L) + (select count(*) from public.consents where user_id = %L)$q$, A, A)), '0');
+  perform t.eq('a provider with no booking is fully deletable', t.scalar(format($q$select public.prepare_account_removal(%L)$q$, P)), 'deletable');
+  delete from auth.users where id = P;
+  perform t.eq('the provider profile is erased too', t.scalar(format($q$select count(*)::text from public.provider_profiles where user_id = %L$q$, P)), '0');
+
+  select id, provider_id into v_service, v_prov from public.services limit 1;
+  insert into public.bookings (service_id, tourist_id, status, total_cents, starts_at)
+    values (v_service, B, 'completed', 12000, now() - interval '10 days');
+  insert into public.leads (email, consent) values ('legal-b@test.local', true);
+  perform public.notify(B, 'promo', 'x', 'x', null, null);
+  perform t.eq('an account with booking history is anonymised, not deleted', t.scalar(format($q$select public.prepare_account_removal(%L)$q$, B)), 'anonymised');
+  perform t.eq('the personal data is gone',
+    t.scalar(format($q$select (email like 'deleted+%%@deleted.invalid' and full_name is null and not is_active)::text from public.users where id = %L$q$, B)), 'true');
+  perform t.eq('the accounting trail is kept', t.scalar(format($q$select count(*)::text from public.bookings where tourist_id = %L$q$, B)), '1');
+  perform t.eq('notifications and newsletter rows are erased',
+    t.scalar(format($q$select ((select count(*) from public.notifications where user_id = %L) + (select count(*) from public.leads where email = 'legal-b@test.local'))::text$q$, B)), '0');
+
+  insert into public.bookings (service_id, tourist_id, status, total_cents, starts_at)
+    values (v_service, C, 'confirmed', 9000, now() + interval '5 days');
+  perform t.eq('an upcoming confirmed booking blocks the deletion', t.scalar(format($q$select public.prepare_account_removal(%L)$q$, C)), 'blocked_upcoming');
+  update public.bookings set status = 'cancelled_tourist' where tourist_id = C;
+  perform t.eq('once cancelled the account can be anonymised', t.scalar(format($q$select public.prepare_account_removal(%L)$q$, C)), 'anonymised');
+
+  delete from public.bookings where tourist_id in (B, C);
+  delete from public.users where id in (B, C);
+  delete from auth.users where id in (B, C, 'eeeeeeee-0000-4000-8000-000000000005');
+end $$;
+
+-- ─────────────────────────────────────────────────────────────
 -- 7. Storage
 -- ─────────────────────────────────────────────────────────────
 do $$
