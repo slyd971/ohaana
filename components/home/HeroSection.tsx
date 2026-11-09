@@ -86,7 +86,7 @@ export function HeroSection({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: EASE }}
         >
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-turquoise-text">
+          <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-turquoise-text sm:text-xs sm:tracking-[0.18em]">
             {copy.eyebrow}
           </p>
           <h1 className="mt-4 font-display text-4xl leading-[1.1] text-deep-green md:text-6xl">
@@ -106,7 +106,7 @@ export function HeroSection({
           transition={{ duration: 0.8, delay: 0.15, ease: EASE }}
           className="relative z-30 mx-auto mt-10 md:mt-12  flex w-full max-w-3xl flex-col gap-1 rounded-3xl border border-mist/70 bg-white p-2 text-left shadow-modal md:flex-row md:items-stretch md:rounded-full md:p-2.5"
         >
-          <div className="rounded-card px-5 py-3 md:rounded-full md:flex-none md:w-44 hover:bg-sand/50 transition-colors">
+          <div className="min-h-14 rounded-card px-5 py-3 md:rounded-full md:flex-none md:w-44 hover:bg-sand/50 transition-colors">
             <div className={label}>{copy.where}</div>
             <div className="mt-1">
               <IslandSelector value={island} onChange={onIslandChange} variant="bare" />
@@ -115,7 +115,7 @@ export function HeroSection({
 
           <span className="hidden md:block my-3 w-px bg-mist" aria-hidden="true" />
 
-          <div className="rounded-card px-5 py-3 md:rounded-full md:flex-none md:w-44 hover:bg-sand/50 transition-colors">
+          <div className="min-h-14 rounded-card px-5 py-3 md:rounded-full md:flex-none md:w-44 hover:bg-sand/50 transition-colors">
             <div className={label}>{copy.when}</div>
             <div className="mt-1">
               <DateRangePicker
@@ -130,14 +130,14 @@ export function HeroSection({
 
           <span className="hidden md:block my-3 w-px bg-mist" aria-hidden="true" />
 
-          <label className="flex flex-1 min-w-0 cursor-text flex-col rounded-card px-5 py-3 md:rounded-full hover:bg-sand/50 transition-colors">
+          <label className="flex min-h-14 flex-1 min-w-0 cursor-text flex-col rounded-card px-5 py-3 md:rounded-full hover:bg-sand/50 transition-colors">
             <span className={label}>{copy.what}</span>
             <input
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={copy.search}
-              className="mt-1 w-full min-w-0 bg-transparent text-sm text-charcoal placeholder:text-stone focus:outline-none"
+              className="mt-1 min-h-6 w-full min-w-0 bg-transparent text-sm text-charcoal placeholder:text-stone focus:outline-none"
             />
           </label>
 

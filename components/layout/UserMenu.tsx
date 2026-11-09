@@ -44,7 +44,7 @@ export function UserMenu({ opaque }: UserMenuProps) {
         aria-expanded={open}
         aria-label={t('account')}
         className={cn(
-          'flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-colors',
+          'flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold transition-colors',
           opaque ? 'bg-deep-green text-coconut hover:bg-deep-green/90' : 'bg-coconut/20 text-coconut hover:bg-coconut/30'
         )}
       >

@@ -10,6 +10,7 @@ import { OhaanaLogo } from './OhaanaLogo'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { UserMenu } from './UserMenu'
 import { useAuth } from '@/lib/auth/AuthProvider'
+import { providerTarget } from '@/lib/auth/provider-link'
 
 interface HeaderProps {
   transparent?: boolean
@@ -18,7 +19,8 @@ interface HeaderProps {
 export function Header({ transparent = false }: HeaderProps) {
   const t = useTranslations('nav')
   const tAuth = useTranslations('auth')
-  const { isLoggedIn, loading } = useAuth()
+  const { isLoggedIn, loading, isProvider, isAdmin } = useAuth()
+  const provider = providerTarget({ isLoggedIn, isProvider, isAdmin })
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
@@ -49,21 +51,20 @@ export function Header({ transparent = false }: HeaderProps) {
         {/* Desktop nav — hidden on mobile */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
           {([
-            { key: 'search', href: '/search' },
-            { key: 'concierge', href: '/concierge' },
-            { key: 'becomeProvider', href: '/register?role=provider' },
-          ] as const).map(({ key, href }) => (
-            <Link
-              key={key}
-              href={href}
-              className={cn(
-                'transition-colors hover:text-deep-green',
-                isOpaque ? 'text-charcoal-soft' : 'text-coconut/80 hover:text-coconut'
-              )}
-            >
-              {t(key)}
-            </Link>
-          ))}
+            { key: 'search', href: '/search', external: false },
+            { key: 'concierge', href: '/concierge', external: false },
+            { key: 'becomeProvider', href: provider.href, external: provider.external },
+          ] as const).map(({ key, href, external }) => {
+            const cls = cn(
+              'transition-colors hover:text-deep-green',
+              isOpaque ? 'text-charcoal-soft' : 'text-coconut/80 hover:text-coconut'
+            )
+            return external ? (
+              <a key={key} href={href} className={cls}>{t(key)}</a>
+            ) : (
+              <Link key={key} href={href} className={cls}>{t(key)}</Link>
+            )
+          })}
         </nav>
 
         {/* Right actions */}
@@ -74,7 +75,7 @@ export function Header({ transparent = false }: HeaderProps) {
             href="/voyages"
             aria-label="Mes favoris"
             className={cn(
-              'p-1.5 rounded-full transition-colors hover:bg-sand',
+              'flex h-11 w-11 items-center justify-center rounded-full transition-colors hover:bg-sand',
               isOpaque ? 'text-charcoal-soft' : 'text-coconut/80'
             )}
           >
@@ -87,7 +88,7 @@ export function Header({ transparent = false }: HeaderProps) {
               <Button
                 variant={isOpaque ? 'ghost' : 'outline'}
                 size="sm"
-                className={!isOpaque ? 'border-coconut/40 text-coconut hover:bg-coconut/10' : ''}
+                className={cn('min-h-11 min-w-11', !isOpaque && 'border-coconut/40 text-coconut hover:bg-coconut/10')}
               >
                 <User size={16} />
                 <span className="hidden sm:inline">{tAuth('login')}</span>

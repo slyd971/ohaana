@@ -14,6 +14,8 @@ import { MoodSelector } from '@/components/home/MoodSelector'
 import type { HomeRow, ServiceView } from '@/lib/data/types'
 import { useFavorites } from '@/hooks/useFavorites'
 import { WHATSAPP_NUMBER } from '@/lib/site'
+import { useAuth } from '@/lib/auth/AuthProvider'
+import { providerTarget, PARTNER_EMAIL } from '@/lib/auth/provider-link'
 import {
   Clock, Leaf, MessageCircle,
   Building2, ChevronRight, Mail, CheckCircle,
@@ -133,6 +135,8 @@ interface HomeClientProps {
 
 export function HomeClient({ services, rows }: HomeClientProps) {
   const locale = useLocale()
+  const { isLoggedIn, isProvider, isAdmin } = useAuth()
+  const provider = providerTarget({ isLoggedIn, isProvider, isAdmin })
   const L = (fr: string, en: string, es: string) =>
     locale === 'en' ? en : locale === 'es' ? es : fr
   const whyItems = locale === 'en' ? WHY_ITEMS_EN : locale === 'es' ? WHY_ITEMS_ES : WHY_ITEMS
@@ -175,8 +179,10 @@ export function HomeClient({ services, rows }: HomeClientProps) {
   // Lead capture state
   const [leadEmail, setLeadEmail]   = useState('')
   const [leadDest, setLeadDest]     = useState('')
-  const [leadWA, setLeadWA]         = useState('')
   const [leadSent, setLeadSent]     = useState(false)
+  const [leadConsent, setLeadConsent] = useState(false)
+  const [leadBusy, setLeadBusy]       = useState(false)
+  const [leadError, setLeadError]     = useState(false)
 
   // Zone 1  - Explorer : tous les services filtrés par île + humeur
   const explorerServices = (() => {
@@ -204,12 +210,29 @@ export function HomeClient({ services, rows }: HomeClientProps) {
   const visibleExplorerServices = showAllExplorer ? explorerServices : explorerServices.slice(0, 8)
   const hasMoreExplorerServices = explorerServices.length > visibleExplorerServices.length
 
-  function handleLeadSubmit(e: React.FormEvent) {
+  async function handleLeadSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const data = { email: leadEmail, destination: leadDest, whatsapp: leadWA, ts: new Date().toISOString() }
-    console.log('[Ohaana lead]', data)
-    try { localStorage.setItem('ohaana_lead', JSON.stringify(data)) } catch {}
-    setLeadSent(true)
+    if (leadBusy) return
+    setLeadBusy(true)
+    setLeadError(false)
+    try {
+      const res = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          email: leadEmail,
+          destination: leadDest || undefined,
+          locale,
+          consent: leadConsent,
+        }),
+      })
+      if (!res.ok) throw new Error(String(res.status))
+      setLeadSent(true)
+    } catch {
+      setLeadError(true)
+    } finally {
+      setLeadBusy(false)
+    }
   }
 
   return (
@@ -496,93 +519,105 @@ export function HomeClient({ services, rows }: HomeClientProps) {
               )}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start pt-1">
-              <Link
-                href="/register?role=provider"
-                className="inline-flex items-center gap-2 bg-deep-green text-coconut px-5 py-2.5 rounded-full text-sm font-medium hover:bg-deep-green-light transition-colors"
-              >
-                {L('Rejoindre Ohaana', 'Join Ohaana', 'Unirse a Ohaana')}
-                <ChevronRight size={14} />
-              </Link>
+              {(() => {
+                const cta = 'inline-flex items-center gap-2 bg-deep-green text-coconut px-5 py-2.5 rounded-full text-sm font-medium hover:bg-deep-green-light transition-colors'
+                const label = isProvider || isAdmin
+                  ? L('Mon espace prestataire', 'My provider space', 'Mi espacio de proveedor')
+                  : L('Rejoindre Ohaana', 'Join Ohaana', 'Unirse a Ohaana')
+                return provider.external ? (
+                  <a href={provider.href} className={cta}>{label}<ChevronRight size={14} /></a>
+                ) : (
+                  <Link href={provider.href} className={cta}>{label}<ChevronRight size={14} /></Link>
+                )
+              })()}
               <a
-                href="mailto:partenaires@ohaana.fr"
+                href={`mailto:${PARTNER_EMAIL}`}
                 className="inline-flex items-center gap-2 border border-mist text-charcoal px-5 py-2.5 rounded-full text-sm font-medium hover:border-deep-green/40 transition-colors"
               >
                 <Mail size={14} />
-                {L('Nous contacter', 'Contact us', 'Contáctanos')}
+                {PARTNER_EMAIL}
               </a>
             </div>
           </div>
         </div>
       </section>
 
-      {/* '- -' 7. Lead capture '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -' */}
-      <section className="px-5 md:px-8 py-14 bg-deep-green">
-        <div className="max-w-md mx-auto text-center space-y-6">
-          <div className="space-y-2">
-            <p className="text-xs text-coconut/50 uppercase tracking-widest">
-              {L('Lancement en cours', 'Launch in progress', 'Lanzamiento en curso')}
-            </p>
-            <h2 className="text-2xl font-display text-coconut">
-              {L('Recevoir la sélection Ohaana', 'Get the Ohaana selection', 'Recibe la selección Ohaana')}
-            </h2>
-            <p className="text-sm text-coconut/60 leading-relaxed">
-              {L(
-                'Recevez les nouveaux services disponibles près de votre hébergement et les destinations ouvertes en avant-première.',
-                'Get the newest services available near your accommodation and early access to new destinations.',
-                'Recibe los nuevos servicios disponibles cerca de tu alojamiento y acceso anticipado a nuevos destinos.'
-              )}
-            </p>
-          </div>
+      {/* '- -' 7. Lead capture '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */}
+      <section className="mx-5 mb-16 md:mx-8 md:mb-20">
+        <div className="mx-auto max-w-4xl rounded-3xl border border-mist bg-white p-7 text-center md:p-12">
+          <h2 className="font-display text-2xl text-deep-green md:text-3xl">
+            {L('Recevoir les nouveautés Ohaana', 'Get Ohaana news', 'Recibe las novedades de Ohaana')}
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-charcoal/70 md:text-base">
+            {L(
+              'Les nouveaux services près de votre hébergement et l\'ouverture de nouvelles îles, en avant-première.',
+              'New services near your accommodation and early access to new islands.',
+              'Los nuevos servicios cerca de tu alojamiento y acceso anticipado a nuevas islas.'
+            )}
+          </p>
 
           {leadSent ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="flex flex-col items-center gap-3 py-6"
+              className="mt-6 flex flex-col items-center gap-2 py-4"
             >
-              <CheckCircle size={40} className="text-turquoise" />
-              <p className="text-coconut font-medium">{L('C\'est noté !', 'You are on the list!', '¡Apuntado!')}</p>
-              <p className="text-coconut/60 text-sm">{L('On vous contacte dès le lancement.', 'We will contact you as soon as we launch.', 'Te contactaremos en cuanto lancemos.')}</p>
+              <CheckCircle size={36} className="text-deep-green" />
+              <p className="font-medium text-deep-green">{L('C\'est noté !', 'You are on the list!', '¡Apuntado!')}</p>
+              <p className="text-sm text-charcoal/70">{L('Vous recevrez nos prochaines nouveautés.', 'You will get our next news.', 'Recibirás nuestras próximas novedades.')}</p>
             </motion.div>
           ) : (
-            <form onSubmit={handleLeadSubmit} className="space-y-3">
-              <input
-                type="email"
-                required
-                placeholder="votre@email.com"
-                value={leadEmail}
-                onChange={(e) => setLeadEmail(e.target.value)}
-                className="w-full h-12 rounded-control bg-white/10 border border-coconut/20 px-4 text-sm text-coconut placeholder:text-coconut/40 focus:outline-none focus:border-turquoise transition-colors"
-              />
-              <select
-                value={leadDest}
-                onChange={(e) => setLeadDest(e.target.value)}
-                className="w-full h-12 rounded-control bg-white/10 border border-coconut/20 px-4 text-sm text-coconut focus:outline-none focus:border-turquoise transition-colors"
-                style={{ colorScheme: 'dark' }}
-              >
-                <option value="" className="text-charcoal bg-coconut">
-                  {L('Destination prévue', 'Planned destination', 'Destino previsto')}
-                </option>
-                {destinations.map((d) => (
-                  <option key={d} value={d} className="text-charcoal bg-coconut">{d}</option>
-                ))}
-              </select>
-              <input
-                type="tel"
-                placeholder={L('WhatsApp (optionnel)', 'WhatsApp (optional)', 'WhatsApp (opcional)')}
-                value={leadWA}
-                onChange={(e) => setLeadWA(e.target.value)}
-                className="w-full h-12 rounded-control bg-white/10 border border-coconut/20 px-4 text-sm text-coconut placeholder:text-coconut/40 focus:outline-none focus:border-turquoise transition-colors"
-              />
-              <button
-                type="submit"
-                className="w-full h-12 rounded-control bg-coral text-coconut font-medium text-sm hover:bg-coral-light transition-colors shadow-sm"
-              >
-                {L('Me prévenir du lancement', 'Notify me at launch', 'Avisarme del lanzamiento')}
-              </button>
-              <p className="text-[11px] text-coconut/30">
-                {L('Pas de spam. Désabonnement en un clic.', 'No spam. Unsubscribe in one click.', 'Sin spam. Cancela con un clic.')}
-              </p>
+            <form onSubmit={handleLeadSubmit} className="mx-auto mt-6 max-w-2xl space-y-3">
+              <div className="flex flex-col gap-3 md:flex-row">
+                <input
+                  type="email"
+                  required
+                  aria-label="Email"
+                  placeholder={L('Votre email', 'Your email', 'Tu email')}
+                  value={leadEmail}
+                  onChange={(e) => setLeadEmail(e.target.value)}
+                  className="h-12 w-full min-w-0 flex-1 rounded-full border border-mist bg-coconut px-5 text-sm text-charcoal placeholder:text-stone focus:border-deep-green focus:outline-none"
+                />
+                <select
+                  value={leadDest}
+                  onChange={(e) => setLeadDest(e.target.value)}
+                  aria-label={L('Destination prévue', 'Planned destination', 'Destino previsto')}
+                  className="h-12 w-full rounded-full border border-mist bg-coconut px-5 text-sm text-charcoal focus:border-deep-green focus:outline-none md:w-60"
+                >
+                  <option value="">{L('Destination (optionnel)', 'Destination (optional)', 'Destino (opcional)')}</option>
+                  {destinations.map((d) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+                <button
+                  type="submit"
+                  disabled={leadBusy}
+                  className="h-12 rounded-full bg-deep-green px-7 text-sm font-medium text-coconut transition-colors hover:bg-coral disabled:opacity-60"
+                >
+                  {L('Je m\'inscris', 'Sign me up', 'Apuntarme')}
+                </button>
+              </div>
+              <label className="flex items-start justify-center gap-2.5 text-left text-xs text-charcoal/70">
+                <input
+                  type="checkbox"
+                  required
+                  checked={leadConsent}
+                  onChange={(e) => setLeadConsent(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 flex-none accent-deep-green"
+                />
+                <span>
+                  {L(
+                    'J\'accepte de recevoir les actualités Ohaana par email. Désabonnement en un clic.',
+                    'I agree to receive Ohaana news by email. Unsubscribe in one click.',
+                    'Acepto recibir las novedades de Ohaana por email. Cancela con un clic.'
+                  )}
+                </span>
+              </label>
+              {leadError && (
+                <p role="alert" className="text-xs text-coral-text">
+                  {L('Une erreur est survenue, réessayez dans un instant.', 'Something went wrong, please try again.', 'Ha ocurrido un error, inténtalo de nuevo.')}
+                </p>
+              )}
             </form>
           )}
         </div>

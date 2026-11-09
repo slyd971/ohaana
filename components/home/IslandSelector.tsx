@@ -61,9 +61,15 @@ export function IslandSelector({ value, onChange, variant = 'pill' }: IslandSele
             <button
               key={v}
               type="button"
-              onClick={() => { onChange(v); setOpen(false) }}
-              className={`w-full text-left px-4 py-3 text-sm transition-colors hover:bg-sand flex items-center justify-between ${
-                v === value ? 'text-deep-green font-medium bg-sand' : 'text-charcoal'
+              disabled={soon}
+              aria-disabled={soon}
+              onClick={() => { if (soon) return; onChange(v); setOpen(false) }}
+              className={`w-full text-left px-4 py-3 text-sm transition-colors flex items-center justify-between ${
+                soon
+                  ? 'cursor-not-allowed text-stone'
+                  : v === value
+                    ? 'text-deep-green font-medium bg-sand hover:bg-sand'
+                    : 'text-charcoal hover:bg-sand'
               }`}
             >
               {label[lang]}

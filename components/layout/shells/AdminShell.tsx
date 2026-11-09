@@ -20,6 +20,7 @@ const NAV = [
   { href: '/admin/users',        label: 'Utilisateurs',        Icon: Users2 },
   { href: '/admin/categories',   label: 'Catégories',          Icon: Tags },
   { href: '/admin/leads',        label: 'Leads',               Icon: Inbox },
+  { href: '/admin/demandes-concierge', label: 'Demandes concierge', Icon: Inbox },
   { href: '/admin/parametres',   label: 'Paramètres',          Icon: SlidersHorizontal },
   { href: '/admin/transactions', label: 'Transactions',        Icon: CreditCard },
   { href: '/admin/compliance',   label: 'Conformité',          Icon: ShieldCheck },

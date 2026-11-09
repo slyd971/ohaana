@@ -421,6 +421,20 @@ export async function setLeadStatusAction(leadId: string, status: (typeof LEAD_S
   return { ok: true }
 }
 
+export async function setConciergeRequestStatusAction(requestId: string, status: (typeof LEAD_STATUSES)[number]): Promise<ActionState> {
+  const a = await admin()
+  if ('error' in a) return { error: a.error }
+  if (!isUuid(requestId) || !LEAD_STATUSES.includes(status)) return { error: 'Paramètres invalides.' }
+
+  const { data, error } = await a.ctx.supabase.from('concierge_requests').update({ status }).eq('id', requestId).select('id').maybeSingle()
+  if (error) return { error: error.message }
+  if (!data) return { error: 'Demande introuvable.' }
+
+  await log(a.ctx, 'concierge_request.set_status', 'concierge_request', requestId, { status })
+  revalidatePath('/admin/demandes-concierge')
+  return { ok: true }
+}
+
 // ─── Remboursements ──────────────────────────────────────────────────────────
 
 /**
