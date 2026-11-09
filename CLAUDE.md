@@ -154,7 +154,8 @@ messages/
 
 - Ne jamais modifier `fr.json` — c'est la source de vérité
 - Ne jamais traduire les clés JSON, seulement les valeurs
-- Ne jamais inventer une traduction sans passer par l'API
+- Une traduction peut être produite directement par Claude, sans `translate.py` ni clé API, à condition de respecter les règles de traduction ci-dessus (registre premium et chaleureux, variables `{name}` / ICU et balises conservées, noms propres inchangés) et de la signaler comme brouillon à relire dans la PR. `translate.py` reste utilisable quand une clé API est disponible.
+- Les nouvelles clés sont ajoutées à `fr.json` quand une fonctionnalité en a besoin ; les valeurs existantes de `fr.json` ne sont jamais réécrites sans l'accord de l'équipe.
 
 ---
 

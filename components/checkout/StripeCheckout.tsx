@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo } from 'react'
+import { useLocale, useTranslations } from 'next-intl'
 import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js'
 import type { Appearance } from '@stripe/stripe-js'
 import { getStripePromise } from '@/lib/stripe/browser'
@@ -38,6 +39,7 @@ interface StripeCheckoutProps {
 }
 
 function PayForm({ returnUrl, registerPay, onSuccess, onError, onBusyChange }: Omit<StripeCheckoutProps, 'clientSecret' | 'stripeAccount'>) {
+  const t = useTranslations('checkout')
   const stripe = useStripe()
   const elements = useElements()
 
@@ -49,7 +51,7 @@ function PayForm({ returnUrl, registerPay, onSuccess, onError, onBusyChange }: O
       try {
         const submitted = await elements.submit()
         if (submitted.error) {
-          onError(submitted.error.message ?? 'Vérifiez les informations de paiement.')
+          onError(submitted.error.message ?? t('checkDetails'))
           return
         }
         const { error, paymentIntent } = await stripe.confirmPayment({
@@ -58,18 +60,18 @@ function PayForm({ returnUrl, registerPay, onSuccess, onError, onBusyChange }: O
           redirect: 'if_required', // cards finish inline; 3-D Secure / wallets redirect and come back to returnUrl
         })
         if (error) {
-          onError(error.message ?? 'Le paiement a échoué. Aucun montant n’a été débité.')
+          onError(error.message ?? t('failedNoCharge'))
         } else if (paymentIntent && ['succeeded', 'processing'].includes(paymentIntent.status)) {
           onSuccess()
         } else {
-          onError('Le paiement n’a pas pu être confirmé. Réessayez.')
+          onError(t('notConfirmed'))
         }
       } finally {
         onBusyChange(false)
       }
     })
     return () => registerPay(null)
-  }, [stripe, elements, returnUrl, registerPay, onSuccess, onError, onBusyChange])
+  }, [stripe, elements, returnUrl, registerPay, onSuccess, onError, onBusyChange, t])
 
   return (
     <PaymentElement
@@ -84,7 +86,9 @@ function PayForm({ returnUrl, registerPay, onSuccess, onError, onBusyChange }: O
 
 export function StripeCheckout({ clientSecret, stripeAccount, ...rest }: StripeCheckoutProps) {
   const stripePromise = getStripePromise(stripeAccount)
-  const options = useMemo(() => ({ clientSecret, appearance: APPEARANCE, locale: 'fr' as const }), [clientSecret])
+  const current = useLocale()
+  const stripeLocale = current === 'en' || current === 'es' ? current : 'fr'
+  const options = useMemo(() => ({ clientSecret, appearance: APPEARANCE, locale: stripeLocale as 'fr' | 'en' | 'es' }), [clientSecret, stripeLocale])
   if (!stripePromise) return null
   return (
     <Elements stripe={stripePromise} options={options}>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -17,13 +17,12 @@ import { isStripeAccountId } from '@/lib/stripe/direct-charge'
 import { useAuth } from '@/lib/auth/AuthProvider'
 import { DEMO_MODE } from '@/lib/demo-mode'
 import type { ServiceView, SlotView } from '@/lib/data/types'
-import { formatPrice, formatDuration, cn } from '@/lib/utils'
+import { cn } from '@/lib/utils'
+import { useFormat } from '@/hooks/useFormat'
 
 const isoOf = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 
-const MONTHS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre']
-const DAYS_FR   = ['L','M','M','J','V','S','D']
 
 function startOfDay(d: Date) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()) }
 function isSameDay(a: Date, b: Date) {
@@ -40,6 +39,8 @@ function getCalendarCells(year: number, month: number): (Date | null)[] {
 }
 
 function InlineCalendar({ selected, onChange, availableDates }: { selected: Date | null; onChange: (d: Date) => void; availableDates: Set<string> }) {
+  const fmt = useFormat()
+  const t = useTranslations('bookingFlow')
   const today = new Date()
   const init = selected ?? new Date(today.getTime() + 86400000)
   const [viewYear, setViewYear]   = useState(init.getFullYear())
@@ -61,14 +62,14 @@ function InlineCalendar({ selected, onChange, availableDates }: { selected: Date
     <div>
       {/* Month navigation */}
       <div className="flex items-center justify-between mb-3">
-        <button type="button" onClick={prevMonth}
+        <button type="button" onClick={prevMonth} aria-label={t('prevMonth')}
           className="p-2 rounded-control hover:bg-mist transition-colors text-stone hover:text-charcoal">
           <ChevronLeft size={18} />
         </button>
         <span className="text-sm font-semibold text-charcoal capitalize">
-          {MONTHS_FR[viewMonth]} {viewYear}
+          {fmt.month(viewMonth)} {viewYear}
         </span>
-        <button type="button" onClick={nextMonth}
+        <button type="button" onClick={nextMonth} aria-label={t('nextMonth')}
           className="p-2 rounded-control hover:bg-mist transition-colors text-stone hover:text-charcoal">
           <ChevronRight size={18} />
         </button>
@@ -76,7 +77,7 @@ function InlineCalendar({ selected, onChange, availableDates }: { selected: Date
 
       {/* Weekday headers */}
       <div className="grid grid-cols-7 mb-1">
-        {DAYS_FR.map((d, i) => (
+        {fmt.weekdayInitials().map((d, i) => (
           <div key={i} className="text-center text-xs font-medium text-stone py-1">{d}</div>
         ))}
       </div>
@@ -111,10 +112,6 @@ function InlineCalendar({ selected, onChange, availableDates }: { selected: Date
   )
 }
 
-function formatDateLong(d: Date) {
-  return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
-}
-
 // ─── Confirmation screen ────────────────────────────────────────────────────
 
 function ConfirmationScreen({
@@ -134,6 +131,8 @@ function ConfirmationScreen({
   total: number
   demo: boolean
 }) {
+  const t = useTranslations('bookingFlow')
+  const fmt = useFormat()
   const cover = service.images.find((i) => i.is_cover) ?? service.images[0]
   const svcTitle = title
 
@@ -152,11 +151,9 @@ function ConfirmationScreen({
         <CheckCircle2 size={40} className="text-deep-green" />
       </motion.div>
 
-      <h1 className="text-2xl font-display text-charcoal text-center mb-2">Réservation confirmée !</h1>
+      <h1 className="text-2xl font-display text-charcoal text-center mb-2">{t('confirmedTitle')}</h1>
       <p className="text-stone text-sm text-center max-w-xs mb-8">
-        {demo
-          ? 'Paiement de démonstration réussi (mode test Stripe) : aucune carte réelle n’a été débitée et aucun prestataire n’a été sollicité.'
-          : 'Un email de confirmation vous sera envoyé dans quelques minutes.'}
+        {demo ? t('demoConfirmed') : t('emailSoon')}
       </p>
 
       <div className="w-full max-w-sm bg-surface rounded-3xl border border-mist overflow-hidden mb-6">
@@ -169,30 +166,30 @@ function ConfirmationScreen({
         </div>
         <div className="p-4 space-y-2.5 text-sm">
           <div className="flex justify-between">
-            <span className="text-stone">Date</span>
-            <span className="text-charcoal font-medium capitalize">{formatDateLong(selectedDate)}</span>
+            <span className="text-stone">{t('date')}</span>
+            <span className="text-charcoal font-medium capitalize">{fmt.date(selectedDate, { weekday: 'long', day: 'numeric', month: 'long' })}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-stone">Heure</span>
+            <span className="text-stone">{t('time')}</span>
             <span className="text-charcoal">{selectedTime}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-stone">Participants</span>
-            <span className="text-charcoal">{guests} personne{guests > 1 ? 's' : ''}</span>
+            <span className="text-stone">{t('participants')}</span>
+            <span className="text-charcoal">{t('guestsCount', { count: guests })}</span>
           </div>
           <div className="flex justify-between font-semibold pt-2.5 border-t border-mist">
-            <span className="text-charcoal">Total payé</span>
-            <span className="text-charcoal">{formatPrice(total)}</span>
+            <span className="text-charcoal">{t('totalPaid')}</span>
+            <span className="text-charcoal">{fmt.price(total)}</span>
           </div>
         </div>
       </div>
 
       <div className="flex flex-col gap-2 w-full max-w-sm">
         <Link href="/voyages">
-          <Button fullWidth variant="primary">Voir mes réservations</Button>
+          <Button fullWidth variant="primary">{t('viewBookings')}</Button>
         </Link>
         <Link href="/">
-          <Button fullWidth variant="ghost">Retour à l&apos;accueil</Button>
+          <Button fullWidth variant="ghost">{t('backHome')}</Button>
         </Link>
       </div>
     </motion.div>
@@ -208,6 +205,8 @@ interface BookingClientProps {
 
 export function BookingClient({ service, slots }: BookingClientProps) {
   const locale = useLocale()
+  const t = useTranslations('bookingFlow')
+  const fmt = useFormat()
 
   const svcTitle = locale === 'es' ? service.title_es : locale === 'en' ? service.title_en : service.title_fr
 
@@ -285,20 +284,20 @@ export function BookingClient({ service, slots }: BookingClientProps) {
       const data = await res.json().catch(() => ({}))
       if (!res.ok || !data.clientSecret) {
         const messages: Record<string, string> = {
-          slot_unavailable: 'Ce créneau vient d’être pris. Choisissez-en un autre.',
-          auth_required: 'Connectez-vous pour finaliser votre réservation.',
-          payments_not_configured: 'Le paiement en ligne n’est pas encore disponible.',
-          invalid_guests: 'Le nombre de participants n’est pas valide pour ce service.',
-          provider_not_ready: 'Ce prestataire ne peut pas encore encaisser de réservation en ligne. Contactez-nous ou choisissez un autre service.',
+          slot_unavailable: t('errSlotTaken'),
+          auth_required: t('errAuth'),
+          payments_not_configured: t('errNotConfigured'),
+          invalid_guests: t('errGuests'),
+          provider_not_ready: t('errProviderNotReady'),
         }
-        setPayError(messages[data.error as string] ?? 'Impossible de préparer le paiement. Réessayez dans un instant.')
+        setPayError(messages[data.error as string] ?? t('errGeneric'))
         setShowPayment(data.error !== 'slot_unavailable')
         return
       }
       setStripeAccount(typeof data.stripeAccount === 'string' ? data.stripeAccount : null)
       setClientSecret(data.clientSecret as string)
     } catch {
-      setPayError('Connexion impossible. Vérifiez votre réseau et réessayez.')
+      setPayError(t('errNetwork'))
     } finally {
       setIntentLoading(false)
     }
@@ -315,10 +314,10 @@ export function BookingClient({ service, slots }: BookingClientProps) {
       if (!active || !result) return
       const status = result.paymentIntent?.status
       if (status === 'succeeded' || status === 'processing') setConfirmed(true)
-      else setPayError('Le paiement n’a pas abouti. Aucun montant n’a été débité.')
+      else setPayError(t('errNotCompleted'))
     })
     return () => { active = false }
-  }, [returnedSecret, returnedAccount])
+  }, [returnedSecret, returnedAccount, t])
 
   if (confirmed) {
     return (
@@ -382,12 +381,12 @@ export function BookingClient({ service, slots }: BookingClientProps) {
                 {service.duration_min && (
                   <span className="flex items-center gap-1">
                     <Clock size={10} />
-                    {formatDuration(service.duration_min)}
+                    {fmt.duration(service.duration_min)}
                   </span>
                 )}
                 <span className="flex items-center gap-1">
                   <Users size={10} />
-                  {service.capacity_min}–{service.capacity_max} pers.
+                  {t('capacity', { min: service.capacity_min, max: service.capacity_max })}
                 </span>
               </div>
             </div>
@@ -397,11 +396,11 @@ export function BookingClient({ service, slots }: BookingClientProps) {
           <div className="flex flex-wrap gap-2 mt-3">
             <span className="flex items-center gap-1.5 text-xs text-deep-green font-medium bg-deep-green/8 rounded-full px-3 py-1">
               <ShieldCheck size={12} />
-              Annulation gratuite
+              {t('freeCancellation')}
             </span>
             <span className="flex items-center gap-1.5 text-xs text-charcoal bg-mist/60 rounded-full px-3 py-1">
               <Lock size={12} />
-              Paiement sécurisé
+              {t('securePayment')}
             </span>
           </div>
         </div>
@@ -415,10 +414,10 @@ export function BookingClient({ service, slots }: BookingClientProps) {
                 <CheckCircle2 size={18} className="text-deep-green" />
               </div>
               <div>
-                <p className="text-xs text-stone">Créneau sélectionné</p>
+                <p className="text-xs text-stone">{t('slotSelected')}</p>
                 <p className="text-sm font-semibold text-charcoal">
                   {selectedDate
-                    ? selectedDate.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })
+                    ? fmt.date(selectedDate, { weekday: 'short', day: 'numeric', month: 'short' })
                     : ''} · {selectedTime}
                 </p>
               </div>
@@ -428,14 +427,14 @@ export function BookingClient({ service, slots }: BookingClientProps) {
               onClick={() => { setEditingSlot(true); invalidatePayment() }}
               className="text-xs text-deep-green font-medium underline underline-offset-2 flex-none"
             >
-              Modifier
+              {t('edit')}
             </button>
           </div>
         ) : (
           /* Sélecteurs complets */
           <>
             <div className="px-4 py-5 border-b border-mist">
-              <h2 className="text-base font-semibold text-charcoal mb-4">Sélectionnez une date</h2>
+              <h2 className="text-base font-semibold text-charcoal mb-4">{t('selectDate')}</h2>
               <InlineCalendar
                 selected={selectedDate}
                 onChange={(d) => {
@@ -457,7 +456,7 @@ export function BookingClient({ service, slots }: BookingClientProps) {
                   transition={{ duration: 0.2 }}
                   className="border-b border-mist px-4 py-5"
                 >
-                  <h2 className="text-base font-semibold text-charcoal mb-3">Choisissez un créneau</h2>
+                  <h2 className="text-base font-semibold text-charcoal mb-3">{t('chooseSlot')}</h2>
                   <div className="grid grid-cols-3 gap-2">
                     {times.map((t) => (
                       <button
@@ -487,11 +486,11 @@ export function BookingClient({ service, slots }: BookingClientProps) {
 
         {/* ── Participants ──────────────────────────────────── */}
         <div className="px-4 py-5 border-b border-mist">
-          <h2 className="text-base font-semibold text-charcoal mb-4">Participants</h2>
+          <h2 className="text-base font-semibold text-charcoal mb-4">{t('participants')}</h2>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-charcoal">Adultes</p>
-              <p className="text-xs text-stone">{formatPrice(service.price_cents)} par personne</p>
+              <p className="text-sm font-medium text-charcoal">{t('adults')}</p>
+              <p className="text-xs text-stone">{t('perPerson', { price: fmt.price(service.price_cents) })}</p>
             </div>
             <div className="flex items-center gap-4">
               <button
@@ -514,24 +513,21 @@ export function BookingClient({ service, slots }: BookingClientProps) {
             </div>
           </div>
           <p className="text-xs text-stone mt-2">
-            Minimum {service.capacity_min} · Maximum {service.capacity_max} personnes
+            {t('minMax', { min: service.capacity_min, max: service.capacity_max })}
           </p>
         </div>
 
         {/* ── Price breakdown ───────────────────────────────── */}
         <div className="px-4 py-5 border-b border-mist">
-          <h2 className="text-base font-semibold text-charcoal mb-3">Détail du prix</h2>
+          <h2 className="text-base font-semibold text-charcoal mb-3">{t('priceDetail')}</h2>
           <div className="space-y-2.5 text-sm">
             <div className="flex justify-between text-charcoal-soft">
-              <span>
-                {formatPrice(service.price_cents)} × {guests}{' '}
-                {guests > 1 ? 'personnes' : 'personne'}
-              </span>
-              <span>{formatPrice(total)}</span>
+              <span>{t('priceLine', { price: fmt.price(service.price_cents), count: guests })}</span>
+              <span>{fmt.price(total)}</span>
             </div>
             <div className="flex justify-between font-semibold text-charcoal pt-2.5 border-t border-mist text-base">
-              <span>Total</span>
-              <span>{formatPrice(total)}</span>
+              <span>{t('total')}</span>
+              <span>{fmt.price(total)}</span>
             </div>
           </div>
         </div>
@@ -541,9 +537,9 @@ export function BookingClient({ service, slots }: BookingClientProps) {
           <div className="flex items-start gap-2.5">
             <ShieldCheck size={15} className="text-deep-green flex-none mt-0.5" />
             <div>
-              <p className="text-sm font-medium text-charcoal">Annulation gratuite</p>
+              <p className="text-sm font-medium text-charcoal">{t('freeCancellation')}</p>
               <p className="text-xs text-stone mt-0.5">
-                Remboursement complet jusqu&apos;à 24h avant la prestation.
+                {t('cancellationRefund')}
               </p>
             </div>
           </div>
@@ -556,7 +552,7 @@ export function BookingClient({ service, slots }: BookingClientProps) {
             onClick={() => setNotesOpen((v) => !v)}
             className="w-full flex items-center justify-between text-sm font-medium text-charcoal"
           >
-            <span>Demandes spéciales <span className="text-stone font-normal">(optionnel)</span></span>
+            <span>{t('specialRequests')} <span className="text-stone font-normal">{t('optional')}</span></span>
             {notesOpen ? (
               <ChevronUp size={16} className="text-stone" />
             ) : (
@@ -567,7 +563,7 @@ export function BookingClient({ service, slots }: BookingClientProps) {
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Allergies, préférences, occasion particulière…"
+              placeholder={t('notesPlaceholder')}
               rows={3}
               className="w-full mt-3 rounded-control border border-mist bg-surface px-4 py-3 text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green resize-none"
             />
@@ -585,36 +581,36 @@ export function BookingClient({ service, slots }: BookingClientProps) {
               transition={{ duration: 0.25 }}
             >
               <div className="px-4 py-5">
-                <h2 className="text-base font-semibold text-charcoal mb-4">Paiement sécurisé</h2>
+                <h2 className="text-base font-semibold text-charcoal mb-4">{t('securePayment')}</h2>
 
                 {DEMO_MODE && (
                   <p className="mb-4 rounded-control border border-star/40 bg-star/10 px-3.5 py-2.5 text-xs leading-relaxed text-charcoal">
-                    <strong>Version de démonstration.</strong> Le paiement se fait en mode test Stripe : aucun prestataire n’est sollicité et aucune carte réelle n’est débitée.
+                    {t.rich('demoNotice', { b: (c) => <strong>{c}</strong> })}
                   </p>
                 )}
                 {STRIPE_TEST_MODE && (
                   <div className="mb-4 rounded-control border border-mist bg-sand px-3.5 py-3 text-xs leading-relaxed text-charcoal-soft">
-                    <p className="font-semibold text-charcoal">Carte de test</p>
+                    <p className="font-semibold text-charcoal">{t('testCard')}</p>
                     <p className="mt-1">
-                      <span className="font-mono">4242 4242 4242 4242</span> · date future · CVC au choix · code postal au choix.
+                      {t.rich('testCardLine', { card: () => <span className="font-mono">4242 4242 4242 4242</span> })}
                     </p>
-                    <p className="mt-0.5">Avec authentification 3-D Secure : <span className="font-mono">4000 0027 6000 3184</span>.</p>
+                    <p className="mt-0.5">{t.rich('test3ds', { card: () => <span className="font-mono">4000 0027 6000 3184</span> })}</p>
                   </div>
                 )}
 
                 {!STRIPE_CONFIGURED ? (
                   <p role="status" className="rounded-control border border-mist bg-sand p-4 text-sm text-stone">
-                    Le paiement en ligne sera disponible très bientôt. Contactez notre concierge pour réserver dès maintenant.
+                    {t('paymentSoon')}
                   </p>
                 ) : !DEMO_MODE && !authLoading && !isLoggedIn ? (
                   <div className="rounded-control border border-mist bg-sand p-4 space-y-3">
-                    <p className="text-sm text-charcoal">Connectez-vous pour finaliser votre réservation. Votre sélection sera conservée.</p>
+                    <p className="text-sm text-charcoal">{t('loginToFinish')}</p>
                     <Link href={`/login?redirectTo=${encodeURIComponent(typeof window === 'undefined' ? '/' : window.location.pathname + window.location.search)}`}>
-                      <Button fullWidth variant="primary">Se connecter</Button>
+                      <Button fullWidth variant="primary">{t('signIn')}</Button>
                     </Link>
                   </div>
                 ) : intentLoading || !clientSecret ? (
-                  <div className="space-y-3" aria-busy="true" role="status" aria-label="Préparation du paiement">
+                  <div className="space-y-3" aria-busy="true" role="status" aria-label={t('preparing')}>
                     <div className="h-12 animate-pulse rounded-control bg-mist/70" />
                     <div className="h-12 animate-pulse rounded-control bg-mist/70" />
                     <div className="grid grid-cols-2 gap-3">
@@ -637,9 +633,9 @@ export function BookingClient({ service, slots }: BookingClientProps) {
                 {payError && <p role="alert" className="mt-3 text-sm text-coral-text">{payError}</p>}
 
                 <ul className="mt-5 space-y-1.5 text-xs text-stone">
-                  <li className="flex items-center gap-2"><Lock size={12} className="flex-none text-deep-green" /> Paiement chiffré et traité par Stripe — Ohaana ne voit ni ne stocke votre carte.</li>
-                  <li className="flex items-center gap-2"><ShieldCheck size={12} className="flex-none text-deep-green" /> Apple Pay, Google Pay et cartes bancaires (3-D Secure), selon votre appareil.</li>
-                  <li className="flex items-center gap-2"><Info size={12} className="flex-none text-deep-green" /> Montant débité à la validation, remboursement selon la politique d’annulation.</li>
+                  <li className="flex items-center gap-2"><Lock size={12} className="flex-none text-deep-green" /> {t('trustEncrypted')}</li>
+                  <li className="flex items-center gap-2"><ShieldCheck size={12} className="flex-none text-deep-green" /> {t('trustMethods')}</li>
+                  <li className="flex items-center gap-2"><Info size={12} className="flex-none text-deep-green" /> {t('trustRefund')}</li>
                 </ul>
               </div>
             </motion.div>
@@ -655,18 +651,18 @@ export function BookingClient({ service, slots }: BookingClientProps) {
             {canBook ? (
               <>
                 <p className="text-base font-semibold text-charcoal leading-tight">
-                  {formatPrice(total)}
+                  {fmt.price(total)}
                 </p>
                 <p className="text-[11px] text-stone">
-                  {guests} pers. · {selectedTime}
+                  {t('guestsShort', { count: guests })} · {selectedTime}
                 </p>
               </>
             ) : (
               <>
-                <p className="text-[11px] text-stone">À partir de</p>
+                <p className="text-[11px] text-stone">{t('from')}</p>
                 <p className="text-base font-semibold text-charcoal leading-tight">
-                  {formatPrice(service.price_cents)}
-                  <span className="text-xs font-normal text-stone"> / pers.</span>
+                  {fmt.price(service.price_cents)}
+                  <span className="text-xs font-normal text-stone"> {t('perPersonShort')}</span>
                 </p>
               </>
             )}
@@ -682,7 +678,7 @@ export function BookingClient({ service, slots }: BookingClientProps) {
                 disabled={!canBook}
                 onClick={() => void startPayment()}
               >
-                {canBook ? 'Réserver' : 'Sélectionnez une date'}
+                {canBook ? t('book') : t('pickDate')}
               </Button>
             ) : (
               <Button
@@ -693,7 +689,7 @@ export function BookingClient({ service, slots }: BookingClientProps) {
                 disabled={!clientSecret || intentLoading}
                 onClick={() => void payRef.current?.()}
               >
-                Payer {formatPrice(total)}
+                {t('pay', { price: fmt.price(total) })}
               </Button>
             )}
           </div>

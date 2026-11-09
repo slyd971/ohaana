@@ -3,13 +3,11 @@
 import { useState, useRef, useEffect, useSyncExternalStore } from 'react'
 import { createPortal } from 'react-dom'
 import { ChevronLeft, ChevronRight, CalendarDays, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
+import { useFormat } from '@/hooks/useFormat'
+import { formatDateIn, type Lang } from '@/lib/i18n/format'
 
-const MONTHS_FR = [
-  'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-  'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
-]
-const DAYS_FR = ['L', 'M', 'M', 'J', 'V', 'S', 'D']
 
 function startOfDay(d: Date) {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate())
@@ -29,12 +27,12 @@ function isPast(d: Date) {
   return startOfDay(d) < startOfDay(new Date())
 }
 
-function formatRange(start: Date | null, end: Date | null): string {
+function formatRange(lang: Lang, start: Date | null, end: Date | null): string {
   if (!start) return ''
   const opts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' }
-  const s = start.toLocaleDateString('fr-FR', opts)
+  const s = formatDateIn(lang, start, opts)
   if (!end || isSameDay(start, end)) return s
-  const e = end.toLocaleDateString('fr-FR', opts)
+  const e = formatDateIn(lang, end, opts)
   return `${s} – ${e}`
 }
 
@@ -83,6 +81,8 @@ function CalendarGrid({
   prevMonth: () => void
   nextMonth: () => void
 }) {
+  const t = useTranslations('datePicker')
+  const fmt = useFormat()
   const days = getCalendarDays(viewYear, viewMonth)
 
   function isInRange(day: Date): boolean {
@@ -105,16 +105,18 @@ function CalendarGrid({
         <button
           type="button"
           onClick={prevMonth}
+          aria-label={t('prevMonth')}
           className="p-1.5 rounded-lg hover:bg-mist transition-colors text-stone hover:text-charcoal"
         >
           <ChevronLeft size={16} />
         </button>
         <span className="text-sm font-semibold text-charcoal capitalize">
-          {MONTHS_FR[viewMonth]} {viewYear}
+          {fmt.month(viewMonth)} {viewYear}
         </span>
         <button
           type="button"
           onClick={nextMonth}
+          aria-label={t('nextMonth')}
           className="p-1.5 rounded-lg hover:bg-mist transition-colors text-stone hover:text-charcoal"
         >
           <ChevronRight size={16} />
@@ -123,7 +125,7 @@ function CalendarGrid({
 
       {/* Weekday headers */}
       <div className="grid grid-cols-7 mb-1">
-        {DAYS_FR.map((d, i) => (
+        {fmt.weekdayInitials().map((d, i) => (
           <div key={i} className="text-center text-xs font-medium text-stone py-1">{d}</div>
         ))}
       </div>
@@ -175,10 +177,10 @@ function CalendarGrid({
       {/* Status hint */}
       <p className="text-[11px] text-stone text-center mt-3">
         {!startDate
-          ? 'Sélectionnez une date d\'arrivée'
+          ? t('selectArrival')
           : !endDate
-          ? 'Sélectionnez une date de départ'
-          : `${nightCount} nuit${nightCount > 1 ? 's' : ''}`
+          ? t('selectDeparture')
+          : t('nights', { count: nightCount })
         }
       </p>
     </div>
@@ -200,10 +202,12 @@ export function DateRangePicker({
   startDate,
   endDate,
   onChange,
-  placeholder = 'Dates de séjour',
+  placeholder,
   className,
   bare = false,
 }: DateRangePickerProps) {
+  const t = useTranslations('datePicker')
+  const fmt = useFormat()
   const today = new Date()
   const [open, setOpen] = useState(false)
   const [viewMonth, setViewMonth] = useState(today.getMonth())
@@ -268,7 +272,7 @@ export function DateRangePicker({
     onChange(null, null)
   }
 
-  const displayValue = formatRange(startDate, endDate)
+  const displayValue = formatRange(fmt.lang, startDate, endDate)
 
   const trigger = (
     <button
@@ -286,7 +290,7 @@ export function DateRangePicker({
       )}
     >
       {!bare && <CalendarDays size={14} className="text-deep-green flex-none" />}
-      <span className="flex-1 truncate">{displayValue || placeholder}</span>
+      <span className="flex-1 truncate">{displayValue || placeholder || t('placeholder')}</span>
       {displayValue && (
         <span
           role="button"
@@ -320,10 +324,11 @@ export function DateRangePicker({
 
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3 border-b border-mist">
-          <h2 className="font-semibold text-charcoal text-base">Sélectionnez vos dates</h2>
+          <h2 className="font-semibold text-charcoal text-base">{t('selectDates')}</h2>
           <button
             type="button"
             onClick={() => setOpen(false)}
+            aria-label={t('close')}
             className="p-2 rounded-full hover:bg-mist transition-colors text-stone"
           >
             <X size={18} />

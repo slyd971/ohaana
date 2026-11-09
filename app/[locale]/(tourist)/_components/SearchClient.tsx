@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { Button } from '@/components/ui/Button'
 import { motion } from 'framer-motion'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Search, SlidersHorizontal, X, MapPin } from 'lucide-react'
 import { ServiceCard } from '@/components/service/ServiceCard'
 import { CATEGORY_ICONS } from '@/lib/data/category-icons'
@@ -23,7 +23,7 @@ interface SearchClientProps {
 
 export function SearchClient({ state, categories, result }: SearchClientProps) {
   const locale = useLocale()
-  const L = (fr: string, en: string, es: string) => locale === 'en' ? en : locale === 'es' ? es : fr
+  const t = useTranslations('searchPage')
   const lang = locale === 'en' ? 'en' : locale === 'es' ? 'es' : 'fr'
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -65,7 +65,7 @@ export function SearchClient({ state, categories, result }: SearchClientProps) {
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={L('Trouver un chef, un massage ou une expérience', 'Find a chef, massage, or experience', 'Buscar un chef, masaje o experiencia')}
+              placeholder={t('searchPlaceholder')}
               className="w-full h-11 pl-9 pr-4 bg-surface border border-mist rounded-control text-sm text-charcoal placeholder:text-stone focus:outline-none focus:border-deep-green focus:ring-2 focus:ring-deep-green/15"
             />
             {query && (
@@ -96,7 +96,7 @@ export function SearchClient({ state, categories, result }: SearchClientProps) {
               !categoryId ? 'bg-deep-green text-coconut border-deep-green' : 'bg-surface border-mist text-stone hover:border-deep-green'
             )}
           >
-            {L('Tout', 'All', 'Todo')}
+            {t('all')}
           </button>
           {categories.map((cat) => (
             <button
@@ -143,9 +143,9 @@ export function SearchClient({ state, categories, result }: SearchClientProps) {
           </div>
 
           <div>
-            <p className="text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">{L('Île', 'Island', 'Isla')}</p>
+            <p className="text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">{t('island')}</p>
             <div className="flex flex-wrap gap-2">
-              {[{ value: '' as const, label: L('Toutes', 'All', 'Todas') }, ...SEARCH_ISLANDS].map(({ value, label }) => (
+              {[{ value: '' as const, label: t('allIslands') }, ...SEARCH_ISLANDS].map(({ value, label }) => (
                 <button
                   key={value || 'all'}
                   type="button"
@@ -163,13 +163,13 @@ export function SearchClient({ state, categories, result }: SearchClientProps) {
 
           <div>
             <p className="text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">
-              {L('Trier par', 'Sort by', 'Ordenar por')}
+              {t('sortBy')}
             </p>
             <div className="flex flex-wrap gap-2">
               {([
-                { key: 'popular', label: L('Popularité', 'Popularity', 'Popularidad') },
-                { key: 'price_asc', label: L('Prix ↑', 'Price ↑', 'Precio ↑') },
-                { key: 'price_desc', label: L('Prix ↓', 'Price ↓', 'Precio ↓') },
+                { key: 'popular', label: t('popularity') },
+                { key: 'price_asc', label: t('priceAsc') },
+                { key: 'price_desc', label: t('priceDesc') },
               ] as { key: SortKey; label: string }[]).map(({ key, label }) => (
                 <button
                   key={key}
@@ -202,15 +202,15 @@ export function SearchClient({ state, categories, result }: SearchClientProps) {
           </p>
           <Button variant="link" size="bare" type="button" className="text-xs flex-none">
             <MapPin size={13} />
-            <span className="hidden sm:inline">{L('Voir sur carte', 'View on map', 'Ver en mapa')}</span>
+            <span className="hidden sm:inline">{t('viewOnMap')}</span>
           </Button>
         </div>
 
         {results.length === 0 ? (
           <div className="text-center py-16 space-y-3">
             <p className="text-4xl">🌴</p>
-            <p className="text-charcoal font-medium">{L('Aucune expérience trouvée', 'No experiences found', 'Ninguna experiencia encontrada')}</p>
-            <p className="text-sm text-stone">{L('Essayez d\'autres filtres ou mots-clés', 'Try different filters or keywords', 'Prueba otros filtros o palabras clave')}</p>
+            <p className="text-charcoal font-medium">{t('noResultsTitle')}</p>
+            <p className="text-sm text-stone">{t('noResultsHint')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 xl:gap-5">
@@ -237,13 +237,13 @@ export function SearchClient({ state, categories, result }: SearchClientProps) {
           <nav className="mt-8 flex items-center justify-center gap-3 text-sm" aria-label="Pagination">
             {state.page > 1 ? (
               <Link href={`/search${toQueryString({ ...state, page: state.page - 1 })}`} rel="prev" className="px-4 py-2 rounded-full border border-mist bg-surface text-charcoal hover:border-deep-green">
-                ← {L('Précédent', 'Previous', 'Anterior')}
+                ← {t('previous')}
               </Link>
             ) : <span />}
             <span className="text-stone">{state.page} / {totalPages}</span>
             {state.page < totalPages ? (
               <Link href={`/search${toQueryString({ ...state, page: state.page + 1 })}`} rel="next" className="px-4 py-2 rounded-full border border-mist bg-surface text-charcoal hover:border-deep-green">
-                {L('Suivant', 'Next', 'Siguiente')} →
+                {t('next')} →
               </Link>
             ) : <span />}
           </nav>

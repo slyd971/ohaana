@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { setDemoRole, type DemoRole } from '@/lib/demo-auth'
 import { useDemoRole } from '@/hooks/useDemoRole'
@@ -9,6 +10,7 @@ import { User, Briefcase, Handshake, LogOut, ChevronUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function DemoBadge() {
+  const t = useTranslations('demoBadge')
   const role = useDemoRole()
   const [open, setOpen] = useState(false)
   const router = useRouter()
@@ -34,7 +36,7 @@ export function DemoBadge() {
       {/* Menu */}
       {open && (
         <div className="mb-2 bg-charcoal rounded-card overflow-hidden shadow-elevated border border-white/10 min-w-[200px]">
-          <p className="text-xs text-coconut/40 uppercase tracking-widest px-4 pt-3 pb-1">Mode démo</p>
+          <p className="text-xs text-coconut/40 uppercase tracking-widest px-4 pt-3 pb-1">{t('title')}</p>
 
           <button
             onClick={() => switchTo('client')}
@@ -79,7 +81,7 @@ export function DemoBadge() {
             className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-coral/80 hover:text-coral transition-colors hover:bg-white/10"
           >
             <LogOut size={15} />
-            Quitter le mode démo
+            {t('exit')}
           </button>
 
           <div className="pb-2" />
