@@ -11,7 +11,7 @@ import { DateRangePicker } from '@/components/ui/DateRangePicker'
 const COPY = {
   fr: {
     eyebrow: 'Guadeloupe · Martinique · Saint-Martin',
-    title: 'Ce soir, le chef vient chez vous.',
+    title: 'Vos plus belles expériences aux Antilles, sans bouger de chez vous.',
     subtitle: 'Massage, chef créole, photographe ou DJ : les meilleurs prestataires des Antilles, réservés en quelques clics.',
     where: 'Où',
     when: 'Quand',
