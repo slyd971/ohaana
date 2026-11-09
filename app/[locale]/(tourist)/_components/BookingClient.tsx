@@ -206,6 +206,8 @@ interface BookingClientProps {
 export function BookingClient({ service, slots }: BookingClientProps) {
   const locale = useLocale()
   const t = useTranslations('bookingFlow')
+  const ts = useTranslations('service')
+  const tb = useTranslations('booking')
   const fmt = useFormat()
 
   const svcTitle = locale === 'es' ? service.title_es : locale === 'en' ? service.title_en : service.title_fr
@@ -338,15 +340,16 @@ export function BookingClient({ service, slots }: BookingClientProps) {
       {/* Sticky header */}
       <div className="sticky top-0 z-40 bg-coconut/95 backdrop-blur-md border-b border-mist">
         <div className="max-w-2xl mx-auto px-4 min-h-14 py-2 flex items-center gap-3">
-          <Link href={`/prestataires/${service.id}`} className="p-1.5 -ml-1 text-charcoal flex-none">
+          <Link href={`/prestataires/${service.id}`} aria-label={t('backToService')} className="flex h-11 w-11 -ml-2 items-center justify-center text-charcoal flex-none">
             <ChevronLeft size={22} />
           </Link>
           <p className="flex-1 text-sm font-semibold text-charcoal line-clamp-2 leading-tight">{svcTitle}</p>
           <button
             type="button"
             onClick={() => setIsFav(v => !v)}
-            aria-label="Ajouter aux favoris"
-            className="p-1.5 -mr-1 flex-none transition-colors"
+            aria-label={isFav ? ts('removeFavorite') : ts('addFavorite')}
+            aria-pressed={isFav}
+            className="flex h-11 w-11 -mr-2 items-center justify-center flex-none transition-colors"
           >
             <Heart
               size={20}
@@ -355,6 +358,30 @@ export function BookingClient({ service, slots }: BookingClientProps) {
           </button>
         </div>
       </div>
+
+      {/* Progression : date, heure, participants, paiement */}
+      <nav aria-label={t('progressLabel')} className="max-w-2xl mx-auto px-4 pt-3">
+        <ol className="flex items-center gap-2">
+          {(['date', 'time', 'details', 'payment'] as const).map((step, i) => {
+            const current = !selectedDate ? 0 : !selectedTime ? 1 : !showPayment ? 2 : 3
+            const done = i < current
+            return (
+              <li key={step} className="flex flex-1 items-center gap-2" aria-current={i === current ? 'step' : undefined}>
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    'flex h-6 w-6 flex-none items-center justify-center rounded-full text-xs font-semibold',
+                    done ? 'bg-deep-green text-coconut' : i === current ? 'border-2 border-deep-green text-deep-green' : 'border border-mist text-stone',
+                  )}
+                >
+                  {done ? <CheckCircle2 size={14} /> : i + 1}
+                </span>
+                <span className={cn('truncate text-xs', i === current ? 'font-semibold text-charcoal' : 'text-stone')}>{tb(`steps.${step}`)}</span>
+              </li>
+            )
+          })}
+        </ol>
+      </nav>
 
       {/* Scrollable content — padded for sticky bottom bar + bottom nav */}
       <div className="max-w-2xl mx-auto pb-40">
@@ -394,10 +421,12 @@ export function BookingClient({ service, slots }: BookingClientProps) {
 
           {/* Trust badges */}
           <div className="flex flex-wrap gap-2 mt-3">
-            <span className="flex items-center gap-1.5 text-xs text-deep-green font-medium bg-deep-green/8 rounded-full px-3 py-1">
-              <ShieldCheck size={12} />
-              {t('freeCancellation')}
-            </span>
+            {service.free_cancellation_hours && (
+              <span className="flex items-center gap-1.5 text-xs text-deep-green font-medium bg-deep-green/8 rounded-full px-3 py-1">
+                <ShieldCheck size={12} />
+                {t('freeCancellationUntil', { hours: service.free_cancellation_hours })}
+              </span>
+            )}
             <span className="flex items-center gap-1.5 text-xs text-charcoal bg-mist/60 rounded-full px-3 py-1">
               <Lock size={12} />
               {t('securePayment')}
@@ -537,9 +566,11 @@ export function BookingClient({ service, slots }: BookingClientProps) {
           <div className="flex items-start gap-2.5">
             <ShieldCheck size={15} className="text-deep-green flex-none mt-0.5" />
             <div>
-              <p className="text-sm font-medium text-charcoal">{t('freeCancellation')}</p>
+              <p className="text-sm font-medium text-charcoal">
+                {service.free_cancellation_hours ? t('freeCancellationUntil', { hours: service.free_cancellation_hours }) : t('cancellationTitle')}
+              </p>
               <p className="text-xs text-stone mt-0.5">
-                {t('cancellationRefund')}
+                {service.free_cancellation_hours ? t('cancellationRefund', { hours: service.free_cancellation_hours }) : t('cancellationGeneric')}
               </p>
             </div>
           </div>
@@ -592,9 +623,9 @@ export function BookingClient({ service, slots }: BookingClientProps) {
                   <div className="mb-4 rounded-control border border-mist bg-sand px-3.5 py-3 text-xs leading-relaxed text-charcoal-soft">
                     <p className="font-semibold text-charcoal">{t('testCard')}</p>
                     <p className="mt-1">
-                      {t.rich('testCardLine', { card: () => <span className="font-mono">4242 4242 4242 4242</span> })}
+                      {t.rich('testCardLine', { num: '4242 4242 4242 4242', mono: (c) => <span className="font-mono">{c}</span> })}
                     </p>
-                    <p className="mt-0.5">{t.rich('test3ds', { card: () => <span className="font-mono">4000 0027 6000 3184</span> })}</p>
+                    <p className="mt-0.5">{t.rich('test3ds', { num: '4000 0027 6000 3184', mono: (c) => <span className="font-mono">{c}</span> })}</p>
                   </div>
                 )}
 

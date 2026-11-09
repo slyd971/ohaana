@@ -277,7 +277,7 @@ function ClientSpace() {
       <aside className={cn('fixed inset-y-0 left-0 z-40 w-60 bg-deep-green flex flex-col transition-transform duration-300', 'md:translate-x-0 md:static', sidebarOpen ? 'translate-x-0' : '-translate-x-full')}>
         <div className="px-5 py-5 border-b border-coconut/10">
           <OhaanaLogo variant="light" size="sm" />
-          <p className="text-coconut/40 text-[11px] mt-1 uppercase tracking-widest">{t('travellerSpace')}</p>
+          <p className="text-coconut/70 text-xs mt-1 uppercase tracking-widest">{t('travellerSpace')}</p>
         </div>
         <div className="px-5 py-4 border-b border-coconut/10 flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-turquoise/30 flex items-center justify-center shrink-0">

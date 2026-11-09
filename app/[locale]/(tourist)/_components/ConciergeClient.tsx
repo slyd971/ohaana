@@ -138,7 +138,7 @@ export function ConciergeClient({ recommendations }: ConciergeClientProps) {
       <div className="mx-auto max-w-6xl px-5 pb-24 pt-10 md:px-8 md:pt-16">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mx-auto mb-10 max-w-2xl text-center md:mb-14"
         >
@@ -147,10 +147,10 @@ export function ConciergeClient({ recommendations }: ConciergeClientProps) {
           <p className="mx-auto mt-4 max-w-xl text-base text-charcoal/70 md:text-lg">{c('subtitle')}</p>
         </motion.div>
 
-        <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-12">
           {/* Request form */}
           <motion.form
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
             onSubmit={handleSubmit}
@@ -213,7 +213,7 @@ export function ConciergeClient({ recommendations }: ConciergeClientProps) {
                 autoComplete="email"
                 className={`${field} h-12`}
               />
-              <span className="mt-1.5 block text-xs text-charcoal/60">{c('privacy')}</span>
+              <span className="mt-1.5 block text-xs text-charcoal-soft">{c('privacy')}</span>
             </label>
 
             <div>
@@ -255,7 +255,7 @@ export function ConciergeClient({ recommendations }: ConciergeClientProps) {
 
           {/* Side column */}
           <div className="space-y-8 lg:col-span-5">
-            <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+            <motion.section initial={{ y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="font-display text-xl text-deep-green">{c('popular')}</h2>
                 <Link href="/search" className="flex min-h-11 items-center gap-0.5 text-sm font-medium text-deep-green">
@@ -287,7 +287,7 @@ export function ConciergeClient({ recommendations }: ConciergeClientProps) {
               </div>
             </motion.section>
 
-            <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+            <motion.section initial={false} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
               <h2 className="mb-4 font-display text-xl text-deep-green">{c('how')}</h2>
               <ol className="space-y-4">
                 {steps.map(([t, d], i) => (

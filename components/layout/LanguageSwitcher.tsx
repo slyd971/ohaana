@@ -31,6 +31,7 @@ export function LanguageSwitcher({ variant = 'header', className }: LanguageSwit
   if (variant === 'footer') {
     return (
       <select
+        aria-label="Language / Langue / Idioma"
         value={locale}
         onChange={(e) => switchLocale(e.target.value)}
         className={cn(

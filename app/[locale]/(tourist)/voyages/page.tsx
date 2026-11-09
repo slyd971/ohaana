@@ -57,7 +57,7 @@ function CarnetView({ bookings, onCancel }: { bookings: BookingItem[]; onCancel:
       <div className="rounded-card p-5 space-y-4" style={{ background: 'linear-gradient(135deg, var(--deep-green) 0%, #0F2B1D 100%)' }}>
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-coconut/50 text-xs uppercase tracking-widest">{t('myStay')}</p>
+            <p className="text-coconut/70 text-xs uppercase tracking-widest">{t('myStay')}</p>
             <h2 className="text-coconut font-display text-xl mt-0.5">{destination}</h2>
             <p className="text-coconut/70 text-sm mt-1.5 flex items-center gap-1.5">
               <CalendarDays size={13} />
@@ -65,7 +65,7 @@ function CarnetView({ bookings, onCancel }: { bookings: BookingItem[]; onCancel:
             </p>
           </div>
           <div className="text-right">
-            <p className="text-coconut/50 text-xs">{t('experiences', { count: bookings.length })}</p>
+            <p className="text-coconut/70 text-xs">{t('experiences', { count: bookings.length })}</p>
             <p className="text-coconut font-semibold text-sm mt-0.5">{fmt.price(total)}</p>
           </div>
         </div>

@@ -77,6 +77,8 @@ export function SearchClient({ state, categories, result }: SearchClientProps) {
           <button
             type="button"
             onClick={() => setShowFilters((v) => !v)}
+            aria-label={t('filters')}
+            aria-expanded={showFilters}
             className={cn(
               'h-11 w-11 flex items-center justify-center rounded-control border transition-colors',
               showFilters ? 'bg-deep-green border-deep-green text-coconut' : 'bg-surface border-mist text-charcoal'
@@ -217,7 +219,7 @@ export function SearchClient({ state, categories, result }: SearchClientProps) {
             {results.map((service, i) => (
               <motion.div
                 key={service.id}
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
               >

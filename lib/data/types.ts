@@ -63,6 +63,8 @@ export interface ServiceView {
   updated_at: string
   provider: ProviderView
   images: ServiceImageView[]
+  /** Heures avant la prestation jusqu'auxquelles l'annulation est remboursée à 100 % (null = inconnu). */
+  free_cancellation_hours: number | null
 }
 
 export interface CategoryView {
