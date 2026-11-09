@@ -43,6 +43,26 @@ export function useNotifications() {
     return () => { active = false }
   }, [authLoading, enabled])
 
+  // Temps réel : une nouvelle notification apparaît sans recharger (la RLS limite le flux aux lignes de l'utilisateur).
+  useEffect(() => {
+    if (!enabled || !userId) return
+    const supabase = createClient()
+    const channel = supabase
+      .channel(`notifications:${userId}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
+        (payload) => {
+          const row = payload.new as NotificationItem
+          setState((s) => (s.items.some((n) => n.id === row.id) ? s : { ...s, items: [row, ...s.items].slice(0, 50) }))
+        },
+      )
+      .subscribe()
+    return () => {
+      void supabase.removeChannel(channel)
+    }
+  }, [enabled, userId])
+
   const markRead = useCallback(async (ids: string[]) => {
     if (ids.length === 0) return
     setState((s) => ({ ...s, items: s.items.map((n) => (ids.includes(n.id) ? { ...n, is_read: true } : n)) }))

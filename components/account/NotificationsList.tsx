@@ -33,8 +33,8 @@ export function NotificationsList() {
       )}
       <ul className="divide-y divide-mist overflow-hidden rounded-card border border-mist bg-surface">
         {items.map((n) => {
-          const title = locale === 'en' ? (n.title_en ?? n.title_fr) : n.title_fr
-          const body = locale === 'en' ? (n.body_en ?? n.body_fr) : n.body_fr
+          const title = locale === 'fr' ? n.title_fr : (n.title_en ?? n.title_fr)
+          const body = locale === 'fr' ? n.body_fr : (n.body_en ?? n.body_fr)
           const href = typeof n.payload?.booking_id === 'string' ? '/voyages' : null
           const content = (
             <div className="flex items-start gap-3 px-4 py-3.5">
