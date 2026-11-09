@@ -30,14 +30,14 @@ export function BottomNav() {
       )}
       aria-label="Navigation principale"
     >
-      <ul className="flex items-center justify-around h-16 px-2">
+      <ul className="flex items-center justify-around h-16 px-1">
         {navItems.map(({ key, href: baseHref, Icon }) => {
           // Account tabs lead guests to the sign-in page instead of a dead end.
           const href = !isLoggedIn && (key === 'bookings' || key === 'profile') ? '/login' : baseHref
           const active = pathname.endsWith(href) || (href !== '/' && pathname.includes(href))
 
           return (
-            <li key={key} className="flex-1">
+            <li key={key} className="min-w-0 flex-1">
               <Link
                 href={href}
                 className={cn(
@@ -56,7 +56,7 @@ export function BottomNav() {
                   )}
                   <Icon size={22} strokeWidth={active ? 2 : 1.5} className="relative" />
                 </div>
-                <span className="text-xs font-medium leading-none">{t(key)}</span>
+                <span className="whitespace-nowrap text-xs font-medium leading-none">{t(key)}</span>
               </Link>
             </li>
           )
