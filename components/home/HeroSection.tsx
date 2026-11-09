@@ -22,7 +22,7 @@ const COPY = {
   },
   en: {
     eyebrow: 'Guadeloupe · Martinique · Saint-Martin',
-    title: 'Tonight, the chef comes to you.',
+    title: 'Your finest Caribbean experiences, without leaving home.',
     subtitle: 'Massage, Creole chef, photographer or DJ: the best providers in the Caribbean, booked in a few clicks.',
     where: 'Where',
     when: 'When',
@@ -33,7 +33,7 @@ const COPY = {
   },
   es: {
     eyebrow: 'Guadalupe · Martinica · Saint-Martin',
-    title: 'Esta noche, el chef viene a ti.',
+    title: 'Tus mejores experiencias en el Caribe, sin salir de casa.',
     subtitle: 'Masaje, chef criollo, fotógrafo o DJ: los mejores prestadores del Caribe, reservados en pocos clics.',
     where: 'Dónde',
     when: 'Cuándo',
