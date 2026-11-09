@@ -18,6 +18,8 @@ export default function robots(): MetadataRoute.Robots {
           '/login', '/register', '/reset-password', '/update-password',
           '/en/partner/', '/en/admin/', '/en/provider/', '/en/reserver/',
           '/es/partner/', '/es/admin/', '/es/provider/', '/es/reserver/',
+          // Filtres et tris de la recherche : des milliers de variantes sans valeur propre, l'URL de base suffit.
+          '/*?*sort=', '/*?*price=', '/*?*page=', '/*?*island=', '/*?*cat=',
         ],
       },
     ],

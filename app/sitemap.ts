@@ -1,47 +1,49 @@
 import type { MetadataRoute } from 'next'
-import { getPublishedServiceIndex, safe } from '@/lib/data/services'
-import { SITE_URL } from '@/lib/site'
+import { getPublishedServiceIndex, getPublishedServices, safe } from '@/lib/data/services'
+import { absolute, languageAlternates, SEO_LOCALES } from '@/lib/seo'
+import { indexableTargets, targetPath } from '@/lib/seo/catalogue'
 
-// Regenerated daily from the database: only PUBLISHED services of APPROVED providers are listed.
+// Régénéré chaque jour depuis la base. Uniquement des pages indexables : services PUBLIÉS de prestataires APPROUVÉS,
+// et pages île / catégorie qui ont au moins 3 services. Les dates sont les vraies dates de modification (jamais « maintenant »).
 export const revalidate = 86400
 
-const BASE = SITE_URL
-const LOCALES = ['fr', 'en', 'es'] as const
+type Entry = MetadataRoute.Sitemap[number]
 
-function u(path: string, locale: (typeof LOCALES)[number]) {
-  if (locale === 'fr') return `${BASE}${path}`
-  return `${BASE}/${locale}${path}`
+/** Une entrée par langue, chacune déclarant ses équivalents (hreflang). */
+function entries(path: string, extra: Pick<Entry, 'lastModified' | 'changeFrequency' | 'priority'>): MetadataRoute.Sitemap {
+  const alternates = { languages: languageAlternates(path) }
+  return SEO_LOCALES.map((locale) => ({ url: absolute(path, locale), alternates, ...extra }))
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // Demo deployments must not advertise any URL.
+  // Les déploiements de démonstration n'annoncent aucune URL.
   if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') return []
 
-  const now = new Date()
-  const entries: MetadataRoute.Sitemap = []
+  const out: MetadataRoute.Sitemap = []
 
-  for (const locale of LOCALES) {
-    entries.push({ url: u('/', locale), lastModified: now, changeFrequency: 'daily', priority: 1.0 })
-    entries.push({ url: u('/search', locale), lastModified: now, changeFrequency: 'daily', priority: 0.9 })
+  out.push(...entries('/', { changeFrequency: 'daily', priority: 1 }))
+  out.push(...entries('/search', { changeFrequency: 'daily', priority: 0.9 }))
+
+  const catalogue = await safe(getPublishedServices(200), [])
+  for (const t of indexableTargets(catalogue)) {
+    out.push(...entries(targetPath(t), {
+      lastModified: t.updatedAt ? new Date(t.updatedAt) : undefined,
+      changeFrequency: 'weekly',
+      priority: t.category ? 0.8 : 0.85,
+    }))
   }
 
   const services = await safe(getPublishedServiceIndex(), [])
   for (const service of services) {
-    for (const locale of LOCALES) {
-      entries.push({
-        url: u(`/prestataires/${service.id}`, locale),
-        lastModified: new Date(service.updated_at),
-        changeFrequency: 'weekly',
-        priority: 0.8,
-      })
-    }
+    out.push(...entries(`/prestataires/${service.id}`, {
+      lastModified: new Date(service.updated_at),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    }))
   }
 
-  for (const path of ['/concierge', '/about']) {
-    for (const locale of LOCALES) {
-      entries.push({ url: u(path, locale), lastModified: now, changeFrequency: 'monthly', priority: 0.5 })
-    }
+  for (const path of ['/concierge', '/about', '/terms', '/privacy']) {
+    out.push(...entries(path, { changeFrequency: 'monthly', priority: 0.4 }))
   }
-
-  return entries
+  return out
 }

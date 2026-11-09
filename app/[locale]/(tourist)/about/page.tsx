@@ -1,3 +1,7 @@
+import type { Metadata } from 'next'
+import { buildMetadata, toSeoLocale } from '@/lib/seo'
+import { PAGE_SEO } from '@/lib/seo/pages'
+import Image from 'next/image'
 import { Link } from '@/lib/i18n/navigation'
 import { ChevronLeft, MapPin, Heart, Users, Sparkles } from 'lucide-react'
 
@@ -63,9 +67,8 @@ export default function AboutPage() {
           <div className="grid sm:grid-cols-3 gap-5">
             {TEAM.map(({ name, role, island, photo }) => (
               <div key={name} className="text-center space-y-3">
-                <div className="w-20 h-20 rounded-full overflow-hidden mx-auto border-2 border-mist">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={photo} alt={name} className="w-full h-full object-cover" />
+                <div className="relative w-20 h-20 rounded-full overflow-hidden mx-auto border-2 border-mist">
+                  <Image src={photo} alt={name} fill sizes="80px" className="object-cover" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-charcoal">{name}</p>
@@ -96,4 +99,10 @@ export default function AboutPage() {
       </div>
     </div>
   )
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const locale = toSeoLocale((await params).locale)
+  const { title, description } = PAGE_SEO.about[locale]
+  return buildMetadata({ title, description, path: '/about', locale })
 }
