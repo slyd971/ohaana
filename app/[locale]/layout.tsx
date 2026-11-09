@@ -7,14 +7,14 @@ import { routing } from '@/lib/i18n/routing'
 import { SITE_URL } from '@/lib/site'
 import { DEMO_MODE } from '@/lib/demo-mode'
 import { AuthProvider } from '@/lib/auth/AuthProvider'
-import { Newsreader, Inter } from 'next/font/google'
+import { Lora, Inter } from 'next/font/google'
 import '../globals.css'
 
-// Police des titres. Remplace Fraunces dont le « f » (crochet très penché) était jugé tordu.
-const display = Newsreader({
+// Police des titres. Remplace Fraunces (« f » tordu) puis Newsreader (« f » trop allongé).
+const display = Lora({
   subsets: ['latin'],
   style: ['normal', 'italic'],
-  weight: ['300', '400', '500'],
+  weight: ['400', '500'],
   variable: '--font-display-serif',
   display: 'swap',
 })
