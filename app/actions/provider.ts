@@ -13,6 +13,7 @@ import { hasServiceRole } from '@/lib/supabase/server'
 import { MIN_PHOTOS, applyImageOp, countServiceImages, type ImageOp } from '@/lib/provider/images'
 import { getProviderService } from '@/lib/provider/queries'
 import { slugify } from '@/lib/utils'
+import { emailBookingCancelled, refundSentence } from '@/lib/email/events'
 import { CACHE_TAGS } from '@/lib/data/services'
 
 // Toutes les mutations du back-office prestataire passent ici. Chaque action :
@@ -202,6 +203,14 @@ export async function setBookingStatusAction(
     if (!hasServiceRole()) return { ok: true, message: 'Réservation annulée.' }
     try {
       const outcome = await refundBookingPayment(bookingId)
+      const neverPaid = outcome.status === 'nothing_to_refund' && (outcome.reason === 'no_payment' || outcome.reason === 'not_captured')
+      if (!neverPaid) {
+        await emailBookingCancelled(
+          bookingId,
+          'provider',
+          outcome.status === 'refunded' ? refundSentence('refunded', outcome.refundedCents) : undefined,
+        )
+      }
       return {
         ok: true,
         message:
@@ -211,6 +220,7 @@ export async function setBookingStatusAction(
       }
     } catch (e) {
       console.error('[provider-cancel] refund failed for', bookingId, e instanceof Error ? e.message : e)
+      await emailBookingCancelled(bookingId, 'provider', refundSentence('pending'))
       // L'annulation est valable ; le remboursement sera relancé par l'équipe (liste « remboursements à traiter »).
       return { ok: true, message: 'Réservation annulée. Le remboursement du voyageur est en cours de traitement.' }
     }

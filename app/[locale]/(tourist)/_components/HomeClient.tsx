@@ -210,6 +210,8 @@ export function HomeClient({ services, rows }: HomeClientProps) {
   const visibleExplorerServices = showAllExplorer ? explorerServices : explorerServices.slice(0, 8)
   const hasMoreExplorerServices = explorerServices.length > visibleExplorerServices.length
 
+  const [leadTrap, setLeadTrap] = useState('')
+
   async function handleLeadSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (leadBusy) return
@@ -224,6 +226,7 @@ export function HomeClient({ services, rows }: HomeClientProps) {
           destination: leadDest || undefined,
           locale,
           consent: leadConsent,
+          website: leadTrap,
         }),
       })
       if (!res.ok) throw new Error(String(res.status))
@@ -563,11 +566,22 @@ export function HomeClient({ services, rows }: HomeClientProps) {
               className="mt-6 flex flex-col items-center gap-2 py-4"
             >
               <CheckCircle size={36} className="text-deep-green" />
-              <p className="font-medium text-deep-green">{L('C\'est noté !', 'You are on the list!', '¡Apuntado!')}</p>
-              <p className="text-sm text-charcoal/70">{L('Vous recevrez nos prochaines nouveautés.', 'You will get our next news.', 'Recibirás nuestras próximas novedades.')}</p>
+              <p className="font-medium text-deep-green">{L('Plus qu\'un clic !', 'Almost there!', '¡Un clic más!')}</p>
+              <p className="text-sm text-charcoal/70">{L('Nous venons de vous envoyer un email : cliquez sur le lien pour confirmer votre inscription.', 'We just sent you an email: click the link to confirm your subscription.', 'Te acabamos de enviar un email: haz clic en el enlace para confirmar tu suscripción.')}</p>
             </motion.div>
           ) : (
             <form onSubmit={handleLeadSubmit} className="mx-auto mt-6 max-w-2xl space-y-3">
+              {/* Piège à robots : invisible et hors parcours clavier pour un humain. */}
+              <input
+                type="text"
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                value={leadTrap}
+                onChange={(e) => setLeadTrap(e.target.value)}
+                className="absolute -left-[9999px] h-0 w-0 opacity-0"
+              />
               <div className="flex flex-col gap-3 md:flex-row">
                 <input
                   type="email"

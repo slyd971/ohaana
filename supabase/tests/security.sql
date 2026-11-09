@@ -734,6 +734,47 @@ begin
 end $$;
 
 -- ─────────────────────────────────────────────────────────────
+-- 6b. Double opt-in des leads et nouvelles notifications (migration 013)
+-- ─────────────────────────────────────────────────────────────
+do $$
+declare
+  A constant uuid := 'aaaaaaaa-0000-4000-8000-000000000001';
+  h1 constant text := repeat('a', 64);
+begin
+  perform t.as_anon();
+  perform t.run(format($q$insert into public.leads (email, consent, confirm_token_hash) values ('optin@test.local', true, %L)$q$, h1));
+  perform t.fails('anon cannot create a lead that is already confirmed',
+    $q$insert into public.leads (email, consent, confirmed_at) values ('optin2@test.local', true, now())$q$, '42501');
+  perform t.eq('a wrong token confirms nothing', t.scalar($q$select public.confirm_lead(repeat('b', 64))::text$q$), 'false');
+  perform t.eq('a malformed token is refused', t.scalar($q$select public.confirm_lead('short')::text$q$), 'false');
+  perform t.eq('a null token is refused', t.scalar($q$select public.confirm_lead(null)::text$q$), 'false');
+  perform t.eq('the right token confirms the lead', t.scalar(format($q$select public.confirm_lead(%L)::text$q$, h1)), 'true');
+  perform t.eq('anon still cannot read leads', t.scalar('select count(*)::text from public.leads'), '0');
+  perform t.reset();
+  perform t.eq('the lead is marked confirmed',
+    t.scalar(format($q$select (confirmed_at is not null)::text from public.leads where confirm_token_hash = %L$q$, h1)), 'true');
+
+  perform t.as_anon();
+  perform t.eq('the unsubscribe link works', t.scalar(format($q$select public.unsubscribe_lead(%L)::text$q$, h1)), 'true');
+  perform t.reset();
+  perform t.eq('the lead is marked unsubscribed',
+    t.scalar(format($q$select (unsubscribed_at is not null)::text from public.leads where confirm_token_hash = %L$q$, h1)), 'true');
+
+  perform t.as_user(A);
+  perform t.fails('a tourist cannot run the daily expiry', 'select public.expire_pending_bookings()', '42501');
+  perform t.reset();
+  perform public.notify(A, 'booking_reminder', 'Rappel', 'Reminder', null, null);
+  perform public.notify(A, 'review_request', 'Avis', 'Review', null, null);
+  perform public.notify(A, 'provider_status', 'Dossier', 'Application', null, null);
+  perform t.as_user(A);
+  perform t.eq('the new notification types are stored', t.scalar($q$select count(*)::text from public.notifications where type in ('booking_reminder','review_request','provider_status')$q$), '3');
+  perform t.reset();
+
+  delete from public.leads where confirm_token_hash = h1;
+  delete from public.notifications where user_id = A and type in ('booking_reminder','review_request','provider_status');
+end $$;
+
+-- ─────────────────────────────────────────────────────────────
 -- 7. Storage
 -- ─────────────────────────────────────────────────────────────
 do $$

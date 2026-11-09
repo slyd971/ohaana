@@ -13,6 +13,7 @@ import { refundBookingPayment } from '@/lib/stripe/refunds'
 import { PaymentsNotConfigured, providerOnboardingUrl, syncProviderPaymentsStatus } from '@/lib/stripe/connect-service'
 import type { ConnectState } from '@/lib/stripe/connect-status'
 import { SETTINGS_TAG } from '@/lib/commission'
+import { emailProviderDecision } from '@/lib/email/events'
 import { LEAD_STATUSES, USER_ROLES, categorySchema, type AssignableRole } from '@/lib/admin/schemas'
 
 // Mutations de l'espace admin. Chaque action : (1) relit le rôle admin côté serveur, (2) s'exécute avec la
@@ -121,6 +122,7 @@ export async function setProviderApprovalAction(providerId: string, approved: bo
   }
 
   await log(a.ctx, approved ? 'provider.approve' : 'provider.suspend', 'provider_profile', providerId, { unpublished })
+  await emailProviderDecision(providerId, approved)
   invalidate()
   return {
     ok: true,

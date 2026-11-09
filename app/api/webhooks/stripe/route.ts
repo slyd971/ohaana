@@ -4,6 +4,7 @@ import type Stripe from 'stripe'
 import { createAdminClient, hasServiceRole } from '@/lib/supabase/server'
 import { getStripe } from '@/lib/stripe/client'
 import { handleStripeEvent, type WebhookDeps } from '@/lib/stripe/webhook-handlers'
+import { emailBookingPaid } from '@/lib/email/events'
 
 /**
  * Stripe webhook. Order of operations:
@@ -74,6 +75,10 @@ export async function POST(request: Request) {
   try {
     const outcome = await handleStripeEvent(event, deps)
     await supabase.rpc('webhook_finish_event', { p_id: event.id, p_error: null })
+    // « confirmed » n'est renvoyé qu'à la première application : les emails partent une seule fois, même si Stripe rejoue l'évènement.
+    if (event.type === 'payment_intent.succeeded' && outcome.result === 'confirmed') {
+      await emailBookingPaid((event.data.object as { id: string }).id)
+    }
     return NextResponse.json({ received: true, handled: outcome.handled, result: outcome.result ?? null })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'unknown_error'
