@@ -84,14 +84,14 @@ export default function AboutPage() {
 
         {/* CTA */}
         <div className="rounded-card bg-deep-green px-7 py-8 text-center space-y-4">
-          <p className="text-xs text-coconut/50 uppercase tracking-widest">Rejoignez l&apos;aventure</p>
+          <p className="text-xs text-coconut/70 uppercase tracking-widest">Rejoignez l&apos;aventure</p>
           <h2 className="text-xl font-display text-coconut">Vous êtes prestataire aux Antilles ?</h2>
-          <p className="text-sm text-coconut/60 leading-relaxed max-w-sm mx-auto">
+          <p className="text-sm text-coconut/70 leading-relaxed max-w-sm mx-auto">
             Ohaana connecte les professionnels locaux à des voyageurs déjà sur place, qui cherchent un service fiable pendant leur séjour.
           </p>
           <Link
             href="/register?role=provider"
-            className="inline-flex items-center gap-2 bg-coral text-coconut px-6 py-3 rounded-full text-sm font-medium hover:bg-coral-light transition-colors"
+            className="inline-flex items-center gap-2 bg-coral-text text-coconut px-6 py-3 rounded-full text-sm font-medium hover:bg-coral transition-colors"
           >
             Rejoindre Ohaana
           </Link>

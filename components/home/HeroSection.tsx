@@ -82,7 +82,7 @@ export function HeroSection({
     <section className="relative bg-coconut pt-16">
       <div className="mx-auto max-w-4xl px-5 md:px-8 pt-12 pb-14 md:pt-20 md:pb-24 text-center">
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: EASE }}
         >
@@ -101,7 +101,7 @@ export function HeroSection({
         <motion.form
           onSubmit={submit}
           role="search"
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.15, ease: EASE }}
           className="relative z-30 mx-auto mt-10 md:mt-12  flex w-full max-w-3xl flex-col gap-1 rounded-3xl border border-mist/70 bg-white p-2 text-left shadow-modal md:flex-row md:items-stretch md:rounded-full md:p-2.5"

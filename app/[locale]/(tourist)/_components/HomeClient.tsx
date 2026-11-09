@@ -277,7 +277,7 @@ export function HomeClient({ services, rows }: HomeClientProps) {
               {whyItems.map(({ icon: Icon, title, text }, i) => (
                 <motion.div
                   key={title}
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-40px' }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
@@ -332,7 +332,7 @@ export function HomeClient({ services, rows }: HomeClientProps) {
       <div ref={explorerGridRef} className="pt-8 pb-8 px-5 md:px-8 max-w-7xl mx-auto">
         <motion.div
           key={mood + island}
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25 }}
         >
@@ -399,7 +399,7 @@ export function HomeClient({ services, rows }: HomeClientProps) {
                     href={`https://wa.me/${WHATSAPP_NUMBER}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-coral text-coconut px-6 py-3 rounded-full font-medium text-sm hover:bg-coral-light transition-colors shadow-sm"
+                    className="inline-flex items-center gap-2 bg-coral-text text-coconut px-6 py-3 rounded-full font-medium text-sm hover:bg-coral-light transition-colors shadow-sm"
                   >
                     <MessageCircle size={16} />
                     {t('parlerACamille')}
@@ -461,7 +461,7 @@ export function HomeClient({ services, rows }: HomeClientProps) {
             {featuredServices.map((service, i) => (
               <motion.div
                 key={service.id}
-                initial={{ opacity: 0, y: 18 }}
+                initial={{ y: 18 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
                 transition={{ duration: 0.4, delay: i * 0.05 }}

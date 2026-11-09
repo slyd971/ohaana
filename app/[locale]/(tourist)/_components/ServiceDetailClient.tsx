@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useMemo, useSyncExternalStore } from 'react'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Link } from '@/lib/i18n/navigation'
@@ -25,20 +25,14 @@ import { Badge } from '@/components/ui/Badge'
 import { DateRangePicker } from '@/components/ui/DateRangePicker'
 import { ServiceCard } from '@/components/service/ServiceCard'
 import type { ReviewView, ServiceView, SlotView } from '@/lib/data/types'
-import { formatPrice, formatDuration, cn } from '@/lib/utils'
+import { cn } from '@/lib/utils'
+import { useFormat } from '@/hooks/useFormat'
+import type { Lang } from '@/lib/i18n/format'
 
 const LANG_FLAGS: Record<string, string> = { fr: '🇫🇷', en: '🇬🇧', es: '🇪🇸', de: '🇩🇪', kr: '🏝️' }
 
-const INCLUDED_ITEMS = [
-  'Déplacement à domicile',
-  'Matériel fourni',
-  'Produits locaux selon la prestation',
-  'Support Ohaana',
-  'Paiement sécurisé',
-  'Annulation flexible',
-]
+const INCLUDED_KEYS = ['incTravel', 'incSupport', 'incSecure'] as const
 
-const DAY_NAMES_SHORT = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']
 
 type DayStatus = 'available' | 'full'
 
@@ -57,7 +51,7 @@ const isoOf = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 
 /** Real availability: only slots the database reports as free (public_slot_availability). */
-function buildAvailability(slots: SlotView[], start: Date | null, end: Date | null): AvailabilityDay[] {
+function buildAvailability(slots: SlotView[], start: Date | null, end: Date | null, dayLabel: (dow: number) => string): AvailabilityDay[] {
   const byDate = new Map<string, SlotView[]>()
   for (const slot of slots) byDate.set(slot.date, [...(byDate.get(slot.date) ?? []), slot])
 
@@ -70,7 +64,7 @@ function buildAvailability(slots: SlotView[], start: Date | null, end: Date | nu
     const iso = isoOf(cursor)
     days.push({
       isoDate: iso,
-      day: DAY_NAMES_SHORT[cursor.getDay()],
+      day: dayLabel(cursor.getDay()),
       date: String(cursor.getDate()),
       slots: (byDate.get(iso) ?? []).map((sl) => ({ id: sl.id, time: sl.start_time.slice(0, 5), status: 'available' as const })),
     })
@@ -87,15 +81,15 @@ const STATUS_ICON = {
 }
 
 // One offering = the service itself, at its real price (no invented variants).
-function getOfferings(service: ServiceView) {
+function getOfferings(service: ServiceView, lang: Lang, duration: string, t: (key: 'incTravel' | 'incCoordination') => string) {
   return [
     {
       id: 'classic',
-      title: service.title_fr,
-      duration: service.duration_min ? formatDuration(service.duration_min) : 'Sur mesure',
+      title: lang === 'en' ? service.title_en : lang === 'es' ? service.title_es : service.title_fr,
+      duration,
       price: service.price_cents,
-      description: service.description_fr,
-      includes: ['Déplacement à domicile', 'Matériel fourni', 'Coordination Ohaana'],
+      description: lang === 'en' ? service.description_en : lang === 'es' ? service.description_es : service.description_fr,
+      includes: [t('incTravel'), t('incCoordination')],
     },
   ]
 }
@@ -143,7 +137,7 @@ function LocationAutocomplete({ value, onChange }: { value: string; onChange: (v
         <input
           type="text"
           value={value}
-          placeholder="Lieu de séjour"
+          placeholder={useTranslations('serviceDetail')('stayPlace')}
           onChange={(e) => { onChange(e.target.value); setOpen(true) }}
           onFocus={() => setOpen(true)}
           className={cn(
@@ -225,6 +219,12 @@ interface ServiceDetailClientProps {
 
 export function ServiceDetailClient({ service, slots, reviews, related, complements }: ServiceDetailClientProps) {
   const locale = useLocale()
+  const t = useTranslations('serviceDetail')
+  const ts = useTranslations('service')
+  const fmt = useFormat()
+  const lang = fmt.lang
+  const altOf = (img: { alt_fr: string | null; alt_en: string | null; alt_es: string | null }) =>
+    (lang === 'en' ? img.alt_en : lang === 'es' ? img.alt_es : img.alt_fr) ?? img.alt_fr ?? ''
 
   const svcTitle = locale === 'es'
     ? service.title_es
@@ -248,9 +248,9 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
   const [selectedSlot, setSelectedSlot] = useState<{ id: string; isoDate: string; day: string; date: string; time: string } | null>(null)
   const [selectedDay, setSelectedDay] = useState<string | null>(null)
 
-  const availability = useMemo(() => buildAvailability(slots, stayStart, stayEnd), [slots, stayStart, stayEnd])
+  const availability = useMemo(() => buildAvailability(slots, stayStart, stayEnd, (dow) => fmt.weekdayShort(dow)), [slots, stayStart, stayEnd, fmt])
 
-  const offerings = getOfferings(service)
+  const offerings = getOfferings(service, lang, service.duration_min ? fmt.duration(service.duration_min) : t('customDuration'), t)
   const [selectedOffering, setSelectedOffering] = useState(offerings[0]?.id)
   const selected = offerings.find((offering) => offering.id === selectedOffering) ?? offerings[0]
 
@@ -277,11 +277,11 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
         <div className="max-w-2xl mx-auto px-4 min-h-16 py-2 flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-charcoal line-clamp-2 leading-tight">{svcTitle}</p>
-            <p className="text-xs text-stone mt-0.5">{formatPrice(selected?.price ?? service.price_cents)} · pers.</p>
+            <p className="text-xs text-stone mt-0.5">{t('perPersonPrice', { price: fmt.price(selected?.price ?? service.price_cents) })}</p>
           </div>
           <Link href={`/reserver/${service.id}?offer=${selected?.id ?? 'classic'}`}>
             <Button variant="primary" size="sm">
-              Choisir mon créneau
+              {t('chooseSlot')}
             </Button>
           </Link>
         </div>
@@ -292,23 +292,23 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
         {images.map((img, i) => (
           <motion.div key={img.id} className="absolute inset-0" initial={false}
             animate={{ opacity: i === imgIndex ? 1 : 0 }} transition={{ duration: 0.4 }}>
-            <Image src={img.url} alt={img.alt_fr ?? ''} fill className="object-cover object-center" priority={i === 0} sizes="100vw" />
+            <Image src={img.url} alt={altOf(img)} fill className="object-cover object-center" priority={i === 0} sizes="100vw" />
           </motion.div>
         ))}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/30" />
-        <Link href="/search" className="absolute top-4 left-4 p-2 rounded-full bg-black/35 backdrop-blur-sm text-white hover:bg-black/55 transition-colors z-10">
+        <Link href="/search" aria-label={t('backToResults')} className="absolute top-4 left-4 p-2 rounded-full bg-black/35 backdrop-blur-sm text-white hover:bg-black/55 transition-colors z-10">
           <ChevronLeft size={20} />
         </Link>
-        <button type="button" onClick={() => setIsFav((v) => !v)}
+        <button type="button" onClick={() => setIsFav((v) => !v)} aria-pressed={isFav} aria-label={isFav ? ts('removeFavorite') : ts('addFavorite')}
           className="absolute top-4 right-4 p-2 rounded-full bg-black/35 backdrop-blur-sm hover:bg-black/55 transition-colors z-10">
           <Heart size={20} className={cn(isFav ? 'fill-coral text-coral-text' : 'text-white fill-transparent')} />
         </button>
         {images.length > 1 && (
           <>
-            <button type="button" onClick={() => setImgIndex((i) => Math.max(0, i - 1))}
+            <button type="button" aria-label={t('prevPhoto')} onClick={() => setImgIndex((i) => Math.max(0, i - 1))}
               className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/30 backdrop-blur-sm text-white disabled:opacity-0 transition-opacity"
               disabled={imgIndex === 0}><ChevronLeft size={18} /></button>
-            <button type="button" onClick={() => setImgIndex((i) => Math.min(images.length - 1, i + 1))}
+            <button type="button" aria-label={t('nextPhoto')} onClick={() => setImgIndex((i) => Math.min(images.length - 1, i + 1))}
               className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/30 backdrop-blur-sm text-white disabled:opacity-0 transition-opacity"
               disabled={imgIndex === images.length - 1}><ChevronRight size={18} /></button>
           </>
@@ -332,8 +332,8 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
           {images.length > 1 && (
             <div className="flex gap-1.5 pb-1 shrink-0">
               {images.map((_, i) => (
-                <button key={i} type="button" onClick={() => setImgIndex(i)}
-                  className={cn('h-1.5 rounded-full transition-all', i === imgIndex ? 'bg-white w-4' : 'bg-white/40 w-1.5')} />
+                <button key={i} type="button" onClick={() => setImgIndex(i)} aria-label={t('goToPhoto', { n: i + 1 })} aria-current={i === imgIndex}
+                  className="flex h-6 min-w-6 items-center justify-center"><span className={cn('block h-1.5 rounded-full transition-all', i === imgIndex ? 'bg-white w-4' : 'bg-white/50 w-1.5')} /></button>
               ))}
             </div>
           )}
@@ -348,12 +348,11 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
             {provider.is_approved && (
               <Badge variant="green" className="gap-1">
                 <ShieldCheck size={12} />
-                Prestataire vérifié
+                {t('validated')}
               </Badge>
             )}
             <span className="text-sm text-stone">
-              Organisé par{' '}
-              <span className="font-medium text-charcoal">{provider.business_name}</span>
+              {t('organisedBy', { name: provider.business_name })}
               {' · '}
               {provider.languages.map((l) => LANG_FLAGS[l] ?? l).join(' ')}
             </span>
@@ -363,7 +362,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
               className="ml-auto flex items-center gap-1.5 text-sm text-stone hover:text-charcoal transition-colors"
             >
               <Heart size={15} className={cn(isFav ? 'fill-coral text-coral-text' : '')} />
-              {isFav ? 'Retiré des favoris' : 'Ajouter aux favoris'}
+              {isFav ? ts('removeFavorite') : ts('addFavorite')}
             </button>
           </div>
           <h1 className="text-3xl font-display text-charcoal leading-tight mb-3">{svcTitle}</h1>
@@ -371,7 +370,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
             {service.duration_min && (
               <span className="flex items-center gap-1.5">
                 <Clock size={13} className="text-deep-green" />
-                {formatDuration(service.duration_min)}
+                {fmt.duration(service.duration_min)}
               </span>
             )}
             <span className="flex items-center gap-1.5">
@@ -399,9 +398,9 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
           style={{ gridTemplateColumns: '1.8fr 1fr 1fr' }}
         >
           <div className="row-span-2 relative overflow-hidden">
-            <Image src={images[0].url} alt={images[0].alt_fr ?? ''} fill className="object-cover" sizes="55vw" priority />
+            <Image src={images[0].url} alt={altOf(images[0])} fill className="object-cover" sizes="55vw" priority />
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
-            <Link href="/search" className="absolute top-4 left-4 p-2 rounded-full bg-black/35 backdrop-blur-sm text-white hover:bg-black/55 transition-colors z-10">
+            <Link href="/search" aria-label={t('backToResults')} className="absolute top-4 left-4 p-2 rounded-full bg-black/35 backdrop-blur-sm text-white hover:bg-black/55 transition-colors z-10">
               <ChevronLeft size={20} />
             </Link>
           </div>
@@ -410,12 +409,12 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
             const isLast = idx === 4
             return (
               <div key={idx} className="relative overflow-hidden">
-                {img && <Image src={img.url} alt={img.alt_fr ?? ''} fill className="object-cover hover:scale-105 transition-transform duration-500" sizes="20vw" />}
+                {img && <Image src={img.url} alt={altOf(img)} fill className="object-cover" sizes="20vw" />}
                 {!img && <div className="absolute inset-0 bg-stone/20" />}
                 {isLast && <div className="absolute inset-0 bg-black/25" />}
                 {isLast && (
                   <button type="button" className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm text-charcoal text-xs font-medium px-3 py-1.5 rounded-full shadow-sm hover:bg-coconut transition-colors">
-                    Voir tout
+                    {t('seeAll')}
                   </button>
                 )}
               </div>
@@ -429,7 +428,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
             {provider.is_approved && (
               <Badge variant="green" className="gap-1">
                 <ShieldCheck size={12} />
-                Prestataire vérifié
+                {t('validated')}
               </Badge>
             )}
             {service.tags.slice(0, 4).map((tag) => (
@@ -441,7 +440,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
             {service.duration_min && (
               <span className="flex items-center gap-1.5">
                 <Clock size={14} className="text-deep-green" />
-                {formatDuration(service.duration_min)}
+                {fmt.duration(service.duration_min)}
               </span>
             )}
             <span className="flex items-center gap-1.5">
@@ -484,14 +483,14 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
                         <h3 className="text-sm font-semibold text-charcoal">{offering.title}</h3>
                         {isRecommended && (
                           <span className="inline-flex items-center text-xs font-semibold text-deep-green bg-turquoise/15 border border-turquoise/25 px-1.5 py-0.5 rounded-full">
-                            Populaire
+                            {t('popular')}
                           </span>
                         )}
                       </div>
                       <p className="mt-0.5 text-xs text-stone">{offering.duration}</p>
                     </div>
                     <div className="flex items-center gap-2 flex-none">
-                      <p className="text-sm font-semibold text-deep-green">{formatPrice(offering.price)}</p>
+                      <p className="text-sm font-semibold text-deep-green">{fmt.price(offering.price)}</p>
                       {isSelected && <CheckCircle2 size={16} className="text-deep-green flex-none" />}
                     </div>
                   </div>
@@ -514,10 +513,10 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
         <section className="mb-6 bg-deep-green/6 rounded-card border border-deep-green/20 shadow-sm overflow-hidden">
           <div className="flex items-center gap-3 px-4 py-3 bg-deep-green/8 border-b border-deep-green/15">
             <CalendarDays size={16} className="text-deep-green flex-none" />
-            <h2 className="text-sm font-semibold text-deep-green uppercase tracking-wider">Disponibilités</h2>
+            <h2 className="text-sm font-semibold text-deep-green uppercase tracking-wider">{t('availability')}</h2>
           </div>
           <div className="p-4 space-y-4">
-          <p className="text-sm text-charcoal/70">Renseignez vos dates et votre lieu de séjour pour filtrer les créneaux disponibles.</p>
+          <p className="text-sm text-charcoal-soft">{t('availabilityHint')}</p>
 
           <div className="grid grid-cols-2 gap-2">
             <DateRangePicker
@@ -585,7 +584,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
                 className="rounded-card bg-sand border border-mist p-4 space-y-3"
               >
                 <p className="text-xs font-semibold text-charcoal uppercase tracking-wider">
-                  {day.day} {day.date} — Choisissez un créneau
+                  {t('pickSlotFor', { day: day.day, date: day.date })}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {day.slots.map((slot) => {
@@ -616,17 +615,17 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
           })()}
 
           <div className="flex flex-wrap gap-3 text-[11px] text-stone">
-            <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-turquoise inline-block" /> Disponible</span>
-            <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-stone/40 inline-block" /> Complet</span>
+            <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-turquoise inline-block" /> {t('legendAvailable')}</span>
+            <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-stone/40 inline-block" /> {t('legendFull')}</span>
           </div>
           </div>{/* fin p-4 */}
         </section>
 
         {/* Included */}
         <section className="mb-6">
-          <h2 className="text-sm font-semibold text-charcoal uppercase tracking-wider mb-3">Ce qui est inclus</h2>
+          <h2 className="text-sm font-semibold text-charcoal uppercase tracking-wider mb-3">{t('included')}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {INCLUDED_ITEMS.map((item) => (
+            {INCLUDED_KEYS.map((key) => t(key)).map((item) => (
               <div key={item} className="flex items-center gap-2 text-sm text-charcoal-soft">
                 <CheckCircle2 size={15} className="text-turquoise-text flex-none" />
                 {item}
@@ -637,7 +636,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
 
         {/* Description */}
         <section className="mb-6">
-          <h3 className="text-sm font-semibold text-charcoal uppercase tracking-wider mb-2">À propos</h3>
+          <h3 className="text-sm font-semibold text-charcoal uppercase tracking-wider mb-2">{t('about')}</h3>
           <p className="text-sm text-charcoal-soft leading-relaxed">{svcDesc}</p>
         </section>
 
@@ -697,10 +696,6 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
               <Globe size={12} />
               {provider.languages.map((l) => LANG_FLAGS[l] ?? l).join(' ')}
             </span>
-            <span className="flex items-center gap-1 text-xs text-stone">
-              <Clock size={12} />
-              Répond en moins de 30 min
-            </span>
             {provider.whatsapp && (
               <a
                 href={`https://wa.me/${provider.whatsapp.replace(/\D/g, '')}`}
@@ -718,7 +713,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
                 className="flex items-center gap-1 text-xs text-deep-green font-medium"
               >
                 <Phone size={12} />
-                Contacter
+                {t('contact')}
               </a>
             )}
           </div>
@@ -728,7 +723,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
         {reviews.length > 0 && (
           <section className="mb-6">
             <h3 className="text-sm font-semibold text-charcoal uppercase tracking-wider mb-3">
-              Avis des voyageurs · {service.review_count}
+              {t('reviewsTitle', { count: service.review_count })}
             </h3>
             <ul className="space-y-3">
               {reviews.map((r) => (
@@ -738,12 +733,12 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
                     <span className="flex items-center gap-1 text-xs text-stone">
                       <Star size={12} className="fill-amber-400 text-amber-400" /> {r.rating}/5
                       <span aria-hidden>·</span>
-                      {new Date(r.created_at).toLocaleDateString(locale === 'en' ? 'en-GB' : locale === 'es' ? 'es-ES' : 'fr-FR', { month: 'long', year: 'numeric' })}
+                      {fmt.date(new Date(r.created_at), { month: 'long', year: 'numeric' })}
                     </span>
                   </div>
                   {r.content && <p className="mt-2 text-sm text-charcoal-soft leading-relaxed">{r.content}</p>}
                   {r.provider_reply && (
-                    <p className="mt-2 border-l-2 border-mist pl-3 text-xs text-stone">Réponse du prestataire : {r.provider_reply}</p>
+                    <p className="mt-2 border-l-2 border-mist pl-3 text-xs text-stone">{t('providerReply', { reply: r.provider_reply })}</p>
                   )}
                 </li>
               ))}
@@ -754,7 +749,7 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
         {/* Often booked with */}
         <section className="mb-6">
           <h3 className="text-sm font-semibold text-charcoal uppercase tracking-wider mb-3">
-            Complétez votre expérience
+            {t('completeExperience')}
           </h3>
           <div className="flex gap-4 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
             {complements.map((s) => (
@@ -782,14 +777,14 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
             <MessageCircle size={18} className="text-coconut" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold mb-0.5">Besoin d&apos;aide pour composer votre séjour ?</p>
-            <p className="text-xs text-coconut/70 leading-relaxed">Notre concierge peut créer un programme sur-mesure pour vous en moins de 2h — chefs, massages, sorties, transferts.</p>
+            <p className="text-sm font-semibold mb-0.5">{t('helpTitle')}</p>
+            <p className="text-xs text-coconut/80 leading-relaxed">{t('helpBody')}</p>
           </div>
           <Link
             href="/concierge"
             className="flex-none self-center text-xs font-semibold bg-coconut text-deep-green px-4 py-2 rounded-full hover:bg-sand transition-colors whitespace-nowrap"
           >
-            Demander conseil
+            {t('helpCta')}
           </Link>
         </section>
 
@@ -800,15 +795,15 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
           <div className="rounded-3xl border border-mist bg-surface shadow-elevated p-6 space-y-5">
             {/* Prix */}
             <div>
-              <p className="text-xs text-stone mb-1">À partir de</p>
-              <p className="text-3xl font-semibold text-charcoal">{formatPrice(selected?.price ?? service.price_cents)}</p>
-              <p className="text-xs text-stone">par personne · déplacement inclus</p>
+              <p className="text-xs text-stone mb-1">{t('from')}</p>
+              <p className="text-3xl font-semibold text-charcoal">{fmt.price(selected?.price ?? service.price_cents)}</p>
+              <p className="text-xs text-stone">{t('perPersonTravel')}</p>
             </div>
 
             {/* Prestation sélectionnée */}
             {selected && (
               <div className="rounded-control border border-deep-green/20 bg-deep-green/5 px-4 py-3">
-                <p className="text-xs text-stone mb-0.5">Prestation sélectionnée</p>
+                <p className="text-xs text-stone mb-0.5">{t('selectedOffering')}</p>
                 <p className="text-sm font-semibold text-charcoal">{selected.title}</p>
                 <p className="text-xs text-stone mt-0.5">{selected.duration}</p>
               </div>
@@ -827,16 +822,15 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
               className="block"
             >
               <Button variant="primary" fullWidth size="lg">
-                {selectedSlot ? 'Réserver ce créneau' : 'Choisir mon créneau'}
+                {selectedSlot ? t('bookSlot') : t('chooseSlot')}
               </Button>
             </Link>
 
             {/* Trust signals */}
             <div className="space-y-2 pt-1 border-t border-mist">
               {[
-                { icon: ShieldCheck, text: 'Prestataire vérifié Ohaana' },
-                { icon: CheckCircle2, text: 'Annulation flexible' },
-                { icon: MessageCircle, text: 'Réponse en moins de 30 min' },
+                { icon: ShieldCheck, text: t('trustValidated') },
+                ...(service.free_cancellation_hours ? [{ icon: CheckCircle2, text: t('freeCancellationUntil', { hours: service.free_cancellation_hours }) }] : []),
               ].map(({ icon: Icon, text }) => (
                 <div key={text} className="flex items-center gap-2 text-xs text-stone">
                   <Icon size={13} className="text-deep-green flex-none" />
@@ -858,16 +852,16 @@ export function ServiceDetailClient({ service, slots, reviews, related, compleme
           <div className="min-w-0">
             {selectedSlot
               ? <p className="text-xs text-deep-green font-medium">{selectedSlot.day} {selectedSlot.date} · {fmtSlot(selectedSlot.time)}</p>
-              : <p className="text-xs text-stone">À partir de</p>
+              : <p className="text-xs text-stone">{t('from')}</p>
             }
-            <p className="text-xl font-semibold text-charcoal">{formatPrice(selected?.price ?? service.price_cents)}</p>
+            <p className="text-xl font-semibold text-charcoal">{fmt.price(selected?.price ?? service.price_cents)}</p>
           </div>
           <Link
             href={`/reserver/${service.id}?offer=${selected?.id ?? 'classic'}${selectedSlot ? `&slot=${selectedSlot.id}&date=${selectedSlot.isoDate}&time=${selectedSlot.time}` : ''}`}
             className="flex-1"
           >
             <Button variant="primary" fullWidth size="lg">
-              {selectedSlot ? 'Réserver ce créneau' : 'Choisir mon créneau'}
+              {selectedSlot ? t('bookSlot') : t('chooseSlot')}
             </Button>
           </Link>
         </div>

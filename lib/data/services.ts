@@ -104,6 +104,7 @@ function mapService(row: Row, providers: Map<string, ProviderView>): ServiceView
     updated_at: row.updated_at as string,
     provider,
     images,
+    free_cancellation_hours: null,
   }
 }
 
@@ -120,7 +121,29 @@ async function loadProviders(ids: string[]): Promise<Map<string, ProviderView>> 
 
 async function hydrate(rows: Row[]): Promise<ServiceView[]> {
   const providers = await loadProviders(rows.map((r) => r.provider_id as string))
-  return rows.map((r) => mapService(r, providers)).filter((s): s is ServiceView => s !== null)
+  const services = rows.map((r) => mapService(r, providers)).filter((s): s is ServiceView => s !== null)
+  const hours = await loadFreeCancellation(services.map((s) => s.id))
+  return services.map((s) => ({ ...s, free_cancellation_hours: hours.get(s.id) ?? null }))
+}
+
+/**
+ * Délai de remboursement intégral de chaque service, lu dans la vue publique (migration 015). Si la vue n'existe pas
+ * encore ou échoue, on renvoie « inconnu » : l'interface n'affiche alors aucune promesse d'annulation chiffrée.
+ */
+async function loadFreeCancellation(ids: string[]): Promise<Map<string, number>> {
+  const map = new Map<string, number>()
+  if (ids.length === 0) return map
+  try {
+    const { data, error } = await createPublicClient().from('public_service_cancellation').select('service_id, free_hours').in('service_id', ids)
+    if (error) return map
+    for (const row of data ?? []) {
+      const h = Number((row as { free_hours: number | null }).free_hours)
+      if (Number.isFinite(h) && h > 0) map.set((row as { service_id: string }).service_id, h)
+    }
+  } catch {
+    /* repli : inconnu */
+  }
+  return map
 }
 
 // ── Categories ────────────────────────────────────────────────────────────────

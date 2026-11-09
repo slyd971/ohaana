@@ -1,8 +1,10 @@
 import { Link } from '@/lib/i18n/navigation'
 import { OhaanaLogo } from '@/components/layout/OhaanaLogo'
 import { Search, Home, MessageCircle } from 'lucide-react'
+import { getTranslations } from 'next-intl/server'
 
-export default function NotFound() {
+export default async function NotFound() {
+  const t = await getTranslations('errorPages')
   return (
     <div className="min-h-dvh bg-coconut flex flex-col items-center justify-center px-6 text-center">
       {/* Decorative background */}
@@ -18,11 +20,9 @@ export default function NotFound() {
 
         {/* Big 404 */}
         <div className="space-y-1">
-          <p className="text-[96px] font-display text-deep-green/10 leading-none select-none">404</p>
-          <h1 className="text-2xl font-display text-charcoal -mt-4">Page introuvable</h1>
-          <p className="text-stone text-sm leading-relaxed">
-            Cette page n&apos;existe pas ou a été déplacée. Pas de panique — les plus belles expériences caribéennes vous attendent.
-          </p>
+          <p aria-hidden="true" className="text-[96px] font-display text-deep-green/10 leading-none select-none">404</p>
+          <h1 className="text-2xl font-display text-charcoal -mt-4">{t('notFoundTitle')}</h1>
+          <p className="text-stone text-sm leading-relaxed">{t('notFoundBody')}</p>
         </div>
 
         {/* CTAs */}
@@ -32,21 +32,21 @@ export default function NotFound() {
             className="flex items-center justify-center gap-2 w-full py-3 px-5 rounded-card bg-deep-green text-coconut font-medium text-sm hover:bg-deep-green/90 transition-colors"
           >
             <Home size={16} />
-            Retour à l&apos;accueil
+            {t('home')}
           </Link>
           <Link
             href="/search"
             className="flex items-center justify-center gap-2 w-full py-3 px-5 rounded-card border border-mist text-charcoal font-medium text-sm hover:bg-sand transition-colors"
           >
             <Search size={16} />
-            Explorer les expériences
+            {t('explore')}
           </Link>
           <Link
             href="/concierge"
             className="flex items-center justify-center gap-2 w-full py-3 px-5 rounded-card text-deep-green font-medium text-sm hover:text-coral transition-colors"
           >
             <MessageCircle size={16} />
-            Contacter le concierge
+            {t('concierge')}
           </Link>
         </div>
       </div>

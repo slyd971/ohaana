@@ -14,8 +14,8 @@
   --charcoal: #1C1C1E;
   --charcoal-soft: #3A3A3C;
   --stone: #6B6B70;          /* AA 5.2:1 sur coconut */
-  --turquoise-text: #0E7C77; /* texte turquoise AA (4.9:1) */
-  --coral-text: #C8422D;     /* texte corail AA (4.6:1) */
+  --turquoise-text: #0B6B66; /* texte turquoise AA (≥ 5:1 y compris sur fond teinté) */
+  --coral-text: #B23A26;     /* texte corail AA (≥ 4.7:1 sur fond teinté, 5.7:1 en bouton) */
   --star: #F5A623;
   --danger: #C0392B;
   --mist: #E8E2D5;

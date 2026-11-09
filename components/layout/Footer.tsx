@@ -66,8 +66,8 @@ export function Footer() {
                 { label: 'Saint-Barth',  active: false },
               ].map(({ label, active }) => (
                 <li key={label} className="flex items-center gap-1.5">
-                  <span className={active ? 'text-coconut/80' : 'text-coconut/40'}>{label}</span>
-                  {!active && <span className="text-xs text-coconut/30">{t('soon')}</span>}
+                  <span className={active ? 'text-coconut/80' : 'text-coconut/70'}>{label}</span>
+                  {!active && <span className="text-xs text-coconut/70">{t('soon')}</span>}
                 </li>
               ))}
             </ul>
@@ -97,9 +97,9 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 pt-6 border-t border-coconut/10 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-coconut/40">
+        <div className="mt-8 pt-6 border-t border-coconut/10 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-coconut/70">
           <p>© {new Date().getFullYear()} Ohaana. {t('copyright')}</p>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
             <Link href="/privacy" className="hover:text-coconut transition-colors">{t('privacy')}</Link>
             <Link href="/terms" className="hover:text-coconut transition-colors">{t('terms')}</Link>
             <Link href="/legal" className="hover:text-coconut transition-colors">{EXTRA_LINKS.legal[locale]}</Link>

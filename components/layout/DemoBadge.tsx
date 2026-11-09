@@ -36,7 +36,7 @@ export function DemoBadge() {
       {/* Menu */}
       {open && (
         <div className="mb-2 bg-charcoal rounded-card overflow-hidden shadow-elevated border border-white/10 min-w-[200px]">
-          <p className="text-xs text-coconut/40 uppercase tracking-widest px-4 pt-3 pb-1">{t('title')}</p>
+          <p className="text-xs text-coconut/70 uppercase tracking-widest px-4 pt-3 pb-1">{t('title')}</p>
 
           <button
             onClick={() => switchTo('client')}

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useLocale } from 'next-intl'
 import { Star, ChevronLeft, ChevronRight, Quote } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { DEMO_MODE } from '@/lib/demo-mode'
 
 const TESTIMONIALS = [
   {
@@ -109,7 +110,16 @@ const variants = {
   exit: (dir: number) => ({ x: dir > 0 ? -60 : 60, opacity: 0 }),
 }
 
+/**
+ * Témoignages d'EXEMPLE : ils n'existent que dans la version de démonstration, clairement annoncés comme tels.
+ * En production la section est absente tant qu'il n'y a pas de vrais avis (de faux avis sont interdits).
+ */
 export function Testimonials() {
+  if (!DEMO_MODE) return null
+  return <DemoTestimonials />
+}
+
+function DemoTestimonials() {
   const locale = useLocale()
   const L = (fr: string, en: string, es: string) =>
     locale === 'en' ? en : locale === 'es' ? es : fr
@@ -129,7 +139,8 @@ export function Testimonials() {
   }
 
   useEffect(() => {
-    if (paused) return
+    // Pas de défilement automatique si l'utilisateur demande moins de mouvement (WCAG 2.2.2).
+    if (paused || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const id = setInterval(() => go(idxRef.current + 1), 5000)
     return () => clearInterval(id)
   }, [paused])
@@ -142,6 +153,9 @@ export function Testimonials() {
 
         {/* Header */}
         <div className="text-center mb-12">
+          <p className="mx-auto mb-3 inline-block rounded-full bg-star/15 px-3 py-1 text-xs font-medium text-[#8A5A00]">
+            {L('Témoignages d’exemple — version de démonstration', 'Sample testimonials — demo version', 'Testimonios de ejemplo — versión de demostración')}
+          </p>
           <p className="text-xs text-stone uppercase tracking-widest mb-2">
             {L('Ils en parlent mieux que nous', 'They say it better than we do', 'Ellos lo cuentan mejor')}
           </p>
@@ -155,6 +169,8 @@ export function Testimonials() {
           className="relative"
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
+          onFocus={() => setPaused(true)}
+          onBlur={() => setPaused(false)}
           onTouchStart={e => { touchStartX.current = e.touches[0].clientX }}
           onTouchEnd={e => {
             if (touchStartX.current === null) return
@@ -222,26 +238,18 @@ export function Testimonials() {
             <button
               key={i}
               onClick={() => go(i)}
-              className={cn(
-                'rounded-full transition-all duration-300',
-                i === idx
-                  ? 'w-5 h-2 bg-deep-green'
-                  : 'w-2 h-2 bg-mist hover:bg-stone/40'
-              )}
-              aria-label={`Avis ${i + 1}`}
-            />
+              aria-label={`${L('Avis', 'Review', 'Reseña')} ${i + 1}`}
+              aria-current={i === idx}
+              className="flex h-6 min-w-6 items-center justify-center"
+            >
+              <span
+                className={cn(
+                  'block rounded-full transition-all duration-300',
+                  i === idx ? 'w-5 h-2 bg-deep-green' : 'w-2 h-2 bg-stone/40'
+                )}
+              />
+            </button>
           ))}
-        </div>
-
-        {/* Global rating */}
-        <div className="flex items-center justify-center gap-2 mt-5">
-          <div className="flex gap-0.5">
-            {[1,2,3,4,5].map(i => <Star key={i} size={14} className="fill-amber-400 text-amber-400" />)}
-          </div>
-          <p className="text-sm text-stone">
-            <span className="font-semibold text-charcoal">4.9/5</span>
-            {' '}{L('· 340+ avis clients', '· 340+ client reviews', '· 340+ reseñas')}
-          </p>
         </div>
 
       </div>
