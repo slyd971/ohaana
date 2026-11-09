@@ -1,3 +1,6 @@
+import type { Metadata } from 'next'
+import { buildMetadata, toSeoLocale } from '@/lib/seo'
+import { PAGE_SEO } from '@/lib/seo/pages'
 import { Link } from '@/lib/i18n/navigation'
 import { ChevronLeft } from 'lucide-react'
 
@@ -69,4 +72,10 @@ export default function TermsPage() {
       </div>
     </div>
   )
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const locale = toSeoLocale((await params).locale)
+  const { title, description } = PAGE_SEO.terms[locale]
+  return buildMetadata({ title, description, path: '/terms', locale })
 }

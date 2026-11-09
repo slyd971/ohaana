@@ -4,6 +4,11 @@ import { ShieldCheck, MessageCircle, MapPin } from 'lucide-react'
 import { Link } from '@/lib/i18n/navigation'
 import { getEnabledProviders } from '@/lib/auth/providers'
 import { AuthProvidersProvider } from '@/components/auth/AuthProviders'
+import type { Metadata } from 'next'
+import { PRIVATE_METADATA } from '@/lib/seo'
+
+// Espace privé : jamais indexé.
+export const metadata: Metadata = PRIVATE_METADATA
 
 const COPY = {
   fr: {

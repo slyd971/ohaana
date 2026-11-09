@@ -1,5 +1,10 @@
 import { ConciergeShell } from '@/components/layout/shells/ConciergeShell'
 import { requireRole } from '@/lib/auth/session'
+import type { Metadata } from 'next'
+import { PRIVATE_METADATA } from '@/lib/seo'
+
+// Espace privé : jamais indexé.
+export const metadata: Metadata = PRIVATE_METADATA
 
 export default async function ConciergeLayout({
   children,

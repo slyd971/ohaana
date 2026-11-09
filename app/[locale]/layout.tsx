@@ -5,6 +5,7 @@ import { MotionProvider } from '@/components/MotionProvider'
 import { getMessages } from 'next-intl/server'
 import { routing } from '@/lib/i18n/routing'
 import { SITE_URL } from '@/lib/site'
+import { jsonLdString, socialProfiles } from '@/lib/seo'
 import { DEMO_MODE } from '@/lib/demo-mode'
 import { AuthProvider } from '@/lib/auth/AuthProvider'
 import { Newsreader, Inter } from 'next/font/google'
@@ -82,7 +83,7 @@ const organizationJsonLd = {
   name: 'Ohaana',
   url: BASE,
   logo: `${BASE}/icon-512.png`,
-  sameAs: [],
+  sameAs: socialProfiles(),
   description: 'Plateforme de réservation de services locaux vérifiés pour voyageurs en villa, bungalow, Airbnb et maison de vacances.',
   areaServed: ['Guadeloupe', 'Martinique', 'Saint-Martin', 'Saint-Barthélemy'],
 }
@@ -115,11 +116,11 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       <head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdString(organizationJsonLd) }}
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdString(websiteJsonLd) }}
         />
       </head>
       <body className="h-full antialiased" style={{ fontFamily: 'var(--font-body)' }}>
