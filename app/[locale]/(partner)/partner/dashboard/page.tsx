@@ -99,7 +99,7 @@ export default function PartnerDashboard() {
           </p>
         </div>
         <a
-          href="mailto:partenaires@ohaana.fr"
+          href="mailto:contact@ohaana.fr"
           className="flex-none inline-flex items-center gap-2 bg-coconut text-deep-green px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-sand transition-colors"
         >
           Contacter mon gestionnaire

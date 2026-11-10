@@ -13,7 +13,7 @@ export interface OutgoingEmail {
   unsubscribeUrl?: string
 }
 
-const FROM = process.env.EMAIL_FROM?.trim() || 'Ohaana <noreply@ohaana.fr>'
+const FROM = process.env.EMAIL_FROM?.trim() || 'Ohaana <contact@ohaana.fr>'
 
 export async function sendEmail(mail: OutgoingEmail): Promise<SendResult> {
   const key = process.env.RESEND_API_KEY?.trim()
