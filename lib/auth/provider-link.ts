@@ -1,6 +1,6 @@
 import { ROLE_HOME } from './types'
 
-export const PARTNER_EMAIL = 'partenaires@ohaana.fr'
+export const PARTNER_EMAIL = 'contact@ohaana.fr'
 
 /**
  * Where "Become a provider" should lead, by session:

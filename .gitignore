@@ -50,3 +50,6 @@ supabase/.generated/
 # playwright
 /test-results/
 /playwright-report/
+
+# Aperçu des emails (généré)
+.email-preview/

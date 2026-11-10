@@ -14,7 +14,7 @@ export const COMPANY = {
   address: env('NEXT_PUBLIC_COMPANY_ADDRESS'),
   publisher: env('NEXT_PUBLIC_COMPANY_PUBLISHER'),
   contactEmail: env('NEXT_PUBLIC_CONTACT_EMAIL') ?? 'contact@ohaana.fr',
-  privacyEmail: env('NEXT_PUBLIC_PRIVACY_EMAIL') ?? 'privacy@ohaana.fr',
+  privacyEmail: env('NEXT_PUBLIC_PRIVACY_EMAIL') ?? 'contact@ohaana.fr',
   phone: env('NEXT_PUBLIC_COMPANY_PHONE'),
 } as const
 
